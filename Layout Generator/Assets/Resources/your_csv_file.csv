@@ -1,0 +1,6 @@
+﻿object_name,id,pos_x,pos_y,pos_z,rot_x,rot_y,rot_z,size_x,size_y,size_z
+Cube,1,2,0.5,3,12,56,23,1,1,1
+Cube,2,3,0.5,4,74,94,45,1,1,1
+Cube,3,5,0.5,9,146,256,84,1,1,1
+Sphere,4,7,0.5,6,234,25,90,1,1,1
+Sphere,5,1,0.5,0,17,86,123,1,1,1
