@@ -7,9 +7,7 @@ using UnityEditor;
 public class ObjectSpawner : MonoBehaviour
 {
     public string csvFileName = "your_csv_file"; // Name of your CSV file without the extension
-    public GameObject objectPrefab; // Assign the prefab to use for spawning
     public string parentObjectName = "ParentObject"; // Name of the parent object
-    public string prefabFileName = "environment"; // Name of the prefab file without the extension
 
     private GameObject parentObject;
 
@@ -32,6 +30,7 @@ public class ObjectSpawner : MonoBehaviour
             SaveParentObjectAsPrefab();
         }
     }
+
     void LoadCSVAndSpawnObjects()
     {
         string filePath = Path.Combine(Application.dataPath, "Resources", csvFileName + ".csv");
@@ -78,7 +77,15 @@ public class ObjectSpawner : MonoBehaviour
 
     void SpawnObject(string objectName, int id, Vector3 position, Quaternion rotation, Vector3 size)
     {
-        GameObject obj = Instantiate(objectPrefab, position, rotation);
+        GameObject prefab = Resources.Load<GameObject>(objectName);
+
+        if (prefab == null)
+        {
+            Debug.LogError("Prefab not found in Resources folder: " + objectName);
+            return;
+        }
+
+        GameObject obj = Instantiate(prefab, position, rotation);
         obj.name = objectName + "_" + id;
         obj.transform.localScale = size;
         obj.transform.SetParent(parentObject.transform);
@@ -93,7 +100,7 @@ public class ObjectSpawner : MonoBehaviour
             Directory.CreateDirectory(directoryPath);
         }
 
-        string prefabPath = Path.Combine(directoryPath, prefabFileName + ".prefab");
+        string prefabPath = Path.Combine(directoryPath, parentObjectName + ".prefab");
         PrefabUtility.SaveAsPrefabAsset(parentObject, prefabPath);
         Debug.Log("Parent object saved as prefab at: " + prefabPath);
 #endif
