@@ -10,6 +10,7 @@ public class ObjectSpawner : MonoBehaviour
     public string parentObjectName = "ParentObject"; // Name of the parent object
 
     private GameObject parentObject;
+    private List<string> objectReport = new List<string>();
 
     void Start()
     {
@@ -21,6 +22,7 @@ public class ObjectSpawner : MonoBehaviour
         }
 
         LoadCSVAndSpawnObjects();
+        GenerateReport();
     }
 
     void Update()
@@ -81,7 +83,9 @@ public class ObjectSpawner : MonoBehaviour
 
         if (prefab == null)
         {
-            Debug.LogError("Prefab not found in Resources folder: " + objectName);
+            string reportLine = $"Object '{objectName}' is not on the scene and could not be found in the Resources folder.";
+            Debug.Log($"INFO: {reportLine}");
+            objectReport.Add(reportLine);
             return;
         }
 
@@ -89,6 +93,9 @@ public class ObjectSpawner : MonoBehaviour
         obj.name = objectName + "_" + id;
         obj.transform.localScale = size;
         obj.transform.SetParent(parentObject.transform);
+
+        string report = $"Object: {obj.name}, Position: {obj.transform.position}, Rotation: {obj.transform.rotation.eulerAngles}, Scale: {obj.transform.localScale}";
+        objectReport.Add(report);
     }
 
     void SaveParentObjectAsPrefab()
@@ -104,5 +111,12 @@ public class ObjectSpawner : MonoBehaviour
         PrefabUtility.SaveAsPrefabAsset(parentObject, prefabPath);
         Debug.Log("Parent object saved as prefab at: " + prefabPath);
 #endif
+    }
+
+    void GenerateReport()
+    {
+        string reportFilePath = Path.Combine(Application.dataPath, "Resources", "object_report.txt");
+        File.WriteAllLines(reportFilePath, objectReport);
+        Debug.Log("Report generated at: " + reportFilePath);
     }
 }
