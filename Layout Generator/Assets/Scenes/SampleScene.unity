@@ -261,8 +261,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 915b49ad1759f02439445d230c87e167, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  csvFileName: office_layout
+  csvFileName: test_results
   parentObjectName: ParentObject
+  wallObjectName: Wall
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0

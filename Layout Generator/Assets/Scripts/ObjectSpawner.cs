@@ -8,6 +8,7 @@ public class ObjectSpawner : MonoBehaviour
 {
     public string csvFileName = "your_csv_file"; // Name of your CSV file without the extension
     public string parentObjectName = "ParentObject"; // Name of the parent object
+    public string wallObjectName = "Wall"; // Name to identify wall objects
 
     private GameObject parentObject;
     private List<string> objectReport = new List<string>();
@@ -81,7 +82,7 @@ public class ObjectSpawner : MonoBehaviour
     {
         GameObject prefab = Resources.Load<GameObject>(objectName);
 
-        if (prefab == null)
+        if (prefab == null && objectName != wallObjectName)
         {
             string reportLine = $"Object '{objectName}' is not on the scene and could not be found in the Resources folder.";
             Debug.Log($"INFO: {reportLine}");
@@ -89,12 +90,45 @@ public class ObjectSpawner : MonoBehaviour
             return;
         }
 
-        GameObject obj = Instantiate(prefab, position, rotation);
-        obj.name = objectName + "_" + id;
-        obj.transform.localScale = size;
-        obj.transform.SetParent(parentObject.transform);
+        if (objectName == wallObjectName)
+        {
+            GenerateCubesForWall(id, position, rotation, size);
+        }
+        else
+        {
+            GameObject obj = Instantiate(prefab, position, rotation);
+            obj.name = objectName + "_" + id;
+            obj.transform.localScale = size;
+            obj.transform.SetParent(parentObject.transform);
 
-        string report = $"Object: {obj.name}, Position: {obj.transform.position}, Rotation: {obj.transform.rotation.eulerAngles}, Scale: {obj.transform.localScale}";
+            string report = $"Object: {obj.name}, Position: {obj.transform.position}, Rotation: {obj.transform.rotation.eulerAngles}, Scale: {obj.transform.localScale}";
+            objectReport.Add(report);
+        }
+    }
+
+    void GenerateCubesForWall(int id, Vector3 position, Quaternion rotation, Vector3 size)
+    {
+        GameObject wallParent = new GameObject(wallObjectName + "_" + id);
+        wallParent.transform.position = position;
+        wallParent.transform.rotation = rotation;
+        wallParent.transform.SetParent(parentObject.transform);
+
+        for (int x = 0; x < size.x; x++)
+        {
+            for (int y = 0; y < size.y; y++)
+            {
+                for (int z = 0; z < size.z; z++)
+                {
+                    Vector3 cubePosition = position + new Vector3(x + 0.5f, y + 0.5f, z + 0.5f);
+                    GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    cube.transform.position = cubePosition;
+                    cube.transform.rotation = rotation;
+                    cube.transform.SetParent(wallParent.transform);
+                }
+            }
+        }
+
+        string report = $"Wall Object: {wallParent.name}, Position: {wallParent.transform.position}, Rotation: {wallParent.transform.rotation.eulerAngles}, Cubes generated: {size.x * size.y * size.z}";
         objectReport.Add(report);
     }
 
