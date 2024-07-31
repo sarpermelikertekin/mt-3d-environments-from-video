@@ -13,6 +13,14 @@ def sample_frames_from_video(video_path, output_dir, interval=30):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     
+    # Check if the video file exists
+    if not os.path.isfile(video_path):
+        print(f"Error: Video file {video_path} does not exist.")
+        return
+    
+    # Print the video path to ensure it's correct
+    print(f"Video path: {video_path}")
+
     # Open the video file
     cap = cv2.VideoCapture(video_path)
     
@@ -41,8 +49,9 @@ def sample_frames_from_video(video_path, output_dir, interval=30):
     print(f"Saved {saved_image_count} images to {output_dir}")
 
 if __name__ == "__main__":
-    video_path = "example.mp4"  # Replace with the path to your video file
-    output_dir = "pics"          # Replace with your desired output directory
-    interval = 10                          # Adjust the interval as needed
+    # Use the correct path to the video file
+    video_path = "C:\\Users\\sakar\\mt-3d-environments-from-video\\Video2Pics\\example.mp4"
+    output_dir = "C:\\Users\\sakar\\mt-3d-environments-from-video\\Video2Pics\\pics"
+    interval = 10
 
     sample_frames_from_video(video_path, output_dir, interval)

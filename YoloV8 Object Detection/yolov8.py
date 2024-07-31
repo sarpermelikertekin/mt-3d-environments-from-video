@@ -23,7 +23,7 @@ COCO_CLASSES = [
 model = YOLO('yolov8s.pt')
 
 # Load the input image
-image_path = 'office.jpg'
+image_path = 'C:\\Users\\sakar\\mt-3d-environments-from-video\\YoloV8 Object Detection\\frame_0140.jpg'
 image = cv2.imread(image_path)
 height, width, _ = image.shape
 
@@ -31,7 +31,7 @@ height, width, _ = image.shape
 results = model.predict(source=image_path, show=True)
 
 # Save the result image
-result_image_path = 'office_result.jpg'
+result_image_path = 'C:\\Users\\sakar\\mt-3d-environments-from-video\\YoloV8 Object Detection\\result.jpg'
 results[0].save(result_image_path)
 
 # Create a list to store the detection data
@@ -67,7 +67,7 @@ columns = ['object_name', 'id', 'pos_x', 'pos_y', 'pos_z', 'rot_x', 'rot_y', 'ro
 df = pd.DataFrame(data, columns=columns)
 
 # Save the DataFrame to a CSV file
-csv_file_path = 'detection_results.csv'
+csv_file_path = 'C:\\Users\\sakar\\mt-3d-environments-from-video\\YoloV8 Object Detection\\detection_results.csv'
 df.to_csv(csv_file_path, index=False)
 
 print(f"Detection results saved to {csv_file_path}")
