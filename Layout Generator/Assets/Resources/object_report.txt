@@ -1,9 +1,8 @@
-Object: Desk_1, Position: (1.50, 3.00, 0.75), Rotation: (0.00, 0.00, 0.00), Scale: (1.00, 1.00, 1.00)
-Object: Desk_2, Position: (-1.50, 2.50, 0.75), Rotation: (0.00, 0.00, 0.00), Scale: (1.00, 1.00, 1.00)
-Object: Chair_1, Position: (1.50, 2.80, 0.85), Rotation: (0.00, 180.00, 0.00), Scale: (1.00, 1.00, 1.00)
-Object: Chair_2, Position: (-1.50, 2.30, 0.85), Rotation: (0.00, 180.00, 0.00), Scale: (1.00, 1.00, 1.00)
-Object: Monitor_1, Position: (1.50, 3.00, 0.90), Rotation: (0.00, 270.00, 0.00), Scale: (1.00, 1.00, 1.00)
-Object: Monitor_2, Position: (-1.50, 2.50, 0.90), Rotation: (0.00, 270.00, 0.00), Scale: (1.00, 1.00, 1.00)
-Object 'Window' is not on the scene and could not be found in the Resources folder.
-Object: Shelving_1, Position: (-3.00, 2.50, 1.00), Rotation: (0.00, 90.00, 0.00), Scale: (1.00, 1.00, 1.00)
-Object 'Light' is not on the scene and could not be found in the Resources folder.
+Object: Cube_1, Position: (2.00, 0.50, 3.00), Rotation: (12.00, 56.00, 23.00), Scale: (1.00, 1.00, 1.00)
+Object: Cube_2, Position: (3.00, 0.50, 4.00), Rotation: (74.00, 94.00, 45.00), Scale: (1.00, 1.00, 1.00)
+Object: Cube_3, Position: (5.00, 0.50, 9.00), Rotation: (34.00, 76.00, 264.00), Scale: (1.00, 1.00, 1.00)
+Object: Sphere_4, Position: (7.00, 0.50, 6.00), Rotation: (306.00, 205.00, 270.00), Scale: (1.00, 1.00, 1.00)
+Object: Sphere_5, Position: (1.00, 0.50, 0.00), Rotation: (17.00, 86.00, 123.00), Scale: (1.00, 1.00, 1.00)
+Object 'Cylinder' is not on the scene and could not be found in the Resources folder.
+Object 'Table' is not on the scene and could not be found in the Resources folder.
+Wall Object: Wall_8, Position: (0.00, 0.00, 0.00), Rotation: (0.00, 0.00, 0.00), Cubes generated: 9
