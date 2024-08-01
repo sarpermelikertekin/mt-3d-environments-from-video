@@ -5,4 +5,4 @@ Object: Sphere_4, Position: (7.00, 0.50, 6.00), Rotation: (306.00, 205.00, 270.0
 Object: Sphere_5, Position: (1.00, 0.50, 0.00), Rotation: (17.00, 86.00, 123.00), Scale: (1.00, 1.00, 1.00)
 Object 'Cylinder' is not on the scene and could not be found in the Resources folder.
 Object 'Table' is not on the scene and could not be found in the Resources folder.
-Wall Object: Wall_8, Position: (0.00, 0.00, 0.00), Rotation: (0.00, 0.00, 0.00), Cubes generated: 9
+Wall Object: Wall_8, Position: (2.00, 0.00, 2.00), Rotation: (0.00, 0.00, 0.00), Cubes generated: 4.5

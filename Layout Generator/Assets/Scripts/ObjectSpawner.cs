@@ -113,16 +113,18 @@ public class ObjectSpawner : MonoBehaviour
         wallParent.transform.rotation = rotation;
         wallParent.transform.SetParent(parentObject.transform);
 
-        for (int x = 0; x < size.x; x++)
+        float cubeSize = 0.5f;
+        for (int x = 0; x < size.x * 2; x++)
         {
-            for (int y = 0; y < size.y; y++)
+            for (int y = 0; y < size.y * 2; y++)
             {
-                for (int z = 0; z < size.z; z++)
+                for (int z = 0; z < size.z * 2; z++)
                 {
-                    Vector3 cubePosition = position + new Vector3(x + 0.5f, y + 0.5f, z + 0.5f);
+                    Vector3 cubePosition = position + new Vector3(x * cubeSize + 0.25f, y * cubeSize + 0.25f, z * cubeSize + 0.25f);
                     GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     cube.transform.position = cubePosition;
                     cube.transform.rotation = rotation;
+                    cube.transform.localScale = new Vector3(cubeSize, cubeSize, cubeSize);
                     cube.transform.SetParent(wallParent.transform);
                 }
             }
