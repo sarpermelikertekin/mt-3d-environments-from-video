@@ -49,9 +49,15 @@ def sample_frames_from_video(video_path, output_dir, interval=30):
     print(f"Saved {saved_image_count} images to {output_dir}")
 
 if __name__ == "__main__":
-    # Use the correct path to the video file
-    video_path = "C:\\Users\\sakar\\mt-3d-environments-from-video\\Video2Pics\\example.mp4"
-    output_dir = "C:\\Users\\sakar\\mt-3d-environments-from-video\\Video2Pics\\pics"
-    interval = 10
+    # Define the common path
+    common_path = "C:\\Users\\sakar\\mt-3d-environments-from-video\\Video2Pics\\"
+    video_file_name = "example.mp4"
+    images_dir_name = video_file_name.split('.')[0] + "_pics"
+    
+    # Use os.path.join to create the full paths
+    video_path = os.path.join(common_path, video_file_name)
+    images_dir = os.path.join(common_path, images_dir_name)
+    
+    interval = 2
 
-    sample_frames_from_video(video_path, output_dir, interval)
+    sample_frames_from_video(video_path, images_dir, interval)
