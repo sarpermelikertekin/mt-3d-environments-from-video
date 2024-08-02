@@ -21,7 +21,7 @@ def main():
     #input parameter
     phi = 0
     #path_to_weights = "./weights/Occlusion/phi_0_occlusion_best_ADD(-S).h5"
-    path_to_weights = "./weights/COCO/efficientdet-d0.h5"
+    path_to_weights = "C:/Users/sakar/mt-3d-environments-from-video/PoseEstimation3DObjectDetection/weights/COCO/efficientdet-d1.h5"
     #path_to_weights = "./weights/Linemod/object_15/phi_0_linemod_best_ADD.h5"
     # save_path = "./predictions/occlusion/" #where to save the images or None if the images should be displayed and not saved
     save_path = None
@@ -31,7 +31,7 @@ def main():
     class_to_name = {1: "person"} #Linemod use a single class with a name of the Linemod objects
     class_to_name = {}
     
-    with open("coco_labels.txt") as file:
+    with open("C:/Users/sakar/mt-3d-environments-from-video/PoseEstimation3DObjectDetection/coco_labels.txt") as file:
         i = 1
         for line in file:
             
