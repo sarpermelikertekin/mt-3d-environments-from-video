@@ -21,7 +21,7 @@ def main():
     #input parameter
     phi = 0
     #path_to_weights = "./weights/Occlusion/phi_0_occlusion_best_ADD(-S).h5"
-    path_to_weights = "C:/Users/sakar/mt-3d-environments-from-video/PoseEstimation3DObjectDetection/weights/COCO/efficientdet-d1.h5"
+    path_to_weights = "C:/Users/sakar/mt-3d-environments-from-video/PoseEstimation3DObjectDetection/weights/COCO/efficientdet-d3.h5"
     #path_to_weights = "./weights/Linemod/object_15/phi_0_linemod_best_ADD.h5"
     # save_path = "./predictions/occlusion/" #where to save the images or None if the images should be displayed and not saved
     save_path = None
@@ -34,15 +34,11 @@ def main():
     with open("C:/Users/sakar/mt-3d-environments-from-video/PoseEstimation3DObjectDetection/coco_labels.txt") as file:
         i = 1
         for line in file:
-            
             value = line.split()
-        
             class_to_name[int(i)] = value[0]
-        
             i += 1
     
     print(class_to_name)
- 
  
     score_threshold = 0.4
     translation_scale_norm = 1000.0
@@ -92,6 +88,12 @@ def main():
                         draw_bbox_2d = draw_bbox_2d,
                         draw_name = draw_name)
         
+        # Print detected objects
+        detected_objects = set()
+        for label in labels:
+            detected_objects.add(class_to_name[int(label)])
+        print("Detected objects:", detected_objects)
+        
         for label in labels:
             if label == 46: # Cup
                 cv2.putText(original_image, "Cup", (int(boxes[0][0]), int(boxes[0][1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
@@ -120,7 +122,7 @@ def main():
     #release webcam and close windows
     webcam.release()
     cv2.destroyAllWindows()
-    
+
     
 def allow_gpu_growth_memory():
     """
