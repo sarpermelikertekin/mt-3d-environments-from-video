@@ -9,9 +9,12 @@ public class ObjectSpawner : MonoBehaviour
     public string csvFileName = "your_csv_file"; // Name of your CSV file without the extension
     public string parentObjectName = "ParentObject"; // Name of the parent object
     public string wallObjectName = "Wall"; // Name to identify wall objects
+    public string windowObjectName = "Window"; // Name to identify window objects
 
     private GameObject parentObject;
     private List<string> objectReport = new List<string>();
+    private List<Vector3> windowPositions = new List<Vector3>();
+    private List<Vector3> windowSizes = new List<Vector3>();
 
     void Start()
     {
@@ -64,7 +67,15 @@ public class ObjectSpawner : MonoBehaviour
                     Quaternion rotation = Quaternion.Euler(rotX, rotY, rotZ);
                     Vector3 size = new Vector3(sizeX, sizeY, sizeZ);
 
-                    SpawnObject(objectName, id, position, rotation, size);
+                    if (objectName == windowObjectName)
+                    {
+                        windowPositions.Add(position);
+                        windowSizes.Add(size);
+                    }
+                    else
+                    {
+                        SpawnObject(objectName, id, position, rotation, size);
+                    }
                 }
                 else
                 {
@@ -120,11 +131,15 @@ public class ObjectSpawner : MonoBehaviour
                 for (int z = 0; z < size.z * 2; z++)
                 {
                     Vector3 cubePosition = position + new Vector3(x * cubeSize + 0.25f, y * cubeSize + 0.25f, z * cubeSize + 0.25f);
-                    GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    cube.transform.position = cubePosition;
-                    cube.transform.rotation = rotation;
-                    cube.transform.localScale = new Vector3(cubeSize, cubeSize, cubeSize);
-                    cube.transform.SetParent(wallParent.transform);
+
+                    if (!IsPositionInWindow(cubePosition))
+                    {
+                        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        cube.transform.position = cubePosition;
+                        cube.transform.rotation = rotation;
+                        cube.transform.localScale = new Vector3(cubeSize, cubeSize, cubeSize);
+                        cube.transform.SetParent(wallParent.transform);
+                    }
                 }
             }
         }
@@ -133,6 +148,23 @@ public class ObjectSpawner : MonoBehaviour
 
         string report = $"Wall Object: {wallParent.name}, Position: {wallParent.transform.position}, Rotation: {wallParent.transform.rotation.eulerAngles}, Cubes generated: {size.x * size.y * size.z}";
         objectReport.Add(report);
+    }
+
+    bool IsPositionInWindow(Vector3 position)
+    {
+        for (int i = 0; i < windowPositions.Count; i++)
+        {
+            Vector3 windowPos = windowPositions[i];
+            Vector3 windowSize = windowSizes[i];
+
+            if (position.x >= windowPos.x && position.x <= windowPos.x + windowSize.x &&
+                position.y >= windowPos.y && position.y <= windowPos.y + windowSize.y &&
+                position.z >= windowPos.z && position.z <= windowPos.z + windowSize.z)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     void SaveParentObjectAsPrefab()
