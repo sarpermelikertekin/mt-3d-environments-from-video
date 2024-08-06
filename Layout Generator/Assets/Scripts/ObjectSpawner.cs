@@ -26,6 +26,7 @@ public class ObjectSpawner : MonoBehaviour
         }
 
         LoadCSVAndSpawnObjects();
+        DestroyCubesInWindowAreas();
         GenerateReport();
     }
 
@@ -132,14 +133,11 @@ public class ObjectSpawner : MonoBehaviour
                 {
                     Vector3 cubePosition = position + new Vector3(x * cubeSize + 0.25f, y * cubeSize + 0.25f, z * cubeSize + 0.25f);
 
-                    if (!IsPositionInWindow(cubePosition))
-                    {
-                        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        cube.transform.position = cubePosition;
-                        cube.transform.rotation = rotation;
-                        cube.transform.localScale = new Vector3(cubeSize, cubeSize, cubeSize);
-                        cube.transform.SetParent(wallParent.transform);
-                    }
+                    GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    cube.transform.position = cubePosition;
+                    cube.transform.rotation = rotation;
+                    cube.transform.localScale = new Vector3(cubeSize, cubeSize, cubeSize);
+                    cube.transform.SetParent(wallParent.transform);
                 }
             }
         }
@@ -150,13 +148,29 @@ public class ObjectSpawner : MonoBehaviour
         objectReport.Add(report);
     }
 
+    void DestroyCubesInWindowAreas()
+    {
+        foreach (Transform wall in parentObject.transform)
+        {
+            if (wall.name.StartsWith(wallObjectName))
+            {
+                foreach (Transform cube in wall)
+                {
+                    if (IsPositionInWindow(cube.position))
+                    {
+                        Destroy(cube.gameObject);
+                    }
+                }
+            }
+        }
+    }
+
     bool IsPositionInWindow(Vector3 position)
     {
         for (int i = 0; i < windowPositions.Count; i++)
         {
             Vector3 windowPos = windowPositions[i];
             Vector3 windowSize = windowSizes[i];
-
             if (position.x >= windowPos.x && position.x <= windowPos.x + windowSize.x &&
                 position.y >= windowPos.y && position.y <= windowPos.y + windowSize.y &&
                 position.z >= windowPos.z && position.z <= windowPos.z + windowSize.z)
