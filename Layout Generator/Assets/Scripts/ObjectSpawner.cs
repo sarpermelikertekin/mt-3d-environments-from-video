@@ -110,7 +110,6 @@ public class ObjectSpawner : MonoBehaviour
     {
         GameObject wallParent = new GameObject(wallObjectName + "_" + id);
         wallParent.transform.position = position;
-        wallParent.transform.rotation = rotation;
         wallParent.transform.SetParent(parentObject.transform);
 
         float cubeSize = 0.5f;
@@ -129,6 +128,8 @@ public class ObjectSpawner : MonoBehaviour
                 }
             }
         }
+
+        wallParent.transform.rotation = rotation;
 
         string report = $"Wall Object: {wallParent.name}, Position: {wallParent.transform.position}, Rotation: {wallParent.transform.rotation.eulerAngles}, Cubes generated: {size.x * size.y * size.z}";
         objectReport.Add(report);
