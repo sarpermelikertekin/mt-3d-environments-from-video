@@ -8,7 +8,7 @@ model = YOLO('yolov8n.pt')
 class_names = model.names
 
 # Load video using absolute path
-video_path = r'C:\Users\sakar\mt-3d-environments-from-video\Object Detection\test.mp4'
+video_path = r'C:\Users\sakar\mt-3d-environments-from-video\Object Detection\example.mp4'
 cap = cv2.VideoCapture(video_path)
 
 if not cap.isOpened():
