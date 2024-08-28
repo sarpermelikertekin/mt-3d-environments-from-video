@@ -56,9 +56,10 @@ if __name__ == "__main__":
     # Define the common path
     common_path = "C:\\Users\\sakar\\mt-3d-environments-from-video\\Video2Pics\\"
     video_file_names = ["example1.mp4", "example2.mp4", "example3.mp4"]  # Add your video file names here
+    all_videos_pics = "all_videos_pics"
     
     # Define the output directory for all images
-    images_output_dir = os.path.join(common_path, "all_videos_pics")
+    images_output_dir = os.path.join(common_path, all_videos_pics)
     
     fps = 1  # Number of frames per second to capture
 
