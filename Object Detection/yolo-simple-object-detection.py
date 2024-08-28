@@ -36,7 +36,7 @@ def perform_detection(image_path, result_image_path, csv_file_path):
 
 def main():
     # Define the common path
-    common_path = r'C:\\Users\\sakar\\mt-3d-environments-from-video\\Object Detection\\'
+    common_path = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Test Images'
 
     # File paths
     image_file_name = 'frame_0140.jpg'
