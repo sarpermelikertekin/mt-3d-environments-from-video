@@ -54,7 +54,7 @@ def sample_frames_from_video(video_path, output_dir, fps=1):
 
 if __name__ == "__main__":
     # Define the common path
-    common_path = "C:\\Users\\sakar\\mt-3d-environments-from-video\\Video2Pics\\"
+    common_path = "C:\\Users\\sakar\\mt-3d-environments-from-video\\Utils\\"
     video_file_names = ["example1.mp4", "example2.mp4", "example3.mp4"]  # Add your video file names here
     all_videos_pics = "all_videos_pics"
     
