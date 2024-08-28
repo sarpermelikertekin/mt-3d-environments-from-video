@@ -54,16 +54,18 @@ def sample_frames_from_video(video_path, output_dir, fps=1):
 
 if __name__ == "__main__":
     # Define the common path
-    common_path = "C:\\Users\\sakar\\mt-3d-environments-from-video\\Utils\\"
-    video_file_names = ["example1.mp4", "example2.mp4", "example3.mp4"]  # Add your video file names here
-    all_videos_pics = "all_videos_pics"
+    common_path = "C:\\Users\\sakar\\OneDrive\\mt-datas\\V2P\\"
+    videos = "Videos"
+    images = "Images"
+    video_file_names = ["example.mp4"]  # Add your video file names here
+    pics_folder = "all_videos_pics"
     
     # Define the output directory for all images
-    images_output_dir = os.path.join(common_path, all_videos_pics)
+    images_output_dir = os.path.join(common_path, images, pics_folder)
     
     fps = 1  # Number of frames per second to capture
 
     # Process each video
     for video_file_name in video_file_names:
-        video_path = os.path.join(common_path, video_file_name)
+        video_path = os.path.join(common_path, videos, video_file_name)
         sample_frames_from_video(video_path, images_output_dir, fps)
