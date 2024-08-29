@@ -8,10 +8,10 @@ from ultralytics import YOLO
 from read_write_model import read_model, qvec2rotmat
 
 # Path to your COLMAP sparse model directory
-output_dir = r"C:\Users\sakar\Downloads\Colmap Output\D21 2\sparse\0"
+output_dir = r"C:\Users\sakar\OneDrive\mt-datas\Colmap Output\D21 2\sparse\0"
 
 # Path to the directory containing all video images
-images_dir = r"C:\Users\sakar\Downloads\Colmap Output\D21 2\dense\0\images"
+images_dir = r"C:\Users\sakar\OneDrive\mt-datas\Colmap Output\D21 2\dense\0\images"
 
 # Load the YOLOv8 model (assuming the model is pre-trained)
 model = YOLO('yolov8n.pt')  # Replace 'yolov8n.pt' with your model path if different
