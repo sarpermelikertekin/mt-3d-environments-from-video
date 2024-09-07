@@ -1,10 +1,8 @@
 import cv2
 from ultralytics import YOLO
 import os
-import sys
-
-sys.path.append(r'C:\\Users\\sakar\\mt-3d-environments-from-video\\Utils')
-from data_to_csv import write_detection_data_to_csv
+import subprocess
+import json
 
 def perform_detection(image_path, result_image_path, csv_file_path):
     # Load the pre-trained YOLOv8 model
@@ -31,8 +29,24 @@ def perform_detection(image_path, result_image_path, csv_file_path):
     # Save the result image
     cv2.imwrite(result_image_path, result_image)
 
-    # Write detection data to CSV
-    write_detection_data_to_csv(results, class_names, width, height, csv_file_path)
+    # Prepare data to pass to subprocess
+    results_data = {
+        'results': [{'boxes': [{'xyxy': box.xyxy.tolist(), 'cls': int(box.cls)} for box in result.boxes]} for result in results],
+        'class_names': class_names,
+        'width': width,
+        'height': height
+    }
+
+    # Convert results to JSON format
+    results_json = json.dumps(results_data)
+
+    # Call data_to_csv.py using subprocess and pass the JSON data and the CSV file path
+    subprocess.run([
+        'python', 
+        'C:\\Users\\sakar\\mt-3d-environments-from-video\\Utils\\data_to_csv.py', 
+        results_json, 
+        csv_file_path
+    ], check=True)
 
 def main():
     # Define the common path
