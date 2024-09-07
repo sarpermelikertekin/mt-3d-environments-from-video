@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator, colors
 
@@ -27,39 +28,53 @@ annotator = Annotator(image, line_width=2)
 if len(results[0].boxes) > 0 and results[0].masks is not None:
     print("Detections found.")
 
-    masks = results[0].masks.xy  # List of masks for each detection
+    masks = results[0].masks.data.cpu().numpy()  # Get segmentation masks as a numpy array (N x H x W)
     bboxes = results[0].boxes.xyxy.cpu().tolist()  # Bounding box coordinates [x1, y1, x2, y2]
     class_ids = results[0].boxes.cls.cpu().tolist()  # Class IDs for each detection
     class_names = results[0].names  # Class names dictionary
 
-    # Assign unique IDs manually (since boxes.id is None)
-    num_detections = len(results[0].boxes)
-    track_ids = list(range(1, num_detections + 1))  # IDs: 1, 2, 3, ...
-
     # Iterate over each detection
-    for idx, (mask, bbox, class_id, track_id) in enumerate(zip(masks, bboxes, class_ids, track_ids), start=1):
+    for idx, (mask, bbox, class_id) in enumerate(zip(masks, bboxes, class_ids), start=1):
         print('Detection found, iterating...')  # Debugging print
 
         # Retrieve the class name
         object_name = class_names[int(class_id)]
 
+        # Resize the mask to match the original image size
+        original_height, original_width = image.shape[:2]
+        resized_mask = cv2.resize(mask, (original_width, original_height), interpolation=cv2.INTER_NEAREST)
+
+        # Find the contours of the resized mask
+        mask_uint8 = (resized_mask * 255).astype(np.uint8)  # Convert mask to uint8
+        contours, _ = cv2.findContours(mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
         # Draw the segmentation mask and bounding box
-        color = colors(track_id, True)  # Assign a color based on the unique ID
+        color = colors(idx, True)  # Assign a color based on the unique ID
         txt_color = annotator.get_txt_color(color)
-        annotator.seg_bbox(mask=mask, mask_color=color, label=f"{object_name} ID:{track_id}", txt_color=txt_color)
 
-        # Calculate the center of the bounding box (bbox format: [x1, y1, x2, y2])
-        x1, y1, x2, y2 = bbox
-        center_x = (x1 + x2) / 2
-        center_y = (y1 + y2) / 2
+        # Draw the contour (polygon around the segmented object)
+        cv2.polylines(image, contours, isClosed=True, color=color, thickness=2)
 
-        # Print the ID, class, and center coordinates of the bounding box
-        print(f"ID: {track_id}, Class: {object_name}, Bounding Box Center: ({center_x:.2f}, {center_y:.2f})")
+        # Add class name and object ID to the image
+        x1, y1, x2, y2 = map(int, bbox)  # Bounding box coordinates
+        label = f"{object_name} ID:{idx}"
+        cv2.putText(image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+
+        # Apply the resized mask to the image to get the RGB values of the segmented area
+        mask_bool = resized_mask.astype(bool)  # Convert resized mask to boolean array
+        object_pixels = image[mask_bool]  # Get the pixels corresponding to the segmented object
+
+        # Calculate the average RGB values of the object
+        if len(object_pixels) > 0:
+            avg_rgb = np.mean(object_pixels, axis=0)
+            print(f"ID: {idx}, Class: {object_name}, Average RGB: {avg_rgb}")
+        else:
+            print(f"ID: {idx}, Class: {object_name}, No pixels found for this object.")
 
 else:
     print("No detections or masks found.")  # Debugging print in case no objects are detected
 
-# Get the annotated image with bounding boxes and masks
+# Get the annotated image with bounding boxes, class labels, and masks
 annotated_image = annotator.result()
 
 # Display the result image
