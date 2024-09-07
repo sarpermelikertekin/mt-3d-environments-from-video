@@ -1,25 +1,26 @@
+# yolo_with_depth_and_segment.py
+
 import cv2
 import numpy as np
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator, colors
-
-# Load the segmentation model
-model = YOLO("yolov8n-seg.pt")  # Ensure you have the correct path to your YOLOv8 segmentation model
+from midas_depth_estimation import get_depth_map  # Import the depth estimation function
 
 # Load the image
 image_path = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Test Images\\office.jpg'
 image = cv2.imread(image_path)
 
-# Check if the image was loaded successfully
-if image is None:
-    print(f"Error: Unable to load image at {image_path}")
-    exit(1)
+# Get the depth map for the image
+depth_map_resized = get_depth_map(image_path)
+
+# Create an empty segmented depth image (same size as the original image, 1 channel for depth)
+segmented_depth_image = np.zeros_like(depth_map_resized)
+
+# Load the YOLO segmentation model
+model = YOLO("yolov8n-seg.pt")  # Ensure you have the correct path to your YOLOv8 segmentation model
 
 # Perform segmentation on the image
 results = model.predict(image, save=False)
-
-# Print the raw output for debugging
-print(f"Model Results: {results}")
 
 # Create an annotator object to draw on the image
 annotator = Annotator(image, line_width=2)
@@ -35,7 +36,7 @@ if len(results[0].boxes) > 0 and results[0].masks is not None:
 
     # Iterate over each detection
     for idx, (mask, bbox, class_id) in enumerate(zip(masks, bboxes, class_ids), start=1):
-        print('Detection found, iterating...')  # Debugging print
+        print(f'Detection {idx}: Bounding Box: {bbox}, Class: {class_names[int(class_id)]}')  # Bounding box info
 
         # Retrieve the class name
         object_name = class_names[int(class_id)]
@@ -60,16 +61,19 @@ if len(results[0].boxes) > 0 and results[0].masks is not None:
         label = f"{object_name} ID:{idx}"
         cv2.putText(image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
-        # Apply the resized mask to the image to get the RGB values of the segmented area
+        # Apply the resized mask to the depth map to get the depth values of the segmented area
         mask_bool = resized_mask.astype(bool)  # Convert resized mask to boolean array
-        object_pixels = image[mask_bool]  # Get the pixels corresponding to the segmented object
+        object_depth_pixels = depth_map_resized[mask_bool]  # Get the depth values corresponding to the segmented object
 
-        # Calculate the average RGB values of the object
-        if len(object_pixels) > 0:
-            avg_rgb = np.mean(object_pixels, axis=0)
-            print(f"ID: {idx}, Class: {object_name}, Average RGB: {avg_rgb}")
+        # Add the depth values of the segmented object to the segmented depth image
+        segmented_depth_image[mask_bool] = depth_map_resized[mask_bool]
+
+        # Calculate the average depth values of the object
+        if len(object_depth_pixels) > 0:
+            avg_depth = np.mean(object_depth_pixels)
+            print(f"ID: {idx}, Class: {object_name}, Average Depth: {avg_depth}")
         else:
-            print(f"ID: {idx}, Class: {object_name}, No pixels found for this object.")
+            print(f"ID: {idx}, Class: {object_name}, No depth pixels found for this object.")
 
 else:
     print("No detections or masks found.")  # Debugging print in case no objects are detected
@@ -77,11 +81,17 @@ else:
 # Get the annotated image with bounding boxes, class labels, and masks
 annotated_image = annotator.result()
 
-# Display the result image
-cv2.imshow("Instance Segmentation", annotated_image)
+# Display the result image with segmentation and depth information
+cv2.imshow("Instance Segmentation with Depth", annotated_image)
+cv2.imshow("Segmented Depth Image", segmented_depth_image)
 cv2.waitKey(0)  # Wait for a key press to close the window
 cv2.destroyAllWindows()
 
-# Optionally save the result image
-result_image_path = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Test Images\\segmented_result.jpg'
+# Optionally save the result image and the segmented depth image
+result_image_path = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Test Images\\segmented_result_with_depth.jpg'
+segmented_depth_image_path = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\Depth Estimation\\Test Images\\segmented_depth_image.jpg'
+
 cv2.imwrite(result_image_path, annotated_image)
+cv2.imwrite(segmented_depth_image_path, segmented_depth_image)
+
+print(f"Segmented depth image saved to: {segmented_depth_image_path}")
