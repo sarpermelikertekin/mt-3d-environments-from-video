@@ -58,12 +58,12 @@ if __name__ == "__main__":
     videos = "Videos"
     images = "Images"
     video_file_names = ["example.mp4"]  # Add your video file names here
-    pics_folder = "all_videos_pics"
+    pics_folder = "rh_d"
     
     # Define the output directory for all images
     images_output_dir = os.path.join(common_path, images, pics_folder)
     
-    fps = 1  # Number of frames per second to capture
+    fps = 3  # Number of frames per second to capture
 
     # Process each video
     for video_file_name in video_file_names:
