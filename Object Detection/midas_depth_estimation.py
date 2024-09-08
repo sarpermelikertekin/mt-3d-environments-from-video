@@ -1,21 +1,17 @@
-# depth_estimation.py
-
 import torch
 import cv2
 import numpy as np
 from PIL import Image
 from torchvision.transforms import Compose, Resize, ToTensor
 
-def get_depth_map(image_path):
+# Function to perform depth estimation
+def get_depth_map(image):
     # Load the pre-trained model (MiDaS_small)
     model = torch.hub.load("intel-isl/MiDaS", "MiDaS_small")
     model.eval()
 
-    # Load the image using OpenCV
-    img = cv2.imread(image_path)
-
     # Convert OpenCV image (numpy array) to PIL image for depth estimation
-    img_pil = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    img_pil = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
 
     # Preprocess the image: Convert the image to the appropriate format for the model
     depth_transform = Compose([
@@ -36,6 +32,6 @@ def get_depth_map(image_path):
     depth_map = np.uint8(depth_map)  # Convert to 8-bit format
 
     # Resize the depth map to match the original image size
-    depth_map_resized = cv2.resize(depth_map, (img.shape[1], img.shape[0]))
+    depth_map_resized = cv2.resize(depth_map, (image.shape[1], image.shape[0]))
 
     return depth_map_resized

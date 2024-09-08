@@ -1,5 +1,5 @@
-import cv2
 import os
+import cv2
 import numpy as np
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator, colors
@@ -14,7 +14,7 @@ def process_image(image_path, output_dir, model):
     image_filename = os.path.basename(image_path)
 
     # Get the depth map for the image
-    depth_map_resized = get_depth_map(image_path)
+    depth_map_resized = get_depth_map(image)  # Modified to use the array
 
     # Create an empty segmented depth image (same size as the original image, 1 channel for depth)
     segmented_depth_image = np.zeros_like(depth_map_resized)
@@ -111,11 +111,12 @@ def process_images_in_directory(image_directory, output_dir):
         # Call the function to process each image
         process_image(image_path, output_dir, model)
 
-# Set the directory containing your images
-image_directory = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\V2P\\Images\\rhd'
+if __name__ == "__main__":
+    # Set the directory containing your images
+    image_directory = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\V2P\\Images\\rhd'
 
-# Set the output directory
-output_dir = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Results'
+    # Set the output directory
+    output_dir = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Results'
 
-# Process all images in the directory
-process_images_in_directory(image_directory, output_dir)
+    # Process all images in the directory
+    process_images_in_directory(image_directory, output_dir)
