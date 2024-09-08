@@ -11,8 +11,11 @@ model = YOLO("yolov8n-seg.pt")  # segmentation model
 cap = cv2.VideoCapture(r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Test Videos\\example.mp4')
 w, h, fps = (int(cap.get(x)) for x in (cv2.CAP_PROP_FRAME_WIDTH, cv2.CAP_PROP_FRAME_HEIGHT, cv2.CAP_PROP_FPS))
 
-# Output video writer
-out = cv2.VideoWriter("instance-segmentation-object-tracking-with-depth.avi", cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
+# Specify the output video path
+output_video_path = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Results\\Videos\\instance-segmentation-object-tracking-with-depth.avi'
+
+# Create the video writer object
+out = cv2.VideoWriter(output_video_path, cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
 
 while True:
     ret, im0 = cap.read()
@@ -89,3 +92,5 @@ while True:
 out.release()
 cap.release()
 cv2.destroyAllWindows()
+
+print(f"Video saved to {output_video_path}")

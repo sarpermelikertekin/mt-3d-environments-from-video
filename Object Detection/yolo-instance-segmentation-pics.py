@@ -116,7 +116,7 @@ if __name__ == "__main__":
     image_directory = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\V2P\\Images\\rhd'
 
     # Set the output directory
-    output_dir = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Results'
+    output_dir = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Results\\Images'
 
     # Process all images in the directory
     process_images_in_directory(image_directory, output_dir)
