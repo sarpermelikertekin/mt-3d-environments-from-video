@@ -1,6 +1,8 @@
+import os
 import cv2
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator, colors
+from config import get_test_images_path, get_yolo_segmentation_output_path  # Use config.py for paths
 
 # Function to perform instance segmentation using YOLO
 def perform_instance_segmentation(image):
@@ -36,3 +38,32 @@ def perform_instance_segmentation(image):
             annotator.box_label(bbox, f"{object_name} ID:{idx}", color=color)
 
     return detected_objects, annotator.result()  # Return the detected objects and annotated image
+
+def main(image_name):
+    # Load the image
+    image_directory = get_test_images_path()  # Dynamically get image path from config
+    image_path = os.path.join(image_directory, image_name)
+    image = cv2.imread(image_path)
+
+    # Perform instance segmentation
+    _, annotated_image = perform_instance_segmentation(image)
+
+    # Get output directory from config
+    output_dir = get_yolo_segmentation_output_path()  # Ensure correct output path with Single directory
+    
+    # Ensure the /Single directory exists in the output folder
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Save the result with the name `originalname_yolo_segmentation.png`
+    output_image_name = f"{os.path.splitext(image_name)[0]}_yolo_segmentation.png"
+    output_path = os.path.join(output_dir, output_image_name)
+
+    cv2.imwrite(output_path, annotated_image)
+    
+    # Print the saved path
+    print(f"YOLO segmentation result saved to: {output_path}")
+
+if __name__ == "__main__":
+    # Only the image name is hardcoded here
+    image_name = "office.jpg"
+    main(image_name)

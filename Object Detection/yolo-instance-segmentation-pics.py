@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd  # To store object data in a DataFrame
 from yolo_segmentation import perform_instance_segmentation
 from midas_depth_estimation import get_depth_map
-from config import get_v2p_images_path, get_yolo_detection_output_path  # Import paths from config.py
+from config import get_v2p_images_path, get_yolo_segmentation_output_path  # Import paths from config.py
 
 # Global list to store object information across frames
 objects_list = []
@@ -112,6 +112,6 @@ def process_images_in_directory(image_directory, output_dir):
 if __name__ == "__main__":
     images_folder_name = "rh_one_chair"
     image_directory = get_v2p_images_path(images_folder_name)
-    output_dir = get_yolo_detection_output_path()
+    output_dir = get_yolo_segmentation_output_path()
 
     process_images_in_directory(image_directory, output_dir)

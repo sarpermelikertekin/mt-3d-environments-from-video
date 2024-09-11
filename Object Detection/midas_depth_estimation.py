@@ -1,8 +1,10 @@
+import os
 import torch
 import cv2
 import numpy as np
 from PIL import Image
 from torchvision.transforms import Compose, Resize, ToTensor
+from config import get_test_images_path, get_midas_output_path  # Use config.py for paths
 
 # Function to perform depth estimation
 def get_depth_map(image):
@@ -35,3 +37,32 @@ def get_depth_map(image):
     depth_map_resized = cv2.resize(depth_map, (image.shape[1], image.shape[0]))
 
     return depth_map_resized
+
+def main(image_name):
+    # Load the image
+    image_directory = get_test_images_path()  # Dynamically get image path from config
+    image_path = os.path.join(image_directory, image_name)
+    image = cv2.imread(image_path)
+
+    # Perform depth estimation
+    depth_map_resized = get_depth_map(image)
+
+    # Get output directory from config
+    output_dir = get_midas_output_path()
+    
+    # Ensure the /Single directory exists in the output folder
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Save the result with the name `originalname_midas_depth.png`
+    output_image_name = f"{os.path.splitext(image_name)[0]}_midas_depth.png"
+    output_path = os.path.join(output_dir, output_image_name)
+
+    cv2.imwrite(output_path, depth_map_resized)
+    
+    # Print the saved path
+    print(f"Depth estimation result saved to: {output_path}")
+
+if __name__ == "__main__":
+    # Only the image name is hardcoded here
+    image_name = "office.jpg"
+    main(image_name)
