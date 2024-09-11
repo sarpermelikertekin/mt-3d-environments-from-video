@@ -1,8 +1,10 @@
+import os
 from collections import defaultdict
 import cv2
 import pandas as pd  # For DataFrame handling
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator, colors
+from config import get_video_input_path, get_video_segmentation_output_path  # Import paths from config.py
 
 # Track history stores the trajectory of each object
 track_history = defaultdict(lambda: [])
@@ -10,12 +12,35 @@ track_history = defaultdict(lambda: [])
 # A dictionary to store unique object IDs and their class names
 tracked_objects = {}
 
+# Specify the video name with extension
+video_name_with_extension = "rh_one_chair.mp4"  # Use the full video name with extension
+
+# Get the input video path and output directory using config.py
+input_video_path = get_video_input_path(video_name_with_extension)
+video_name = os.path.splitext(video_name_with_extension)[0]  # Extract video name without extension
+output_video_dir = get_video_segmentation_output_path(video_name)
+
+# Print the constructed paths
+print(f"Input video path: {input_video_path}")
+print(f"Output video directory: {output_video_dir}")
+
+# Ensure output directory exists
+os.makedirs(output_video_dir, exist_ok=True)
+
+# YOLO segmentation model
 model = YOLO("yolov8n-seg.pt")  # segmentation model
-cap = cv2.VideoCapture(r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Test Videos\\rh_one_chair.mp4')
+cap = cv2.VideoCapture(input_video_path)
+
+# Get video properties
 w, h, fps = (int(cap.get(x)) for x in (cv2.CAP_PROP_FRAME_WIDTH, cv2.CAP_PROP_FRAME_HEIGHT, cv2.CAP_PROP_FPS))
 
-out = cv2.VideoWriter("instance-segmentation-object-tracking.avi", cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
+# Output video path (inside the output directory)
+output_video_path = os.path.join(output_video_dir, f"{video_name}_instance_segmentation_tracking.avi")
+print(f"Output video path: {output_video_path}")
 
+out = cv2.VideoWriter(output_video_path, cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
+
+# Process video frames
 while True:
     ret, im0 = cap.read()
     if not ret:
@@ -60,6 +85,7 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
+# Release resources
 out.release()
 cap.release()
 cv2.destroyAllWindows()
@@ -71,5 +97,12 @@ df = pd.DataFrame(list(tracked_objects.items()), columns=["Object ID", "Class Na
 print("\nFinal DataFrame of tracked objects:")
 print(df)
 
-# Optionally, save the DataFrame to a CSV file
-df.to_csv("tracked_objects.csv", index=False)
+# Output CSV path
+csv_output_path = os.path.join(output_video_dir, f"{video_name}_tracked_objects.csv")
+print(f"Output CSV path: {csv_output_path}")
+
+# Save the DataFrame to a CSV file inside the output directory
+df.to_csv(csv_output_path, index=False)
+
+# Print the CSV save location
+print(f"Tracked objects saved to: {csv_output_path}")

@@ -13,6 +13,8 @@ TEST_DIR = "Test"
 IMAGES_DIR = "Images"
 VIDEOS_DIR = "Videos"
 IMAGE_SEGMENTATION_DIR = "Image Segmentation"
+VIDEO_SEGMENTATION_DIR = "Video Segmentation"
+SINGLE_DIR = "Single"
 
 def get_v2p_path():
     """Returns the full path to the V2P directory."""
@@ -26,9 +28,9 @@ def get_midas_path():
     """Returns the full path to the Midas directory."""
     return os.path.join(COMMON_BASE_PATH, MIDAS_DIR)
 
-def get_test_images_path():
-    """Returns the full path to the Test Images directory."""
-    return os.path.join(COMMON_BASE_PATH, TEST_DIR, IMAGES_DIR)
+def get_test_path():
+    """Returns the full path to the Test directory."""
+    return os.path.join(COMMON_BASE_PATH, TEST_DIR)
 
 def get_v2p_images_path(subfolder):
     """Returns the full path to the images folder inside V2P."""
@@ -36,7 +38,7 @@ def get_v2p_images_path(subfolder):
 
 def get_yolo_segmentation_single_output_path():
     """Returns the full path to the 'Single' directory inside the Image Segmentation folder in YOLO."""
-    return os.path.join(get_yolo_path(), IMAGE_SEGMENTATION_DIR, "Single")
+    return os.path.join(get_yolo_path(), IMAGE_SEGMENTATION_DIR, SINGLE_DIR)
 
 def get_yolo_segmentation_output_path(video_name=None):
     """
@@ -45,12 +47,12 @@ def get_yolo_segmentation_output_path(video_name=None):
     Otherwise, return the default 'Single' folder.
     """
     if video_name:
-        return os.path.join(get_yolo_path(), IMAGE_SEGMENTATION_DIR, video_name)
+        return os.path.join(get_yolo_path(), VIDEO_SEGMENTATION_DIR, SINGLE_DIR, video_name)
     return get_yolo_segmentation_single_output_path()
 
 def get_midas_single_output_path():
     """Returns the full path to the 'Single' directory in the Midas folder."""
-    return os.path.join(get_midas_path(), "Single")
+    return os.path.join(get_midas_path(), SINGLE_DIR)
 
 def get_midas_output_path(video_name=None):
     """
@@ -61,3 +63,11 @@ def get_midas_output_path(video_name=None):
     if video_name:
         return os.path.join(get_midas_path(), video_name)
     return get_midas_single_output_path()
+
+def get_video_input_path(video_name_with_extension):
+    """Returns the full path to the input video in the Test folder with the provided filename and extension."""
+    return os.path.join(get_test_path(), VIDEOS_DIR, video_name_with_extension)
+
+def get_video_segmentation_output_path(video_name):
+    """Returns the full path to the output directory for video segmentation."""
+    return os.path.join(get_yolo_path(), VIDEO_SEGMENTATION_DIR, SINGLE_DIR, video_name)
