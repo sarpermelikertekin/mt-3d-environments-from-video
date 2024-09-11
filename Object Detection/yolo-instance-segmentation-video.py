@@ -11,7 +11,7 @@ track_history = defaultdict(lambda: [])
 tracked_objects = {}
 
 model = YOLO("yolov8n-seg.pt")  # segmentation model
-cap = cv2.VideoCapture(r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Test Videos\\example.mp4')
+cap = cv2.VideoCapture(r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Test Videos\\rh_one_chair.mp4')
 w, h, fps = (int(cap.get(x)) for x in (cv2.CAP_PROP_FRAME_WIDTH, cv2.CAP_PROP_FRAME_HEIGHT, cv2.CAP_PROP_FPS))
 
 out = cv2.VideoWriter("instance-segmentation-object-tracking.avi", cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
