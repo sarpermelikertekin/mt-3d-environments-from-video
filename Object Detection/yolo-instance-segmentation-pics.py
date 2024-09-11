@@ -1,10 +1,10 @@
 import os
 import cv2
 import numpy as np
-import pandas as pd  # To store object data in a DataFrame
-from yolo_segmentation import perform_instance_segmentation
-from midas_depth_estimation import get_depth_map
-from config import get_v2p_images_path, get_yolo_segmentation_output_path  # Import paths from config.py
+import pandas as pd
+from yolo_segmentation import perform_instance_segmentation, save_segmented_image
+from midas_depth_estimation import get_depth_map, save_depth_map
+from config import get_v2p_images_path, get_yolo_segmentation_output_path, get_midas_output_path  # Import paths from config.py
 
 # Global list to store object information across frames
 objects_list = []
@@ -43,7 +43,7 @@ def iou(box1, box2):
     return inter_area / float(box1_area + box2_area - inter_area)
 
 # Main pipeline function
-def process_image_pipeline(image_path, output_dir):
+def process_image_pipeline(image_path, output_dir_yolo, output_dir_midas):
     global object_id_counter
 
     # Load the image
@@ -55,7 +55,12 @@ def process_image_pipeline(image_path, output_dir):
     # Perform instance segmentation
     detected_objects, annotated_image = perform_instance_segmentation(image)
 
-    # List to store objects detected in this frame
+    # Save depth map and segmented image
+    image_name = os.path.basename(image_path)
+    save_depth_map(image_name, depth_map_resized, output_dir_midas)
+    save_segmented_image(image_name, annotated_image, output_dir_yolo)
+
+    # Track objects and calculate depth
     current_frame_objects = []
 
     for obj in detected_objects:
@@ -83,35 +88,31 @@ def process_image_pipeline(image_path, output_dir):
     # Track objects across frames
     track_objects(current_frame_objects)
 
-    # Save the result images
-    image_filename = os.path.basename(image_path)
-    result_image_path = os.path.join(output_dir, f'segmented_result_with_depth_{image_filename}')
-    depth_image_path = os.path.join(output_dir, f'segmented_depth_image_{image_filename}')
-
-    cv2.imwrite(result_image_path, annotated_image)
-    cv2.imwrite(depth_image_path, depth_map_resized)
-
-    print(f"Results saved for {image_filename}.")
+    print(f"Results saved for {image_name}.")
 
 
 # Main function to iterate over multiple images in a directory
-def process_images_in_directory(image_directory, output_dir):
-    os.makedirs(output_dir, exist_ok=True)
+def process_images_in_directory(image_directory, output_dir_yolo, output_dir_midas):
+    os.makedirs(output_dir_yolo, exist_ok=True)
+    os.makedirs(output_dir_midas, exist_ok=True)
 
     for image_filename in os.listdir(image_directory):
         if not image_filename.endswith(('.jpg', '.jpeg', '.png')):
             continue
         image_path = os.path.join(image_directory, image_filename)
-        process_image_pipeline(image_path, output_dir)
+        process_image_pipeline(image_path, output_dir_yolo, output_dir_midas)
 
     # Save the object information to CSV
     df = pd.DataFrame(objects_list)
     print(df)
-    df.to_csv(os.path.join(output_dir, "objects_data.csv"), index=False)
+    df.to_csv(os.path.join(output_dir_yolo, "objects_data.csv"), index=False)
 
 if __name__ == "__main__":
-    images_folder_name = "rh_one_chair"
+    images_folder_name = "rh_one_chair"  # This is the "video name"
     image_directory = get_v2p_images_path(images_folder_name)
-    output_dir = get_yolo_segmentation_output_path()
 
-    process_images_in_directory(image_directory, output_dir)
+    # Set YOLO and Midas output directories using the video name (no Single folder in main script)
+    output_dir_yolo = get_yolo_segmentation_output_path(images_folder_name)
+    output_dir_midas = get_midas_output_path(images_folder_name)
+
+    process_images_in_directory(image_directory, output_dir_yolo, output_dir_midas)

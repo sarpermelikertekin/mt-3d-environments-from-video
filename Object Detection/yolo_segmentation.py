@@ -39,7 +39,19 @@ def perform_instance_segmentation(image):
 
     return detected_objects, annotator.result()  # Return the detected objects and annotated image
 
-def main(image_name):
+def save_segmented_image(image_name, annotated_image, output_dir):
+    """ Save the segmented image in the provided directory. """
+    # Ensure the output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Save the result with the name `originalname_yolo_segmentation.png`
+    output_image_name = f"{os.path.splitext(image_name)[0]}_yolo_segmentation.png"
+    output_path = os.path.join(output_dir, output_image_name)
+
+    cv2.imwrite(output_path, annotated_image)
+    print(f"YOLO segmentation result saved to: {output_path}")
+
+def main(image_name, output_dir=None):
     # Load the image
     image_directory = get_test_images_path()  # Dynamically get image path from config
     image_path = os.path.join(image_directory, image_name)
@@ -48,20 +60,11 @@ def main(image_name):
     # Perform instance segmentation
     _, annotated_image = perform_instance_segmentation(image)
 
-    # Get output directory from config
-    output_dir = get_yolo_segmentation_output_path()  # Ensure correct output path with Single directory
-    
-    # Ensure the /Single directory exists in the output folder
-    os.makedirs(output_dir, exist_ok=True)
+    # If output_dir is not provided, use the default path (Single folder)
+    output_dir = output_dir or get_yolo_segmentation_output_path()
 
-    # Save the result with the name `originalname_yolo_segmentation.png`
-    output_image_name = f"{os.path.splitext(image_name)[0]}_yolo_segmentation.png"
-    output_path = os.path.join(output_dir, output_image_name)
-
-    cv2.imwrite(output_path, annotated_image)
-    
-    # Print the saved path
-    print(f"YOLO segmentation result saved to: {output_path}")
+    # Save the segmented image
+    save_segmented_image(image_name, annotated_image, output_dir)
 
 if __name__ == "__main__":
     # Only the image name is hardcoded here

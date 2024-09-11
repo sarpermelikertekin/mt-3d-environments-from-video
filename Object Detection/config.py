@@ -34,10 +34,30 @@ def get_v2p_images_path(subfolder):
     """Returns the full path to the images folder inside V2P."""
     return os.path.join(get_v2p_path(), IMAGES_DIR, subfolder)
 
-def get_yolo_segmentation_output_path():
+def get_yolo_segmentation_single_output_path():
     """Returns the full path to the 'Single' directory inside the Image Segmentation folder in YOLO."""
     return os.path.join(get_yolo_path(), IMAGE_SEGMENTATION_DIR, "Single")
 
-def get_midas_output_path():
-    """Returns the full path to the Midas output folder."""
+def get_yolo_segmentation_output_path(video_name=None):
+    """
+    Returns the YOLO segmentation output path.
+    If a video_name is provided, return the path for the video.
+    Otherwise, return the default 'Single' folder.
+    """
+    if video_name:
+        return os.path.join(get_yolo_path(), IMAGE_SEGMENTATION_DIR, video_name)
+    return get_yolo_segmentation_single_output_path()
+
+def get_midas_single_output_path():
+    """Returns the full path to the 'Single' directory in the Midas folder."""
     return os.path.join(get_midas_path(), "Single")
+
+def get_midas_output_path(video_name=None):
+    """
+    Returns the Midas output path.
+    If a video_name is provided, return the path for the video.
+    Otherwise, return the default 'Single' folder.
+    """
+    if video_name:
+        return os.path.join(get_midas_path(), video_name)
+    return get_midas_single_output_path()

@@ -38,7 +38,19 @@ def get_depth_map(image):
 
     return depth_map_resized
 
-def main(image_name):
+def save_depth_map(image_name, depth_map, output_dir):
+    """ Save the depth map in the provided directory. """
+    # Ensure the output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Save the result with the name `originalname_midas_depth.png`
+    output_image_name = f"{os.path.splitext(image_name)[0]}_midas_depth.png"
+    output_path = os.path.join(output_dir, output_image_name)
+
+    cv2.imwrite(output_path, depth_map)
+    print(f"Depth estimation result saved to: {output_path}")
+
+def main(image_name, output_dir=None):
     # Load the image
     image_directory = get_test_images_path()  # Dynamically get image path from config
     image_path = os.path.join(image_directory, image_name)
@@ -47,20 +59,11 @@ def main(image_name):
     # Perform depth estimation
     depth_map_resized = get_depth_map(image)
 
-    # Get output directory from config
-    output_dir = get_midas_output_path()
-    
-    # Ensure the /Single directory exists in the output folder
-    os.makedirs(output_dir, exist_ok=True)
+    # If output_dir is not provided, use the default path (Single folder)
+    output_dir = output_dir or get_midas_output_path()
 
-    # Save the result with the name `originalname_midas_depth.png`
-    output_image_name = f"{os.path.splitext(image_name)[0]}_midas_depth.png"
-    output_path = os.path.join(output_dir, output_image_name)
-
-    cv2.imwrite(output_path, depth_map_resized)
-    
-    # Print the saved path
-    print(f"Depth estimation result saved to: {output_path}")
+    # Save the depth map
+    save_depth_map(image_name, depth_map_resized, output_dir)
 
 if __name__ == "__main__":
     # Only the image name is hardcoded here
