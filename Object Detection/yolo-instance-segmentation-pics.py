@@ -5,6 +5,7 @@ import pandas as pd  # To store object data in a DataFrame
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator, colors
 from midas_depth_estimation import get_depth_map
+from config import get_v2p_images_path, get_yolo_detection_output_path  # Import paths from config.py
 
 # Global list to store object information across frames
 objects_list = []
@@ -174,8 +175,14 @@ def process_images_in_directory(image_directory, output_dir):
     df.to_csv(os.path.join(output_dir, "objects_data.csv"), index=False)
 
 if __name__ == "__main__":
-    image_directory = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\V2P\\Images\\rhd'
-    output_dir = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Results\\Images'
+    # Image folder name inside V2P directory
+    images_folder_name = "rh_one_chair"
     
+    # Get image directory from config.py
+    image_directory = get_v2p_images_path(images_folder_name)
+
+    # Get output directory for YOLO detection results from config.py
+    output_dir = get_yolo_detection_output_path()
+
     # Process all images in the directory
     process_images_in_directory(image_directory, output_dir)

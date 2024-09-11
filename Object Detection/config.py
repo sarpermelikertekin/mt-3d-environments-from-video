@@ -1,23 +1,29 @@
 import os
 
-# Define the base common path without 'V2P'
+# Define the base common path for the 'V2P' project and 'YOLO'
 COMMON_BASE_PATH = "C:\\Users\\sakar\\OneDrive\\mt-datas\\"
 
-# Define the project folder 'V2P'
-PROJECT_DIR = "V2P"
+# Define the project folder for 'V2P' and 'YOLO'
+V2P_DIR = "V2P"
+YOLO_DIR = "YOLO"
 
 # Define the subfolder names
-VIDEOS_DIR = "Videos"
 IMAGES_DIR = "Images"
+VIDEOS_DIR = "Videos"
+IMAGE_DETECTION_DIR = "Image Segmentation"
 
-def get_project_path():
-    """Returns the path to the project directory."""
-    return os.path.join(COMMON_BASE_PATH, PROJECT_DIR)
+def get_v2p_path():
+    """Returns the full path to the V2P directory."""
+    return os.path.join(COMMON_BASE_PATH, V2P_DIR)
 
-def get_video_path(video_name):
-    """Returns the full path for a given video name."""
-    return os.path.join(get_project_path(), VIDEOS_DIR, video_name)
+def get_yolo_path():
+    """Returns the full path to the YOLO directory."""
+    return os.path.join(COMMON_BASE_PATH, YOLO_DIR)
 
-def get_images_output_dir(pics_folder):
-    """Returns the full path for the images output directory."""
-    return os.path.join(get_project_path(), IMAGES_DIR, pics_folder)
+def get_v2p_images_path(subfolder):
+    """Returns the full path to the images folder inside V2P."""
+    return os.path.join(get_v2p_path(), IMAGES_DIR, subfolder)
+
+def get_yolo_detection_output_path():
+    """Returns the full path to the image detection folder inside YOLO."""
+    return os.path.join(get_yolo_path(), IMAGE_DETECTION_DIR)
