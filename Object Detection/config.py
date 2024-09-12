@@ -71,3 +71,8 @@ def get_video_input_path(video_name_with_extension):
 def get_video_segmentation_output_path(video_name):
     """Returns the full path to the output directory for video segmentation."""
     return os.path.join(get_yolo_path(), VIDEO_SEGMENTATION_DIR, SINGLE_DIR, video_name)
+
+# Adding the missing function to get the Test Images path
+def get_test_images_path():
+    """Returns the full path to the 'Images' directory inside the 'Test' folder."""
+    return os.path.join(get_test_path(), IMAGES_DIR)

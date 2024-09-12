@@ -1,10 +1,11 @@
 import os
 import cv2
+import numpy as np
 from ultralytics import YOLO
-from ultralytics.utils.plotting import Annotator, colors
+from ultralytics.utils.plotting import colors
 from config import get_test_images_path, get_yolo_segmentation_output_path  # Use config.py for paths
 
-# Function to perform instance segmentation using YOLO
+# Function to perform instance segmentation using YOLO and apply mask contours to the image
 def perform_instance_segmentation(image):
     # Load the YOLO segmentation model
     model = YOLO("yolov8n-seg.pt")
@@ -12,17 +13,18 @@ def perform_instance_segmentation(image):
     # Perform segmentation on the image
     results = model.predict(image, save=False)
     
-    # Create an annotator object to draw on the image
-    annotator = Annotator(image, line_width=2)
-    
     # List to store objects detected in this frame
     detected_objects = []
-    
+
+    # If segmentation results exist
     if len(results[0].boxes) > 0 and results[0].masks is not None:
         masks = results[0].masks.data.cpu().numpy()  # Get segmentation masks as a numpy array (N x H x W)
-        bboxes = results[0].boxes.xyxy.cpu().tolist()  # Bounding box coordinates [x1, y1, x2, y2]
+        bboxes = results[0].boxes.xyxy.cpu().tolist()  # Bounding box coordinates [x1, y1, x2, y2] (for tracking only)
         class_ids = results[0].boxes.cls.cpu().tolist()  # Class IDs for each detection
         class_names = results[0].names  # Class names dictionary
+
+        # Create a copy of the image to apply mask contours
+        image_with_contours = image.copy()
 
         # Iterate over each detection
         for idx, (mask, bbox, class_id) in enumerate(zip(masks, bboxes, class_ids), start=1):
@@ -33,11 +35,27 @@ def perform_instance_segmentation(image):
                 'mask': mask
             })
 
-            # Annotate the image
-            color = colors(idx, True)
-            annotator.box_label(bbox, f"{object_name} ID:{idx}", color=color)
+            # Resize the mask to the original image size
+            mask_resized = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
 
-    return detected_objects, annotator.result()  # Return the detected objects and annotated image
+            # Convert the resized mask to a uint8 format
+            mask_uint8 = (mask_resized * 255).astype(np.uint8)
+
+            # Find contours of the mask
+            contours, _ = cv2.findContours(mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+            # Define a random color for the contour
+            color = colors(idx, True)
+
+            # Draw the contour of the mask
+            cv2.drawContours(image_with_contours, contours, -1, color, 2)
+
+            # Optionally, annotate with text
+            x1, y1, x2, y2 = map(int, bbox)  # Coordinates of the bounding box
+            label = f"{object_name} ID:{idx}"
+            cv2.putText(image_with_contours, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+    return detected_objects, image_with_contours  # Return the detected objects and the image with contours
 
 def save_segmented_image(image_name, annotated_image, output_dir):
     """ Save the segmented image in the provided directory. """
@@ -57,14 +75,14 @@ def main(image_name, output_dir=None):
     image_path = os.path.join(image_directory, image_name)
     image = cv2.imread(image_path)
 
-    # Perform instance segmentation
-    _, annotated_image = perform_instance_segmentation(image)
+    # Perform instance segmentation and apply contours
+    _, image_with_contours = perform_instance_segmentation(image)
 
     # If output_dir is not provided, use the default path (Single folder)
     output_dir = output_dir or get_yolo_segmentation_output_path()
 
     # Save the segmented image
-    save_segmented_image(image_name, annotated_image, output_dir)
+    save_segmented_image(image_name, image_with_contours, output_dir)
 
 if __name__ == "__main__":
     # Only the image name is hardcoded here
