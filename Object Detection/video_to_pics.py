@@ -1,6 +1,6 @@
 import cv2
 import os
-from config import get_video_path, get_images_output_dir  # Importing from the config file
+from config import get_v2p_videos_path, get_v2p_images_path
 
 def sample_frames_from_video(video_path, output_dir, fps=1):
     """
@@ -63,6 +63,6 @@ if __name__ == "__main__":
 
     # Process each video file
     for video_file_name in video_file_names:
-        video_path = get_video_path(video_file_name)
-        images_output_dir = get_images_output_dir(pics_folder)
+        video_path = get_v2p_videos_path(video_file_name)
+        images_output_dir = get_v2p_images_path(pics_folder)
         sample_frames_from_video(video_path, images_output_dir, fps)

@@ -4,37 +4,49 @@ import os
 COMMON_BASE_PATH = "C:\\Users\\sakar\\OneDrive\\mt-datas\\"
 
 # Define the project folders for 'V2P', 'YOLO', 'Midas', and 'Test'
-V2P_DIR = "V2P"
-YOLO_DIR = "YOLO"
-MIDAS_DIR = "Midas"
-TEST_DIR = "Test"
+V2P_DIR = "v2p"
+YOLO_DIR = "yolo"
+MIDAS_DIR = "midas"
+TEST_DIR = "test"
 
 # Define the subfolder names
-IMAGES_DIR = "Images"
-VIDEOS_DIR = "Videos"
-IMAGE_SEGMENTATION_DIR = "Image Segmentation"
-VIDEO_SEGMENTATION_DIR = "Video Segmentation"
-SINGLE_DIR = "Single"
+IMAGES_DIR = "images"
+VIDEOS_DIR = "videos"
+IMAGE_SEGMENTATION_DIR = "image_segmentation"
+VIDEO_SEGMENTATION_DIR = "video_segmentation"
+SINGLE_DIR = "single"
 
 def get_v2p_path():
-    """Returns the full path to the V2P directory."""
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\v2p"""
     return os.path.join(COMMON_BASE_PATH, V2P_DIR)
 
 def get_yolo_path():
-    """Returns the full path to the YOLO directory."""
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\yolo"""
     return os.path.join(COMMON_BASE_PATH, YOLO_DIR)
 
 def get_midas_path():
-    """Returns the full path to the Midas directory."""
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\midas"""
     return os.path.join(COMMON_BASE_PATH, MIDAS_DIR)
 
 def get_test_path():
-    """Returns the full path to the Test directory."""
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\test"""
     return os.path.join(COMMON_BASE_PATH, TEST_DIR)
 
+def get_test_images_path():
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\test\\images"""
+    return os.path.join(get_test_path(), IMAGES_DIR)
+
+def get_test_videos_path():
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\test\\videos"""
+    return os.path.join(get_test_path(), VIDEOS_DIR)
+
 def get_v2p_images_path(subfolder):
-    """Returns the full path to the images folder inside V2P."""
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\v2p\\images"""
     return os.path.join(get_v2p_path(), IMAGES_DIR, subfolder)
+
+def get_v2p_videos_path(subfolder):
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\v2p\\videos"""
+    return os.path.join(get_v2p_path(), VIDEOS_DIR, subfolder)
 
 def get_yolo_segmentation_single_output_path():
     """Returns the full path to the 'Single' directory inside the Image Segmentation folder in YOLO."""
@@ -71,8 +83,3 @@ def get_video_input_path(video_name_with_extension):
 def get_video_segmentation_output_path(video_name):
     """Returns the full path to the output directory for video segmentation."""
     return os.path.join(get_yolo_path(), VIDEO_SEGMENTATION_DIR, SINGLE_DIR, video_name)
-
-# Adding the missing function to get the Test Images path
-def get_test_images_path():
-    """Returns the full path to the 'Images' directory inside the 'Test' folder."""
-    return os.path.join(get_test_path(), IMAGES_DIR)
