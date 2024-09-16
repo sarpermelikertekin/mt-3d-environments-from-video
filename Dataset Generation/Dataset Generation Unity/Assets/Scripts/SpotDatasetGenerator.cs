@@ -10,17 +10,12 @@ public class SpotDatasetGenerator : MonoBehaviour
 
     CaptureScreenshot captureScreenshot;
 
-    string baseLocation = @"C:\Users\sakar\Semester Project\Spot Datasets\";
+    string baseLocation = @"C:\Users\sakar\OneDrive\mt-datas\synthetic_data";
 
     [Header("File Location and Control")]
     public string datasetFileName;
     public bool splitSet;
     public KeyCode startingKey;
-
-    [Header("Randomization Controls")]
-    public bool randomizeTextures = true;
-    public bool randomizeSkybox = true;
-    public bool randomizeLighting = true;
 
     [Header("Normalization Options")]
     public bool normalize;
@@ -43,19 +38,7 @@ public class SpotDatasetGenerator : MonoBehaviour
     public GameObject cameraObject;
 
     [Header("Robot Poses")]
-    public GameObject robotPoses;
-
-    [Header("Directional Light")]
-    public GameObject directionalLight;
-    public int directionalLightRotationXMin;
-    public int directionalLightRotationXMax;
-    public int directionalLightRotationYMin;
-    public int directionalLightRotationYMax;
-
-    [Header("Textures")]
-    public Material[] materials;
-    public GameObject plane;
-    public Material[] skyboxes;
+    public GameObject objectPoses;
 
     [System.Serializable]
     public class KeypointPose
@@ -140,42 +123,20 @@ public class SpotDatasetGenerator : MonoBehaviour
     {
         yield return new WaitForSeconds(seconds);
 
-        // Random texture
-        if (randomizeTextures)
-        {
-            plane.GetComponent<MeshRenderer>().material = materials[Random.Range(0, materials.Length)];
-        }
-
-
-        // Random Rotation for the lighting
-        if (randomizeLighting)
-        {
-            directionalLight.transform.eulerAngles = new Vector3(
-                Random.Range(directionalLightRotationXMin, directionalLightRotationXMax),
-                Random.Range(directionalLightRotationYMin, directionalLightRotationYMax),
-                0f);
-        }
-
-        // Random skybox
-        if (randomizeSkybox)
-        {
-            RenderSettings.skybox = skyboxes[Random.Range(0, skyboxes.Length)];
-        }
-
-        // Deactivate all children of robotPoses
-        foreach (Transform child in robotPoses.transform)
+        // Deactivate all children of objectPoses
+        foreach (Transform child in objectPoses.transform)
         {
             child.gameObject.SetActive(false);
         }
 
-        // Activate one child of robotPoses randomly
-        int childrenCount = robotPoses.transform.childCount;
-        GameObject activeRobotPose = null;
+        // Activate one child of objectPoses randomly - check that
+        int childrenCount = objectPoses.transform.childCount;
+        GameObject activeObjectPoses = null;
         if (childrenCount > 0)
         {
             int randomIndex = UnityEngine.Random.Range(0, childrenCount);
-            activeRobotPose = robotPoses.transform.GetChild(randomIndex).gameObject;
-            activeRobotPose.SetActive(true);
+            activeObjectPoses = objectPoses.transform.GetChild(randomIndex).gameObject;
+            activeObjectPoses.SetActive(true);
         }
 
         // Find active keypoints with the KeypointRenderer script
@@ -205,7 +166,7 @@ public class SpotDatasetGenerator : MonoBehaviour
             xNormalization = Screen.width;
             yNormalization = Screen.height;
         }
-        
+
         foreach (GameObject keypoint in keypoints)
         {
             Vector3 screenPosition = cameraObject.GetComponent<Camera>().WorldToScreenPoint(keypoint.transform.position);
@@ -237,11 +198,11 @@ public class SpotDatasetGenerator : MonoBehaviour
 
         // Check tag of the active robot pose and set class accordingly
         int classForDataset = 0;
-        if (activeRobotPose != null)
+        if (activeObjectPoses != null)
         {
-            if (activeRobotPose.tag == "Spot")
+            if (activeObjectPoses.tag == "Chair")
                 classForDataset = 0;
-            else if (activeRobotPose.tag == "AnyMAL")
+            else if (activeObjectPoses.tag == "Desk")
                 classForDataset = 1;
         }
 
