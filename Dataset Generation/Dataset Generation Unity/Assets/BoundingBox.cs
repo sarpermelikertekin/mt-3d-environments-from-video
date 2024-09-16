@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class BoundingBox : MonoBehaviour
+public class BoundingBoxWithoutRenderer : MonoBehaviour
 {
     private LineRenderer lineRenderer;
     public Color boundingBoxColor = Color.green;
@@ -17,7 +17,7 @@ public class BoundingBox : MonoBehaviour
 
         // Set the LineRenderer settings
         lineRenderer.useWorldSpace = true;
-        lineRenderer.loop = false; // We will connect manually without auto-looping
+        lineRenderer.loop = false; // We will manually define the lines
         lineRenderer.startWidth = lineWidth;
         lineRenderer.endWidth = lineWidth;
 
@@ -31,8 +31,8 @@ public class BoundingBox : MonoBehaviour
 
     private void DrawBoundingBox()
     {
-        // Get the overall bounds for this object and its children
-        Bounds combinedBounds = CalculateCombinedBounds();
+        // Calculate the bounding box from mesh vertices
+        Bounds combinedBounds = CalculateMeshBounds();
 
         // Get the 8 corners of the bounding box
         Vector3[] corners = new Vector3[8];
@@ -86,40 +86,50 @@ public class BoundingBox : MonoBehaviour
         lineRenderer.SetPosition(23, corners[6]);
     }
 
-    // This function calculates the combined bounds of all renderers in this GameObject and its children
-    private Bounds CalculateCombinedBounds()
+    // This function calculates the combined bounds of all MeshFilters in this GameObject and its children
+    private Bounds CalculateMeshBounds()
     {
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
 
-        // If there are no renderers, return an empty bounds
-        if (renderers.Length == 0)
+        // If there are no mesh filters, return an empty bounds
+        if (meshFilters.Length == 0)
         {
             return new Bounds(transform.position, Vector3.zero);
         }
 
-        // Initialize the bounds to the first renderer's bounds
-        Bounds combinedBounds = renderers[0].bounds;
+        // Initialize the bounds to the first mesh's bounds
+        Bounds combinedBounds = meshFilters[0].mesh.bounds;
+        combinedBounds = TransformBounds(combinedBounds, meshFilters[0].transform);
 
-        // Expand the bounds to include each renderer's bounds
-        foreach (Renderer renderer in renderers)
+        // Expand the bounds to include each mesh's bounds
+        foreach (MeshFilter meshFilter in meshFilters)
         {
-            combinedBounds.Encapsulate(renderer.bounds);
+            Bounds meshBounds = TransformBounds(meshFilter.mesh.bounds, meshFilter.transform);
+            combinedBounds.Encapsulate(meshBounds);
         }
 
         return combinedBounds;
     }
 
+    // Transform local bounds to world space
+    private Bounds TransformBounds(Bounds localBounds, Transform transform)
+    {
+        Vector3 worldCenter = transform.TransformPoint(localBounds.center);
+        Vector3 worldExtents = transform.TransformVector(localBounds.extents);
+        return new Bounds(worldCenter, worldExtents * 2);
+    }
+
     // To show in the editor
     private void OnDrawGizmos()
     {
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
 
-        if (renderers.Length > 0)
+        if (meshFilters.Length > 0)
         {
             Gizmos.color = boundingBoxColor;
 
-            // Get the combined bounds for all renderers
-            Bounds combinedBounds = CalculateCombinedBounds();
+            // Get the combined bounds for all meshes
+            Bounds combinedBounds = CalculateMeshBounds();
 
             // Draw the wireframe bounding box
             Gizmos.DrawWireCube(combinedBounds.center, combinedBounds.size);
