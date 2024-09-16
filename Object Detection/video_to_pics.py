@@ -1,5 +1,6 @@
 import cv2
 import os
+from config import get_v2p_videos_path, get_v2p_images_path
 
 def sample_frames_from_video(video_path, output_dir, fps=1):
     """
@@ -53,19 +54,15 @@ def sample_frames_from_video(video_path, output_dir, fps=1):
     print(f"Saved {saved_image_count} images from {video_name} to {output_dir}")
 
 if __name__ == "__main__":
-    # Define the common path
-    common_path = "C:\\Users\\sakar\\OneDrive\\mt-datas\\V2P\\"
-    videos = "Videos"
-    images = "Images"
-    video_file_names = ["example.mp4"]  # Add your video file names here
-    pics_folder = "rh_d"
-    
-    # Define the output directory for all images
-    images_output_dir = os.path.join(common_path, images, pics_folder)
-    
-    fps = 3  # Number of frames per second to capture
+    # Video files and image folders that should stay in the main file
+    video_file_names = ["rh_one_chair.mp4"]  # List of video files
+    pics_folder = "rh_one_chair"  # Specific folder for storing images
 
-    # Process each video
+    # Set FPS (frames per second)
+    fps = 3
+
+    # Process each video file
     for video_file_name in video_file_names:
-        video_path = os.path.join(common_path, videos, video_file_name)
+        video_path = get_v2p_videos_path(video_file_name)
+        images_output_dir = get_v2p_images_path(pics_folder)
         sample_frames_from_video(video_path, images_output_dir, fps)
