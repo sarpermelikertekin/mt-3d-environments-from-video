@@ -4,7 +4,7 @@ import cv2
 import pandas as pd  # For DataFrame handling
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator, colors
-from config import get_video_input_path, get_video_segmentation_output_path  # Import paths from config.py
+from config import get_test_videos_path, get_yolo_segmentation_video_output_path  # Import paths from config.py
 
 # Function to perform instance segmentation with tracking on a video
 def process_video(video_name_with_extension):
@@ -99,15 +99,14 @@ def process_video(video_name_with_extension):
     # Print the CSV save location
     print(f"Tracked objects saved to: {csv_output_path}")
 
-# New function to construct video input and output paths
 def construct_video_paths(video_name_with_extension):
     """Construct the input video path and output video directory."""
     # Get input video path using the video name
-    input_video_path = get_video_input_path(video_name_with_extension)
+    input_video_path = os.path.join(get_test_videos_path(), video_name_with_extension)
     
     # Get output video directory path for YOLO segmentation
     video_name = os.path.splitext(video_name_with_extension)[0]  # Extract video name without extension
-    output_video_dir = get_video_segmentation_output_path(video_name)
+    output_video_dir = get_yolo_segmentation_video_output_path(video_name)
 
     # Ensure output directory exists
     os.makedirs(output_video_dir, exist_ok=True)
@@ -117,6 +116,7 @@ def construct_video_paths(video_name_with_extension):
     print(f"Output video directory: {output_video_dir}")
 
     return input_video_path, output_video_dir
+
 
 def main():
     # Define the video file to be processed

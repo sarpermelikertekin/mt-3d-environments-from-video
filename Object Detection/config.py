@@ -68,12 +68,10 @@ def get_yolo_segmentation_image_output_path(video_name=None):
         return os.path.join(get_yolo_path(), IMAGE_SEGMENTATION_DIR, video_name)
     return os.path.join(get_yolo_path(), IMAGE_SEGMENTATION_DIR, SINGLE_DIR)
 
-def get_yolo_segmentation_image_output_path(video_name=None):
+def get_yolo_segmentation_video_output_path(video_name=None):
     """
     C:\\Users\\sakar\\OneDrive\\mt-datas\\yolo\\video_segmentation
     If a video_name is provided, return the path in the 'video_segmentation' directory for that video.
     Otherwise, return the default 'single' folder for standalone image processing.
     """
-    if video_name:
-        return os.path.join(get_yolo_path(), VIDEO_SEGMENTATION_DIR, video_name)
-    return os.path.join(get_yolo_path(), IMAGE_SEGMENTATION_DIR, SINGLE_DIR)
+    return os.path.join(get_yolo_path(), VIDEO_SEGMENTATION_DIR, video_name)

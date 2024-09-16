@@ -1,36 +1,43 @@
+import os
 import cv2
 import numpy as np
-from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator, colors
 from midas_depth_estimation import get_depth_map  # Import the depth estimation function
+from yolo_instance_segmentation_video import construct_video_paths  # Import video path construction function
+from ultralytics import YOLO
 
 # Load the YOLO segmentation model
 model = YOLO("yolov8n-seg.pt")  # segmentation model
 
 # Load the video
-cap = cv2.VideoCapture(r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Test Videos\\example.mp4')
+video_name_with_extension = "rh_one_chair.mp4"
+input_video_path, output_video_dir = construct_video_paths(video_name_with_extension)
+
+# Open the video for reading
+cap = cv2.VideoCapture(input_video_path)
 w, h, fps = (int(cap.get(x)) for x in (cv2.CAP_PROP_FRAME_WIDTH, cv2.CAP_PROP_FRAME_HEIGHT, cv2.CAP_PROP_FPS))
 
 # Specify the output video path
-output_video_path = r'C:\\Users\\sakar\\OneDrive\\mt-datas\\YOLO\\Results\\Videos\\instance-segmentation-object-tracking-with-depth.avi'
+output_video_path = os.path.join(output_video_dir, f"{os.path.splitext(video_name_with_extension)[0]}_instance_segmentation_depth.avi")
 
 # Create the video writer object
 out = cv2.VideoWriter(output_video_path, cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
 
+# Process video frames
 while True:
     ret, im0 = cap.read()
     if not ret:
         print("Video frame is empty or video processing has been successfully completed.")
         break
 
-    # Perform depth estimation for the entire frame
+    # Perform depth estimation for the current frame
     depth_map_resized = get_depth_map(im0)
+
+    # Perform YOLO segmentation on the frame
+    results = model.track(im0, persist=True)
 
     # Annotator for drawing masks and labels
     annotator = Annotator(im0, line_width=2)
-
-    # Perform tracking
-    results = model.track(im0, persist=True)
 
     # Check if there are detected boxes with IDs and segmentation masks
     if results[0].boxes.id is not None and results[0].masks is not None:
