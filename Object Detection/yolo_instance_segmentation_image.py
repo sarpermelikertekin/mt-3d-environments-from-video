@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 from ultralytics.utils.plotting import colors
-from config import get_test_images_path, get_yolo_segmentation_output_path  # Use config.py for paths
+from config import get_test_images_path, get_yolo_segmentation_image_output_path  # Use config.py for paths
 
 # Function to perform instance segmentation using YOLO and apply mask contours to the image
 def perform_instance_segmentation(image):
@@ -16,15 +16,15 @@ def perform_instance_segmentation(image):
     # List to store objects detected in this frame
     detected_objects = []
 
+    # Create a copy of the image to apply mask contours, regardless of detections
+    image_with_contours = image.copy()
+
     # If segmentation results exist
     if len(results[0].boxes) > 0 and results[0].masks is not None:
         masks = results[0].masks.data.cpu().numpy()  # Get segmentation masks as a numpy array (N x H x W)
         bboxes = results[0].boxes.xyxy.cpu().tolist()  # Bounding box coordinates [x1, y1, x2, y2] (for tracking only)
         class_ids = results[0].boxes.cls.cpu().tolist()  # Class IDs for each detection
         class_names = results[0].names  # Class names dictionary
-
-        # Create a copy of the image to apply mask contours
-        image_with_contours = image.copy()
 
         # Iterate over each detection
         for idx, (mask, bbox, class_id) in enumerate(zip(masks, bboxes, class_ids), start=1):
@@ -55,7 +55,8 @@ def perform_instance_segmentation(image):
             label = f"{object_name} ID:{idx}"
             cv2.putText(image_with_contours, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-    return detected_objects, image_with_contours  # Return the detected objects and the image with contours
+    # Return the detected objects and the image with contours (even if no detections were made)
+    return detected_objects, image_with_contours
 
 def save_segmented_image(image_name, annotated_image, output_dir):
     """ Save the segmented image in the provided directory. """
@@ -79,7 +80,7 @@ def main(image_name, output_dir=None):
     _, image_with_contours = perform_instance_segmentation(image)
 
     # If output_dir is not provided, use the default path (Single folder)
-    output_dir = output_dir or get_yolo_segmentation_output_path()
+    output_dir = output_dir or get_yolo_segmentation_image_output_path()
 
     # Save the segmented image
     save_segmented_image(image_name, image_with_contours, output_dir)

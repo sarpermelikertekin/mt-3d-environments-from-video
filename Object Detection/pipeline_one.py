@@ -2,9 +2,9 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
-from yolo_segmentation import perform_instance_segmentation, save_segmented_image
+from yolo_instance_segmentation_image import perform_instance_segmentation, save_segmented_image
 from midas_depth_estimation import get_depth_map, save_depth_map
-from config import get_v2p_images_path, get_yolo_segmentation_output_path, get_midas_output_path  # Import paths from config.py
+from config import get_v2p_images_path, get_yolo_segmentation_image_output_path, get_midas_output_path  # Import paths from config.py
 
 # Global list to store object information across frames
 objects_list = []
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     image_directory = get_v2p_images_path(images_folder_name)
 
     # Set YOLO and Midas output directories using the video name (no Single folder in main script)
-    output_dir_yolo = get_yolo_segmentation_output_path(images_folder_name)
+    output_dir_yolo = get_yolo_segmentation_image_output_path(images_folder_name)
     output_dir_midas = get_midas_output_path(images_folder_name)
 
     process_images_in_directory(image_directory, output_dir_yolo, output_dir_midas)
