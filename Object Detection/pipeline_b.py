@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
+import math
 from ultralytics.utils.plotting import Annotator, colors
 from midas_depth_estimation import get_depth_map  # Import the depth estimation function
 from ultralytics import YOLO
@@ -37,9 +38,41 @@ def calculate_camera_angle(frame_num, total_frames, total_angle=90):
     """
     return (frame_num / total_frames) * total_angle  # Linear progression from 0 to total_angle
 
+def calculate_distance_from_camera(angle, room_x, room_y):
+    """
+    Calculate the distance from the camera at (0, 0) to the furthest point visible in the center of the frame,
+    considering non-square rooms where room_x and room_y may differ.
+
+    Parameters:
+    - angle: float, the current camera angle in degrees.
+    - room_x: float, the length of the room along the x-axis (default is 3 meters).
+    - room_y: float, the length of the room along the y-axis (default is 3 meters).
+
+    Returns:
+    - distance: float, the distance from the camera to the point in the center of the frame.
+    """
+    # Calculate the transition angle in degrees (atan2 returns radians)
+    transition_angle = math.degrees(math.atan2(room_y, room_x))
+    
+    print("Transition_angle is: ", transition_angle)
+
+    angle_radians = math.radians(angle)
+
+    if angle <= transition_angle:
+        # Calculate distance along the x-axis
+        distance = room_x / math.cos(angle_radians)
+    else:
+        # Calculate distance along the y-axis
+        distance = room_y / math.sin(angle_radians)
+    
+    return distance
+
 def main():
     # Set the total camera rotation angle (default to 90 degrees)
     total_angle = 90  # You can adjust this value as needed
+
+    # Room dimensions (in meters)
+    room_x, room_y = 4, 2  # Example: room size is 4 meters by 2 meters
 
     # Load the YOLO segmentation model
     model = YOLO("yolov8n-seg.pt")  # segmentation model
@@ -57,7 +90,7 @@ def main():
     out = cv2.VideoWriter(output_video_path, cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
 
     # DataFrames to store angles, center coordinates, and depth
-    video_df = pd.DataFrame(columns=['Timestamp', 'Angle'])
+    video_df = pd.DataFrame(columns=['Timestamp', 'Angle', 'Distance from Camera'])
     object_dfs = {}  # Dictionary to store a DataFrame for each detected object
 
     # Process video frames
@@ -72,6 +105,15 @@ def main():
         timestamp = frame_num / fps
         camera_angle = calculate_camera_angle(frame_num, total_frames, total_angle)
 
+        # Calculate distance to the center of the frame based on camera angle
+        distance_from_camera = calculate_distance_from_camera(camera_angle, room_x, room_y)
+
+        # Print camera angle and distance even if no objects are detected
+        print(f"Camera Angle: {camera_angle:.2f} degrees, Distance from Camera: {distance_from_camera:.2f} meters")
+
+        # Add data to the video-wide DataFrame
+        video_df = pd.concat([video_df, pd.DataFrame([{'Timestamp': timestamp, 'Angle': camera_angle, 'Distance from Camera': distance_from_camera}])], ignore_index=True)
+
         # Perform depth estimation for the current frame
         depth_map_resized = get_depth_map(im0)
 
@@ -80,9 +122,6 @@ def main():
 
         # Annotator for drawing masks and labels
         annotator = Annotator(im0, line_width=2)
-        
-        # Add data to the video-wide DataFrame
-        video_df = pd.concat([video_df, pd.DataFrame([{'Timestamp': timestamp, 'Angle': camera_angle}])], ignore_index=True)
 
         # Check if there are detected boxes with IDs and segmentation masks
         if results[0].boxes.id is not None and results[0].masks is not None:
@@ -115,7 +154,7 @@ def main():
                 # Print the ID, bbox center, depth, and camera angle in the console
                 center_x = (x1 + x2) / 2
                 center_y = (y1 + y2) / 2
-                print(f"ID: {track_id}, Center: ({center_x:.2f}, {center_y:.2f}), Average Depth: {avg_depth:.2f}, Camera Angle: {camera_angle:.2f} degrees")
+                print(f"ID: {track_id}, Center: ({center_x:.2f}, {center_y:.2f}), Average Depth: {avg_depth:.2f}, Camera Angle: {camera_angle:.2f} degrees, Distance from Camera: {distance_from_camera:.2f} meters")
 
                 # Add data to the object-specific DataFrame
                 if track_id not in object_dfs:
