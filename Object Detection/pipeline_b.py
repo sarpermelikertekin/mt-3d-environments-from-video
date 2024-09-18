@@ -1,6 +1,7 @@
 import os
 import cv2
 import numpy as np
+import pandas as pd
 from ultralytics.utils.plotting import Annotator, colors
 from midas_depth_estimation import get_depth_map  # Import the depth estimation function
 from ultralytics import YOLO
@@ -9,35 +10,37 @@ from config import get_test_videos_path, get_yolo_segmentation_video_output_path
 def construct_video_paths(video_name_with_extension):
     """
     Constructs input and output video paths using the config settings.
-    
-    The output video is saved in a folder named after the input video (without extension) in the 'video_segmentation' directory.
-    
-    Parameters:
-    - video_name_with_extension: str, name of the video file
-    
-    Returns:
-    - input_video_path: str, path to the input video
-    - output_video_path: str, path to the output video
     """
-    # Get the base name of the video (without extension)
     video_name_without_extension = os.path.splitext(video_name_with_extension)[0]
-    
-    # Input video path from the 'test' video folder
     input_video_path = os.path.join(get_test_videos_path(), video_name_with_extension)
-
-    # Create a subfolder with the name of the input video inside the 'video_segmentation' directory
     output_folder = os.path.join(get_yolo_segmentation_video_output_path(video_name_without_extension))
     
-    # Create the folder if it does not exist
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     
-    # Output video path with the same name but as a .avi file inside the new folder
     output_video_path = os.path.join(output_folder, f"{video_name_without_extension}.avi")
     
     return input_video_path, output_video_path
 
+def calculate_camera_angle(frame_num, total_frames, total_angle=90):
+    """
+    Calculates the camera's angle based on the frame number.
+    The total angle is defined by the `total_angle` parameter, with a default of 90 degrees.
+    
+    Parameters:
+    - frame_num: int, the current frame number.
+    - total_frames: int, the total number of frames in the video.
+    - total_angle: float, the total rotation angle of the camera (default is 90 degrees).
+    
+    Returns:
+    - angle: float, the camera's angle at the current frame.
+    """
+    return (frame_num / total_frames) * total_angle  # Linear progression from 0 to total_angle
+
 def main():
+    # Set the total camera rotation angle (default to 90 degrees)
+    total_angle = 90  # You can adjust this value as needed
+
     # Load the YOLO segmentation model
     model = YOLO("yolov8n-seg.pt")  # segmentation model
 
@@ -48,16 +51,26 @@ def main():
     # Open the video for reading
     cap = cv2.VideoCapture(input_video_path)
     w, h, fps = (int(cap.get(x)) for x in (cv2.CAP_PROP_FRAME_WIDTH, cv2.CAP_PROP_FRAME_HEIGHT, cv2.CAP_PROP_FPS))
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
     # Create the video writer object
     out = cv2.VideoWriter(output_video_path, cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
 
+    # DataFrames to store angles, center coordinates, and depth
+    video_df = pd.DataFrame(columns=['Timestamp', 'Angle'])
+    object_dfs = {}  # Dictionary to store a DataFrame for each detected object
+
     # Process video frames
+    frame_num = 0
     while True:
         ret, im0 = cap.read()
         if not ret:
             print("Video frame is empty or video processing has been successfully completed.")
             break
+
+        # Calculate the timestamp and camera angle
+        timestamp = frame_num / fps
+        camera_angle = calculate_camera_angle(frame_num, total_frames, total_angle)
 
         # Perform depth estimation for the current frame
         depth_map_resized = get_depth_map(im0)
@@ -67,6 +80,9 @@ def main():
 
         # Annotator for drawing masks and labels
         annotator = Annotator(im0, line_width=2)
+        
+        # Add data to the video-wide DataFrame
+        video_df = pd.concat([video_df, pd.DataFrame([{'Timestamp': timestamp, 'Angle': camera_angle}])], ignore_index=True)
 
         # Check if there are detected boxes with IDs and segmentation masks
         if results[0].boxes.id is not None and results[0].masks is not None:
@@ -87,38 +103,43 @@ def main():
                 # Initialize mask_bool array with False values
                 mask_bool = np.zeros((h, w), dtype=bool)
 
-                # Iterate over the mask coordinates and ensure they are within bounds
                 for i in range(len(mask[0])):
                     x = min(max(int(mask[0][i]), 0), w - 1)  # Ensure x is within bounds [0, w-1]
                     y = min(max(int(mask[1][i]), 0), h - 1)  # Ensure y is within bounds [0, h-1]
                     mask_bool[y, x] = True
 
                 # Extract depth information within the mask region
-                object_depth_pixels = depth_map_resized[mask_bool]  # Get depth values for masked area
-                if len(object_depth_pixels) > 0:
-                    avg_depth = np.mean(object_depth_pixels)  # Average depth within the masked area
-                else:
-                    avg_depth = -1  # If no depth pixels are found
+                object_depth_pixels = depth_map_resized[mask_bool]
+                avg_depth = np.mean(object_depth_pixels) if len(object_depth_pixels) > 0 else -1
 
-                # Print the ID, bbox center, and depth in the console
+                # Print the ID, bbox center, depth, and camera angle in the console
                 center_x = (x1 + x2) / 2
                 center_y = (y1 + y2) / 2
-                print(f"ID: {track_id}, Center: ({center_x:.2f}, {center_y:.2f}), Average Depth: {avg_depth:.2f}")
+                print(f"ID: {track_id}, Center: ({center_x:.2f}, {center_y:.2f}), Average Depth: {avg_depth:.2f}, Camera Angle: {camera_angle:.2f} degrees")
+
+                # Add data to the object-specific DataFrame
+                if track_id not in object_dfs:
+                    object_dfs[track_id] = pd.DataFrame(columns=['Timestamp', 'Angle', 'Center X', 'Center Y', 'Average Depth'])
+
+                object_data = {'Timestamp': timestamp, 'Angle': camera_angle, 'Center X': center_x, 'Center Y': center_y, 'Average Depth': avg_depth}
+                object_dfs[track_id] = pd.concat([object_dfs[track_id], pd.DataFrame([object_data])], ignore_index=True)
 
                 # Overlay the mask on the frame as a semi-transparent region
                 mask_overlay = np.zeros_like(im0, dtype=np.uint8)
                 mask_overlay[mask_bool] = [0, 255, 0]  # Green mask for the object
                 im0 = cv2.addWeighted(im0, 1.0, mask_overlay, 0.5, 0)  # Blend the mask into the frame
 
-                # Add depth information to the annotation
-                label_with_depth = f"ID: {track_id} Depth: {avg_depth:.2f}"
-                annotator.box_label((x1, y1, x2, y2), label_with_depth, color=color)
+        # Get the final annotated image from annotator
+        im0 = annotator.result()
 
         # Write the annotated frame to the output video
         out.write(im0)
 
         # Display the result frame with masks and depth
         cv2.imshow("instance-segmentation-object-tracking", im0)
+
+        # Increment frame number
+        frame_num += 1
 
         # Press 'q' to exit
         if cv2.waitKey(1) & 0xFF == ord("q"):
@@ -129,7 +150,24 @@ def main():
     cap.release()
     cv2.destroyAllWindows()
 
-    print(f"Video saved to {output_video_path}")
+    # Print the whole video DataFrame without 'Center X', 'Center Y', and 'Average Depth'
+    print("\nWhole Video DataFrame (Without 'Center X', 'Center Y', 'Average Depth'):")    
+    print(video_df)
+
+    # Print DataFrames for each object and calculate statistics
+    for track_id, df in object_dfs.items():
+        print(f"\nDataFrame for Object ID {track_id}:")
+        print(df)
+        
+        # Calculate and print average and median values for 'Center Y' and 'Average Depth'
+        avg_depth = df['Average Depth'].mean()
+        median_depth = df['Average Depth'].median()
+        avg_center_y = df['Center Y'].mean()
+        median_center_y = df['Center Y'].median()
+
+        print(f"\nStatistics for Object ID {track_id}:")
+        print(f"Average Depth: {avg_depth:.2f}, Median Depth: {median_depth:.2f}")
+        print(f"Average Center Y: {avg_center_y:.2f}, Median Center Y: {median_center_y:.2f}")
 
 if __name__ == "__main__":
     main()
