@@ -1,10 +1,18 @@
 using UnityEngine;
+using System.Collections.Generic;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class BoundingBoxWithoutRenderer : MonoBehaviour
 {
     private LineRenderer lineRenderer;
     public Color boundingBoxColor = Color.green;
     public float lineWidth = 0.05f;
+
+    // Dictionary to store the corners with labels
+    private Dictionary<string, Vector3> cornersDict = new Dictionary<string, Vector3>();
 
     private void Start()
     {
@@ -26,6 +34,7 @@ public class BoundingBoxWithoutRenderer : MonoBehaviour
         glowMaterial.color = boundingBoxColor;
         lineRenderer.material = glowMaterial;
 
+        // Draw the bounding box and store corners
         DrawBoundingBox();
     }
 
@@ -34,56 +43,58 @@ public class BoundingBoxWithoutRenderer : MonoBehaviour
         // Calculate the bounding box from mesh vertices
         Bounds combinedBounds = CalculateMeshBounds();
 
-        // Get the 8 corners of the bounding box
+        // Get the 8 corners of the bounding box and store them in a dictionary
         Vector3[] corners = new Vector3[8];
-        corners[0] = combinedBounds.center + new Vector3(combinedBounds.extents.x, combinedBounds.extents.y, combinedBounds.extents.z);
-        corners[1] = combinedBounds.center + new Vector3(combinedBounds.extents.x, combinedBounds.extents.y, -combinedBounds.extents.z);
-        corners[2] = combinedBounds.center + new Vector3(-combinedBounds.extents.x, combinedBounds.extents.y, -combinedBounds.extents.z);
-        corners[3] = combinedBounds.center + new Vector3(-combinedBounds.extents.x, combinedBounds.extents.y, combinedBounds.extents.z);
-        corners[4] = combinedBounds.center + new Vector3(combinedBounds.extents.x, -combinedBounds.extents.y, combinedBounds.extents.z);
-        corners[5] = combinedBounds.center + new Vector3(combinedBounds.extents.x, -combinedBounds.extents.y, -combinedBounds.extents.z);
-        corners[6] = combinedBounds.center + new Vector3(-combinedBounds.extents.x, -combinedBounds.extents.y, -combinedBounds.extents.z);
-        corners[7] = combinedBounds.center + new Vector3(-combinedBounds.extents.x, -combinedBounds.extents.y, combinedBounds.extents.z);
+        corners[0] = combinedBounds.center + new Vector3(combinedBounds.extents.x, combinedBounds.extents.y, combinedBounds.extents.z);  // Top Front Right
+        corners[1] = combinedBounds.center + new Vector3(combinedBounds.extents.x, combinedBounds.extents.y, -combinedBounds.extents.z); // Top Back Right
+        corners[2] = combinedBounds.center + new Vector3(-combinedBounds.extents.x, combinedBounds.extents.y, -combinedBounds.extents.z); // Top Back Left
+        corners[3] = combinedBounds.center + new Vector3(-combinedBounds.extents.x, combinedBounds.extents.y, combinedBounds.extents.z);  // Top Front Left
+        corners[4] = combinedBounds.center + new Vector3(combinedBounds.extents.x, -combinedBounds.extents.y, combinedBounds.extents.z);  // Bottom Front Right
+        corners[5] = combinedBounds.center + new Vector3(combinedBounds.extents.x, -combinedBounds.extents.y, -combinedBounds.extents.z); // Bottom Back Right
+        corners[6] = combinedBounds.center + new Vector3(-combinedBounds.extents.x, -combinedBounds.extents.y, -combinedBounds.extents.z); // Bottom Back Left
+        corners[7] = combinedBounds.center + new Vector3(-combinedBounds.extents.x, -combinedBounds.extents.y, combinedBounds.extents.z);  // Bottom Front Left
+
+        // Store the corners in the dictionary with labels
+        for (int i = 0; i < corners.Length; i++)
+        {
+            cornersDict["Corner" + i] = corners[i];
+        }
+
+        // Print the corner positions
+        foreach (KeyValuePair<string, Vector3> corner in cornersDict)
+        {
+            Debug.Log(corner.Key + ": " + corner.Value);
+        }
 
         // Set positions for LineRenderer to form the bounding box
-        lineRenderer.positionCount = 24; // We need 24 points to draw the full box correctly
+        lineRenderer.positionCount = 16; // Only 12 edges of a cube, but we repeat to form a loop
 
-        // Top square
+        // Top square (connect corners 0, 1, 2, 3)
         lineRenderer.SetPosition(0, corners[0]);
         lineRenderer.SetPosition(1, corners[1]);
         lineRenderer.SetPosition(2, corners[2]);
         lineRenderer.SetPosition(3, corners[3]);
-        lineRenderer.SetPosition(4, corners[0]);  // Loop back to start of the top square
+        lineRenderer.SetPosition(4, corners[0]);  // Close the top square loop
 
-        // Bottom square
+        // Bottom square (connect corners 4, 5, 6, 7)
         lineRenderer.SetPosition(5, corners[4]);
         lineRenderer.SetPosition(6, corners[5]);
         lineRenderer.SetPosition(7, corners[6]);
         lineRenderer.SetPosition(8, corners[7]);
-        lineRenderer.SetPosition(9, corners[4]);  // Loop back to start of the bottom square
+        lineRenderer.SetPosition(9, corners[4]);  // Close the bottom square loop
 
-        // Connect top and bottom squares
-        lineRenderer.SetPosition(10, corners[0]);
+        // Vertical edges (connect top and bottom squares)
+        lineRenderer.SetPosition(10, corners[0]); // Top Front Right -> Bottom Front Right
         lineRenderer.SetPosition(11, corners[4]);
 
-        lineRenderer.SetPosition(12, corners[1]);
+        lineRenderer.SetPosition(12, corners[1]); // Top Back Right -> Bottom Back Right
         lineRenderer.SetPosition(13, corners[5]);
 
-        lineRenderer.SetPosition(14, corners[2]);
+        lineRenderer.SetPosition(14, corners[2]); // Top Back Left -> Bottom Back Left
         lineRenderer.SetPosition(15, corners[6]);
 
-        lineRenderer.SetPosition(16, corners[3]);
+        lineRenderer.SetPosition(16, corners[3]); // Top Front Left -> Bottom Front Left
         lineRenderer.SetPosition(17, corners[7]);
-
-        // Additional connections to make it look proper (to fix diagonals)
-        lineRenderer.SetPosition(18, corners[0]);  // Back to first point of top square to close the box
-        lineRenderer.SetPosition(19, corners[3]);
-
-        lineRenderer.SetPosition(20, corners[4]);  // Back to first point of bottom square
-        lineRenderer.SetPosition(21, corners[7]);
-
-        lineRenderer.SetPosition(22, corners[2]);  // Connect side diagonals if necessary (optional)
-        lineRenderer.SetPosition(23, corners[6]);
     }
 
     // This function calculates the combined bounds of all MeshFilters in this GameObject and its children
@@ -122,17 +133,23 @@ public class BoundingBoxWithoutRenderer : MonoBehaviour
     // To show in the editor
     private void OnDrawGizmos()
     {
-        MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
-
-        if (meshFilters.Length > 0)
+        if (cornersDict.Count > 0)
         {
             Gizmos.color = boundingBoxColor;
 
-            // Get the combined bounds for all meshes
-            Bounds combinedBounds = CalculateMeshBounds();
+            // Draw the bounding box corners as small spheres
+            foreach (KeyValuePair<string, Vector3> corner in cornersDict)
+            {
+                Gizmos.DrawSphere(corner.Value, 0.05f);  // Draw a small sphere at each corner
+            }
 
-            // Draw the wireframe bounding box
-            Gizmos.DrawWireCube(combinedBounds.center, combinedBounds.size);
+            // Draw the corner labels
+#if UNITY_EDITOR
+            foreach (KeyValuePair<string, Vector3> corner in cornersDict)
+            {
+                Handles.Label(corner.Value, corner.Key);  // Draw corner label
+            }
+#endif
         }
     }
 }
