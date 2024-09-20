@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 import math
 from ultralytics.utils.plotting import Annotator, colors
-from midas_depth_estimation import get_depth_map  # Import the depth estimation function
+from midas_depth_estimation import get_depth_map, save_depth_map  # Import the depth estimation function and save function
 from ultralytics import YOLO
-from config import get_test_videos_path, get_yolo_segmentation_video_output_path  # Adjust the import as per your config module
+from config import get_test_videos_path, get_yolo_segmentation_video_output_path, get_midas_output_path  # Adjust the import as per your config module
 
 def construct_video_paths(video_name_with_extension):
     """
@@ -38,7 +38,7 @@ def calculate_camera_angle(frame_num, total_frames, total_angle=90):
     """
     return (frame_num / total_frames) * total_angle  # Linear progression from 0 to total_angle
 
-def calculate_distance_from_camera(angle, room_x, room_y):
+def calculate_distance_from_camera(angle, room_x=3, room_y=3):
     """
     Calculate the distance from the camera at (0, 0) to the furthest point visible in the center of the frame,
     considering non-square rooms where room_x and room_y may differ.
@@ -53,8 +53,6 @@ def calculate_distance_from_camera(angle, room_x, room_y):
     """
     # Calculate the transition angle in degrees (atan2 returns radians)
     transition_angle = math.degrees(math.atan2(room_y, room_x))
-    
-    print("Transition_angle is: ", transition_angle)
 
     angle_radians = math.radians(angle)
 
@@ -80,6 +78,9 @@ def main():
     # Load the video
     video_name_with_extension = "rh_one_chair.mp4"
     input_video_path, output_video_path = construct_video_paths(video_name_with_extension)
+
+    # Set up directories to save depth maps
+    midas_output_dir = get_midas_output_path(video_name_with_extension.replace('.mp4', ''))
 
     # Open the video for reading
     cap = cv2.VideoCapture(input_video_path)
@@ -116,6 +117,9 @@ def main():
 
         # Perform depth estimation for the current frame
         depth_map_resized = get_depth_map(im0)
+
+        # Save depth map as an image
+        save_depth_map(f"frame_{frame_num}.png", depth_map_resized, midas_output_dir)
 
         # Perform YOLO segmentation on the frame
         results = model.track(im0, persist=True)
