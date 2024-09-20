@@ -27,14 +27,6 @@ def calculate_camera_angle(frame_num, total_frames, total_angle=90):
     """
     Calculates the camera's angle based on the frame number.
     The total angle is defined by the `total_angle` parameter, with a default of 90 degrees.
-    
-    Parameters:
-    - frame_num: int, the current frame number.
-    - total_frames: int, the total number of frames in the video.
-    - total_angle: float, the total rotation angle of the camera (default is 90 degrees).
-    
-    Returns:
-    - angle: float, the camera's angle at the current frame.
     """
     return (frame_num / total_frames) * total_angle  # Linear progression from 0 to total_angle
 
@@ -42,18 +34,8 @@ def calculate_distance_from_camera(angle, room_x=3, room_y=3):
     """
     Calculate the distance from the camera at (0, 0) to the furthest point visible in the center of the frame,
     considering non-square rooms where room_x and room_y may differ.
-
-    Parameters:
-    - angle: float, the current camera angle in degrees.
-    - room_x: float, the length of the room along the x-axis (default is 3 meters).
-    - room_y: float, the length of the room along the y-axis (default is 3 meters).
-
-    Returns:
-    - distance: float, the distance from the camera to the point in the center of the frame.
     """
-    # Calculate the transition angle in degrees (atan2 returns radians)
     transition_angle = math.degrees(math.atan2(room_y, room_x))
-
     angle_radians = math.radians(angle)
 
     if angle <= transition_angle:
@@ -64,6 +46,15 @@ def calculate_distance_from_camera(angle, room_x=3, room_y=3):
         distance = room_y / math.sin(angle_radians)
     
     return distance
+
+def extract_deepest_wall_depth(depth_map, h, w):
+    """
+    Extract the deepest depth value along the center of the frame (vertical line on the y-axis).
+    """
+    center_x = w // 2
+    center_column_depths = depth_map[:, center_x]  # Get depth values along the center y-axis line
+    deepest_depth = np.max(center_column_depths)  # Deepest point in that line
+    return deepest_depth
 
 def main():
     # Set the total camera rotation angle (default to 90 degrees)
@@ -93,6 +84,7 @@ def main():
     # DataFrames to store angles, center coordinates, and depth
     video_df = pd.DataFrame(columns=['Timestamp', 'Angle', 'Distance from Camera'])
     object_dfs = {}  # Dictionary to store a DataFrame for each detected object
+    deepest_depths = []  # List to store deepest wall depth per frame
 
     # Frame center on the x-axis
     frame_center_x = w / 2
@@ -126,6 +118,11 @@ def main():
 
         # Save depth map as an image
         save_depth_map(f"frame_{frame_num}.png", depth_map_resized, midas_output_dir)
+
+        # Extract the deepest depth at the center vertical line
+        deepest_depth = extract_deepest_wall_depth(depth_map_resized, h, w)
+        deepest_depths.append(deepest_depth)
+        print(f"Deepest Wall Depth at Center in Frame {frame_num}: {deepest_depth}")
 
         # Perform YOLO segmentation on the frame
         results = model.track(im0, persist=True)
@@ -216,6 +213,11 @@ def main():
     print("\nFrame numbers where each object is closest to the center of the frame (X-axis):")
     for track_id, data in closest_frame_by_object.items():
         print(f"Object ID {track_id}: Frame {data['frame_num']}, Center X: {data['center_x']:.2f}, Center Y: {data['center_y']:.2f}, Avg Depth: {data['avg_depth']:.2f}")
+
+    # Print the deepest wall depth values for each frame
+    print("\nDeepest Wall Depths for Each Frame:")
+    for i, depth in enumerate(deepest_depths):
+        print(f"Frame {i}: Deepest Wall Depth: {depth}")
 
     # Print the whole video DataFrame without 'Center X', 'Center Y', and 'Average Depth'
     print("\nWhole Video DataFrame (Without 'Center X', 'Center Y', 'Average Depth'):")
