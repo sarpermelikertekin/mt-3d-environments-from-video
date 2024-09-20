@@ -158,6 +158,14 @@ def main():
                 object_depth_pixels = depth_map_resized[mask_bool]
                 avg_depth = np.mean(object_depth_pixels) if len(object_depth_pixels) > 0 else -1
 
+                # Estimate the object's distance using the depth ratio
+                if deepest_depth > 0:  # Ensure that the deepest depth is valid
+                    object_distance = distance_from_camera * (avg_depth / deepest_depth)
+                    print(f"Estimated Object Distance for ID {track_id}: {object_distance:.2f} meters")
+                else:
+                    object_distance = -1  # Invalid depth ratio if deepest_depth is zero
+                    print(f"Invalid depth ratio for object ID {track_id}")
+
                 # Print the ID, bbox center, depth, and camera angle in the console
                 center_x = (x1 + x2) / 2
                 center_y = (y1 + y2) / 2
@@ -170,14 +178,15 @@ def main():
                         'frame_num': frame_num,
                         'center_x': center_x,
                         'center_y': center_y,
-                        'avg_depth': avg_depth
+                        'avg_depth': avg_depth,
+                        'object_distance': object_distance  # Store the estimated object distance
                     }
 
                 # Add data to the object-specific DataFrame
                 if track_id not in object_dfs:
-                    object_dfs[track_id] = pd.DataFrame(columns=['Timestamp', 'Angle', 'Center X', 'Center Y', 'Average Depth'])
+                    object_dfs[track_id] = pd.DataFrame(columns=['Timestamp', 'Angle', 'Center X', 'Center Y', 'Average Depth', 'Estimated Distance'])
 
-                object_data = {'Timestamp': timestamp, 'Angle': camera_angle, 'Center X': center_x, 'Center Y': center_y, 'Average Depth': avg_depth}
+                object_data = {'Timestamp': timestamp, 'Angle': camera_angle, 'Center X': center_x, 'Center Y': center_y, 'Average Depth': avg_depth, 'Estimated Distance': object_distance}
                 object_dfs[track_id] = pd.concat([object_dfs[track_id], pd.DataFrame([object_data])], ignore_index=True)
 
                 # Overlay the mask on the frame as a semi-transparent region
@@ -212,7 +221,7 @@ def main():
     # Print the frame where each object's center_x is closest to the center of the frame
     print("\nFrame numbers where each object is closest to the center of the frame (X-axis):")
     for track_id, data in closest_frame_by_object.items():
-        print(f"Object ID {track_id}: Frame {data['frame_num']}, Center X: {data['center_x']:.2f}, Center Y: {data['center_y']:.2f}, Avg Depth: {data['avg_depth']:.2f}")
+        print(f"Object ID {track_id}: Frame {data['frame_num']}, Center X: {data['center_x']:.2f}, Center Y: {data['center_y']:.2f}, Avg Depth: {data['avg_depth']:.2f}, Estimated Distance: {data['object_distance']:.2f} meters")
 
     # Print the deepest wall depth values for each frame
     print("\nDeepest Wall Depths for Each Frame:")
