@@ -30,7 +30,7 @@ def calculate_camera_angle(frame_num, total_frames, total_angle=90):
     """
     return (frame_num / total_frames) * total_angle  # Linear progression from 0 to total_angle
 
-def calculate_distance_from_camera(angle, room_x=3, room_y=3):
+def calculate_distance_from_camera(angle, room_x=4, room_y=2):
     """
     Calculate the distance from the camera at (0, 0) to the furthest point visible in the center of the frame,
     considering non-square rooms where room_x and room_y may differ.
@@ -55,6 +55,16 @@ def extract_deepest_wall_depth(depth_map, h, w):
     center_column_depths = depth_map[:, center_x]  # Get depth values along the center y-axis line
     deepest_depth = np.max(center_column_depths)  # Deepest point in that line
     return deepest_depth
+
+def calculate_cartesian_coordinates(angle, distance):
+    """
+    Calculate Cartesian coordinates (x, y) from polar coordinates (angle, distance).
+    The camera is at the origin (0, 0).
+    """
+    angle_radians = math.radians(angle)
+    x = distance * math.cos(angle_radians)
+    y = distance * math.sin(angle_radians)
+    return (x, y)
 
 def main():
     # Set the total camera rotation angle (default to 90 degrees)
@@ -82,7 +92,7 @@ def main():
     out = cv2.VideoWriter(output_video_path, cv2.VideoWriter_fourcc(*"MJPG"), fps, (w, h))
 
     # DataFrames to store angles, center coordinates, and depth
-    video_df = pd.DataFrame(columns=['Timestamp', 'Angle', 'Distance from Camera'])
+    video_df = pd.DataFrame(columns=['Timestamp', 'Angle', 'Distance from Camera', 'Deepest Wall Depth', 'Cartesian Coordinates'])
     object_dfs = {}  # Dictionary to store a DataFrame for each detected object
     deepest_depths = []  # List to store deepest wall depth per frame
 
@@ -107,12 +117,6 @@ def main():
         # Calculate distance to the center of the frame based on camera angle
         distance_from_camera = calculate_distance_from_camera(camera_angle, room_x, room_y)
 
-        # Print camera angle and distance even if no objects are detected
-        print(f"Camera Angle: {camera_angle:.2f} degrees, Distance from Camera: {distance_from_camera:.2f} meters")
-
-        # Add data to the video-wide DataFrame
-        video_df = pd.concat([video_df, pd.DataFrame([{'Timestamp': timestamp, 'Angle': camera_angle, 'Distance from Camera': distance_from_camera}])], ignore_index=True)
-
         # Perform depth estimation for the current frame
         depth_map_resized = get_depth_map(im0)
 
@@ -122,7 +126,18 @@ def main():
         # Extract the deepest depth at the center vertical line
         deepest_depth = extract_deepest_wall_depth(depth_map_resized, h, w)
         deepest_depths.append(deepest_depth)
-        print(f"Deepest Wall Depth at Center in Frame {frame_num}: {deepest_depth}")
+
+        # Calculate the Cartesian coordinates for the deepest point
+        cartesian_coords = calculate_cartesian_coordinates(camera_angle, distance_from_camera)
+
+        # Add data to the video-wide DataFrame
+        video_df = pd.concat([video_df, pd.DataFrame([{
+            'Timestamp': timestamp,
+            'Angle': camera_angle,
+            'Distance from Camera': distance_from_camera,
+            'Deepest Wall Depth': deepest_depth,
+            'Cartesian Coordinates': cartesian_coords
+        }])], ignore_index=True)
 
         # Perform YOLO segmentation on the frame
         results = model.track(im0, persist=True)
@@ -161,15 +176,12 @@ def main():
                 # Estimate the object's distance using the depth ratio
                 if deepest_depth > 0:  # Ensure that the deepest depth is valid
                     object_distance = distance_from_camera * (avg_depth / deepest_depth)
-                    print(f"Estimated Object Distance for ID {track_id}: {object_distance:.2f} meters")
                 else:
                     object_distance = -1  # Invalid depth ratio if deepest_depth is zero
-                    print(f"Invalid depth ratio for object ID {track_id}")
 
-                # Print the ID, bbox center, depth, and camera angle in the console
+                # Calculate object center
                 center_x = (x1 + x2) / 2
                 center_y = (y1 + y2) / 2
-                print(f"ID: {track_id}, Center: ({center_x:.2f}, {center_y:.2f}), Average Depth: {avg_depth:.2f}, Camera Angle: {camera_angle:.2f} degrees, Distance from Camera: {distance_from_camera:.2f} meters")
 
                 # Check if the object's center_x is closest to the frame center_x
                 if track_id not in closest_frame_by_object or abs(center_x - frame_center_x) < abs(closest_frame_by_object[track_id]['center_x'] - frame_center_x):
@@ -189,19 +201,11 @@ def main():
                 object_data = {'Timestamp': timestamp, 'Angle': camera_angle, 'Center X': center_x, 'Center Y': center_y, 'Average Depth': avg_depth, 'Estimated Distance': object_distance}
                 object_dfs[track_id] = pd.concat([object_dfs[track_id], pd.DataFrame([object_data])], ignore_index=True)
 
-                # Overlay the mask on the frame as a semi-transparent region
-                mask_overlay = np.zeros_like(im0, dtype=np.uint8)
-                mask_overlay[mask_bool] = [0, 255, 0]  # Green mask for the object
-                im0 = cv2.addWeighted(im0, 1.0, mask_overlay, 0.5, 0)  # Blend the mask into the frame
-
-        # Get the final annotated image from annotator
-        im0 = annotator.result()
-
         # Write the annotated frame to the output video
         out.write(im0)
 
-        # Display the result frame with masks and depth
-        cv2.imshow("instance-segmentation-object-tracking", im0)
+        # Display the processed frame
+        cv2.imshow("Processed Video", im0)
 
         # Increment frame number
         frame_num += 1
@@ -215,6 +219,15 @@ def main():
     cap.release()
     cv2.destroyAllWindows()
 
+    # Save the video_df as a CSV file in the same directory as the segmentation video
+    video_df_csv_path = os.path.join(os.path.dirname(output_video_path), 'video_data_with_cartesian_coordinates.csv')
+    video_df.to_csv(video_df_csv_path, index=False)
+
+    # Save each object-specific DataFrame as a CSV file
+    for track_id, df in object_dfs.items():
+        object_csv_path = os.path.join(os.path.dirname(output_video_path), f'object_{track_id}_data.csv')
+        df.to_csv(object_csv_path, index=False)
+
     # Final output for closest frames, average, and median values
     print("\n--- Final Output ---")
 
@@ -223,20 +236,15 @@ def main():
     for track_id, data in closest_frame_by_object.items():
         print(f"Object ID {track_id}: Frame {data['frame_num']}, Center X: {data['center_x']:.2f}, Center Y: {data['center_y']:.2f}, Avg Depth: {data['avg_depth']:.2f}, Estimated Distance: {data['object_distance']:.2f} meters")
 
-    # Print the deepest wall depth values for each frame
-    print("\nDeepest Wall Depths for Each Frame:")
-    for i, depth in enumerate(deepest_depths):
-        print(f"Frame {i}: Deepest Wall Depth: {depth}")
-
-    # Print the whole video DataFrame without 'Center X', 'Center Y', and 'Average Depth'
-    print("\nWhole Video DataFrame (Without 'Center X', 'Center Y', 'Average Depth'):")
+    # Print the whole video DataFrame
+    print("\nWhole Video DataFrame:")
     print(video_df)
 
     # Print DataFrames for each object and calculate statistics
     for track_id, df in object_dfs.items():
         print(f"\nDataFrame for Object ID {track_id}:")
         print(df)
-        
+
         # Calculate and print average and median values for 'Center Y' and 'Average Depth'
         avg_depth = df['Average Depth'].mean()
         median_depth = df['Average Depth'].median()
