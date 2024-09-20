@@ -94,6 +94,12 @@ def main():
     video_df = pd.DataFrame(columns=['Timestamp', 'Angle', 'Distance from Camera'])
     object_dfs = {}  # Dictionary to store a DataFrame for each detected object
 
+    # Frame center on the x-axis
+    frame_center_x = w / 2
+
+    # Dictionary to store the closest frames for each object (based on x-coordinate)
+    closest_frame_by_object = {}
+
     # Process video frames
     frame_num = 0
     while True:
@@ -160,6 +166,16 @@ def main():
                 center_y = (y1 + y2) / 2
                 print(f"ID: {track_id}, Center: ({center_x:.2f}, {center_y:.2f}), Average Depth: {avg_depth:.2f}, Camera Angle: {camera_angle:.2f} degrees, Distance from Camera: {distance_from_camera:.2f} meters")
 
+                # Check if the object's center_x is closest to the frame center_x
+                if track_id not in closest_frame_by_object or abs(center_x - frame_center_x) < abs(closest_frame_by_object[track_id]['center_x'] - frame_center_x):
+                    # Update closest frame information for the object
+                    closest_frame_by_object[track_id] = {
+                        'frame_num': frame_num,
+                        'center_x': center_x,
+                        'center_y': center_y,
+                        'avg_depth': avg_depth
+                    }
+
                 # Add data to the object-specific DataFrame
                 if track_id not in object_dfs:
                     object_dfs[track_id] = pd.DataFrame(columns=['Timestamp', 'Angle', 'Center X', 'Center Y', 'Average Depth'])
@@ -193,8 +209,16 @@ def main():
     cap.release()
     cv2.destroyAllWindows()
 
+    # Final output for closest frames, average, and median values
+    print("\n--- Final Output ---")
+
+    # Print the frame where each object's center_x is closest to the center of the frame
+    print("\nFrame numbers where each object is closest to the center of the frame (X-axis):")
+    for track_id, data in closest_frame_by_object.items():
+        print(f"Object ID {track_id}: Frame {data['frame_num']}, Center X: {data['center_x']:.2f}, Center Y: {data['center_y']:.2f}, Avg Depth: {data['avg_depth']:.2f}")
+
     # Print the whole video DataFrame without 'Center X', 'Center Y', and 'Average Depth'
-    print("\nWhole Video DataFrame (Without 'Center X', 'Center Y', 'Average Depth'):")    
+    print("\nWhole Video DataFrame (Without 'Center X', 'Center Y', 'Average Depth'):")
     print(video_df)
 
     # Print DataFrames for each object and calculate statistics
