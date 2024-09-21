@@ -3,10 +3,11 @@ import os
 # Define the base common path for the 'V2P' project, 'YOLO', 'Midas', and 'Test'
 COMMON_BASE_PATH = "C:\\Users\\sakar\\OneDrive\\mt-datas\\"
 
-# Define the project folders for 'V2P', 'YOLO', 'Midas', and 'Test'
+# Define the project folders for 'V2P', 'YOLO', 'Midas', 'Objectron' and 'Test'
 V2P_DIR = "v2p"
 YOLO_DIR = "yolo"
 MIDAS_DIR = "midas"
+OBJECTRON_DIR = 'objectron'
 TEST_DIR = "test"
 
 # Define the subfolder names
@@ -27,6 +28,10 @@ def get_yolo_path():
 def get_midas_path():
     """C:\\Users\\sakar\\OneDrive\\mt-datas\\midas"""
     return os.path.join(COMMON_BASE_PATH, MIDAS_DIR)
+
+def get_midas_path():
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\objectron"""
+    return os.path.join(COMMON_BASE_PATH, OBJECTRON_DIR)
 
 def get_test_path():
     """C:\\Users\\sakar\\OneDrive\\mt-datas\\test"""
@@ -51,6 +56,16 @@ def get_v2p_videos_path(subfolder):
 def get_midas_output_path(video_name=None):
     """
     C:\\Users\\sakar\\OneDrive\\mt-datas\\midas
+    If a video_name is provided, return the path for the video.
+    Otherwise, return the default 'Single' folder.
+    """
+    if video_name:
+        return os.path.join(get_midas_path(), video_name)
+    return os.path.join(get_midas_path(), SINGLE_DIR)
+
+def get_objectron_output_path(video_name=None):
+    """
+    C:\\Users\\sakar\\OneDrive\\mt-datas\\objectron
     If a video_name is provided, return the path for the video.
     Otherwise, return the default 'Single' folder.
     """
