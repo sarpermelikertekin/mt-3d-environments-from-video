@@ -5,18 +5,20 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-public class GizmosBoundingBox : MonoBehaviour
+public class BoundingBox : MonoBehaviour
 {
     public Color boundingBoxColor = Color.green;
-    private Dictionary<string, Vector3> cornersDict = new Dictionary<string, Vector3>();
+    public Vector3[] corners;
 
+    private Dictionary<string, Vector3> cornersDict = new Dictionary<string, Vector3>();
+    
     private void OnDrawGizmos()
     {
         // Calculate the bounding box from mesh vertices
         Bounds combinedBounds = CalculateMeshBounds();
 
         // Get the 8 corners of the bounding box
-        Vector3[] corners = new Vector3[8];
+        corners = new Vector3[8];
         corners[0] = combinedBounds.center + new Vector3(combinedBounds.extents.x, combinedBounds.extents.y, combinedBounds.extents.z);  // Top Front Right
         corners[1] = combinedBounds.center + new Vector3(combinedBounds.extents.x, combinedBounds.extents.y, -combinedBounds.extents.z); // Top Back Right
         corners[2] = combinedBounds.center + new Vector3(-combinedBounds.extents.x, combinedBounds.extents.y, -combinedBounds.extents.z); // Top Back Left
