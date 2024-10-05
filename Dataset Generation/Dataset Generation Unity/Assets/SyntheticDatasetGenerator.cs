@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.IO;  // Import the System.IO namespace for file and directory operations
 using System.Collections.Generic;
 using System.Text;
 
@@ -109,7 +110,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
 
         // Calculate center and size of the bounding box
         center = new Vector2((minX + maxX) / 2, (minY + maxY) / 2);
-        size = new Vector2((maxX - minX) + boundingBoxBuffer*2, (maxY - minY) + boundingBoxBuffer * 2);
+        size = new Vector2((maxX - minX) + boundingBoxBuffer * 2, (maxY - minY) + boundingBoxBuffer * 2);
     }
 
     // Method to project 3D corner points to 2D screen space and mirror the y-coordinates
@@ -154,7 +155,14 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         if (CaptureScreenshot.Instance != null)
         {
             CaptureScreenshot.Instance.capture = true; // Ensure capture is enabled
-            string screenshotFilePath = @"C:\Users\sakar\mt-3d-environments-from-video\Dataset Generation\Dataset Generation Unity\Assets\";
+            string screenshotFilePath = @"C:\Users\sakar\OneDrive\mt-datas\synthetic_data\0_test\";
+
+            // Ensure the directory exists; if not, create it
+            if (!Directory.Exists(screenshotFilePath))
+            {
+                Directory.CreateDirectory(screenshotFilePath);
+                Debug.Log("Directory created at: " + screenshotFilePath);
+            }
 
             // Capture the screenshot
             CaptureScreenshot.Instance.TakeScreenshot(screenshotFilePath);
