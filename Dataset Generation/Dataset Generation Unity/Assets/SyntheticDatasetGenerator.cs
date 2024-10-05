@@ -39,6 +39,8 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     [Tooltip("Buffer to add to the bounding box size (in pixels)")]
     public float boundingBoxBuffer = 25f; // Buffer for the bounding box
 
+    private string baseDirectory = @"C:\Users\sakar\OneDrive\mt-datas\synthetic_data\0_test\";
+
     void Start()
     {
         if (mainCamera == null)
@@ -46,9 +48,17 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             mainCamera = Camera.main; // Automatically use the main camera if not assigned
         }
 
-        // Extract object details and log them to console
+        // Extract object details
         ExtractAndStoreObjectDetails();
-        Log2DDataToConsole();
+
+        // Serialize 3D and non-normalized 2D to JSON and normalized 2D to CSV
+        foreach (var details in allObjectDetails)
+        {
+            SerializeGeometryData3D(details);
+            SerializeGeometryData2D(details);
+        }
+
+        SerializeGeometryData2DNormalizedToCSV();  // COCO-style CSV for normalized 2D data
 
         // Capture the screenshot
         CaptureScreenshotAndSave();
@@ -155,41 +165,56 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         return normalizedCorners;
     }
 
-    // Log the 2D data (both normalized and non-normalized) in a readable format to the console
-    void Log2DDataToConsole()
+    // Serialize GeometryData3D to JSON
+    void SerializeGeometryData3D(ObjectDetails details)
     {
-        foreach (var detail in allObjectDetails)
+        string json3D = JsonUtility.ToJson(details.geometry3D, true);
+        string filePath = Path.Combine(baseDirectory, $"{details.name}_Geometry3D.json");
+
+        File.WriteAllText(filePath, json3D);
+        Debug.Log($"GeometryData3D for {details.name} saved to: {filePath}");
+    }
+
+    // Serialize GeometryData2D (non-normalized) to JSON
+    void SerializeGeometryData2D(ObjectDetails details)
+    {
+        string json2D = JsonUtility.ToJson(details.geometry2D, true);
+        string filePath = Path.Combine(baseDirectory, $"{details.name}_Geometry2D.json");
+
+        File.WriteAllText(filePath, json2D);
+        Debug.Log($"GeometryData2D for {details.name} saved to: {filePath}");
+    }
+
+    // Serialize GeometryData2DNormalized to a COCO-like CSV file
+    void SerializeGeometryData2DNormalizedToCSV()
+    {
+        StringBuilder csv = new StringBuilder();
+        csv.AppendLine("id,keypoints,bounding_box_center,bounding_box_size");
+
+        foreach (var details in allObjectDetails)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"Object: {detail.name}");
+            // Generate the object ID
+            string id = details.name;
 
-            // Log non-normalized corners
-            sb.AppendLine("Projected 2D Corners (x, y):");
-            foreach (Vector2 corner in detail.geometry2D.projectedCorners)
+            // Flatten the keypoints (x, y pairs)
+            List<string> keypoints = new List<string>();
+            foreach (var corner in details.geometry2DNormalized.projectedCorners)
             {
-                sb.AppendLine($"({corner.x:F2}, {corner.y:F2})");
+                keypoints.Add($"{corner.x:F4},{corner.y:F4}"); // Add the normalized coordinates with precision
             }
 
-            // Log normalized corners
-            sb.AppendLine("Normalized 2D Corners (x, y):");
-            foreach (Vector2 corner in detail.geometry2DNormalized.projectedCorners)
-            {
-                sb.AppendLine($"({corner.x:F2}, {corner.y:F2})");
-            }
+            // Add bounding box center and size
+            string boundingBoxCenter = $"{details.geometry2DNormalized.boundingBoxCenter.x:F4},{details.geometry2DNormalized.boundingBoxCenter.y:F4}";
+            string boundingBoxSize = $"{details.geometry2DNormalized.boundingBoxSize.x:F4},{details.geometry2DNormalized.boundingBoxSize.y:F4}";
 
-            // Log non-normalized bounding box
-            sb.AppendLine($"Bounding Box Center: ({detail.geometry2D.boundingBoxCenter.x:F2}, {detail.geometry2D.boundingBoxCenter.y:F2})");
-            sb.AppendLine($"Bounding Box Size: Width = {detail.geometry2D.boundingBoxSize.x:F2}, Height = {detail.geometry2D.boundingBoxSize.y:F2}");
-
-            // Log normalized bounding box
-            sb.AppendLine($"Normalized Bounding Box Center: ({detail.geometry2DNormalized.boundingBoxCenter.x:F2}, {detail.geometry2DNormalized.boundingBoxCenter.y:F2})");
-            sb.AppendLine($"Normalized Bounding Box Size: Width = {detail.geometry2DNormalized.boundingBoxSize.x:F2}, Height = {detail.geometry2DNormalized.boundingBoxSize.y:F2}");
-
-            sb.AppendLine(new string('-', 50));
-
-            // Log the string to the console
-            Debug.Log(sb.ToString());
+            // Construct the CSV line
+            csv.AppendLine($"{id},{string.Join(",", keypoints)},{boundingBoxCenter},{boundingBoxSize}");
         }
+
+        string filePath = Path.Combine(baseDirectory, "Geometry2DNormalized_COCO.csv");
+
+        File.WriteAllText(filePath, csv.ToString());
+        Debug.Log($"GeometryData2DNormalized CSV saved to: {filePath}");
     }
 
     // Separate function to capture the screenshot using the CaptureScreenshot class
@@ -198,7 +223,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         if (CaptureScreenshot.Instance != null)
         {
             CaptureScreenshot.Instance.capture = true; // Ensure capture is enabled
-            string screenshotFilePath = @"C:\Users\sakar\OneDrive\mt-datas\synthetic_data\0_test\";
+            string screenshotFilePath = baseDirectory;
 
             // Ensure the directory exists; if not, create it
             if (!Directory.Exists(screenshotFilePath))
