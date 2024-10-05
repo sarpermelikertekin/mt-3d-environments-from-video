@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.IO;  // Import the System.IO namespace for file and directory operations
+using System.IO;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,7 +10,8 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     {
         public string name;
         public GeometryData3D geometry3D;
-        public GeometryData2D geometry2D;
+        public GeometryData2D geometry2D;              // Non-normalized 2D data
+        public GeometryData2D geometry2DNormalized;    // Normalized 2D data
     }
 
     [System.Serializable]
@@ -24,7 +25,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     [System.Serializable]
     public class GeometryData2D
     {
-        public Vector2[] projectedCorners; // 2D screen positions of corners (mirrored y-coordinates)
+        public Vector2[] projectedCorners; // 2D screen positions of corners
         public Vector2 boundingBoxCenter; // Center of the bounding box
         public Vector2 boundingBoxSize; // Size of the bounding box (width, height)
     }
@@ -64,8 +65,15 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             if (box != null) // Ensure there is a BoundingBox component
             {
                 Vector2[] projectedCorners = ProjectCorners(box.corners);
+
+                // Calculate non-normalized bounding box
                 Vector2 center, size;
-                CalculateBoundingBox(projectedCorners, out center, out size);
+                CalculateBoundingBox(projectedCorners, out center, out size, false);
+
+                // Normalize the corners and bounding box
+                Vector2[] normalizedCorners = NormalizeCorners(projectedCorners);
+                Vector2 normalizedCenter, normalizedSize;
+                CalculateBoundingBox(normalizedCorners, out normalizedCenter, out normalizedSize, true);
 
                 ObjectDetails details = new ObjectDetails
                 {
@@ -81,6 +89,12 @@ public class SyntheticDatasetGenerator : MonoBehaviour
                         projectedCorners = projectedCorners,
                         boundingBoxCenter = center,
                         boundingBoxSize = size
+                    },
+                    geometry2DNormalized = new GeometryData2D
+                    {
+                        projectedCorners = normalizedCorners,
+                        boundingBoxCenter = normalizedCenter,
+                        boundingBoxSize = normalizedSize
                     }
                 };
 
@@ -92,7 +106,8 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     }
 
     // Method to calculate bounding box based on 2D corners and apply the buffer
-    void CalculateBoundingBox(Vector2[] corners, out Vector2 center, out Vector2 size)
+    // `isNormalized` determines whether the bounding box is normalized or not
+    void CalculateBoundingBox(Vector2[] corners, out Vector2 center, out Vector2 size, bool isNormalized)
     {
         float minX = float.MaxValue;
         float maxX = float.MinValue;
@@ -108,9 +123,12 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             if (corner.y > maxY) maxY = corner.y;
         }
 
+        // Adjust buffer size based on whether the data is normalized or not
+        float buffer = isNormalized ? boundingBoxBuffer / Screen.width : boundingBoxBuffer;
+
         // Calculate center and size of the bounding box
         center = new Vector2((minX + maxX) / 2, (minY + maxY) / 2);
-        size = new Vector2((maxX - minX) + boundingBoxBuffer * 2, (maxY - minY) + boundingBoxBuffer * 2);
+        size = new Vector2((maxX - minX) + buffer * 2, (maxY - minY) + buffer * 2);
     }
 
     // Method to project 3D corner points to 2D screen space and mirror the y-coordinates
@@ -126,22 +144,47 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         return projectedCorners;
     }
 
-    // Log the 2D data in a readable format to the console
+    // Normalize the 2D corners based on screen width and height
+    Vector2[] NormalizeCorners(Vector2[] corners)
+    {
+        Vector2[] normalizedCorners = new Vector2[corners.Length];
+        for (int i = 0; i < corners.Length; i++)
+        {
+            normalizedCorners[i] = new Vector2(corners[i].x / Screen.width, corners[i].y / Screen.height);
+        }
+        return normalizedCorners;
+    }
+
+    // Log the 2D data (both normalized and non-normalized) in a readable format to the console
     void Log2DDataToConsole()
     {
         foreach (var detail in allObjectDetails)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Object: {detail.name}");
-            sb.AppendLine("Projected 2D Corners (x, y):");
 
+            // Log non-normalized corners
+            sb.AppendLine("Projected 2D Corners (x, y):");
             foreach (Vector2 corner in detail.geometry2D.projectedCorners)
             {
                 sb.AppendLine($"({corner.x:F2}, {corner.y:F2})");
             }
 
+            // Log normalized corners
+            sb.AppendLine("Normalized 2D Corners (x, y):");
+            foreach (Vector2 corner in detail.geometry2DNormalized.projectedCorners)
+            {
+                sb.AppendLine($"({corner.x:F2}, {corner.y:F2})");
+            }
+
+            // Log non-normalized bounding box
             sb.AppendLine($"Bounding Box Center: ({detail.geometry2D.boundingBoxCenter.x:F2}, {detail.geometry2D.boundingBoxCenter.y:F2})");
             sb.AppendLine($"Bounding Box Size: Width = {detail.geometry2D.boundingBoxSize.x:F2}, Height = {detail.geometry2D.boundingBoxSize.y:F2}");
+
+            // Log normalized bounding box
+            sb.AppendLine($"Normalized Bounding Box Center: ({detail.geometry2DNormalized.boundingBoxCenter.x:F2}, {detail.geometry2DNormalized.boundingBoxCenter.y:F2})");
+            sb.AppendLine($"Normalized Bounding Box Size: Width = {detail.geometry2DNormalized.boundingBoxSize.x:F2}, Height = {detail.geometry2DNormalized.boundingBoxSize.y:F2}");
+
             sb.AppendLine(new string('-', 50));
 
             // Log the string to the console
