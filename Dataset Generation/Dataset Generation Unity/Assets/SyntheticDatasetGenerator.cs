@@ -51,14 +51,14 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         // Extract object details
         ExtractAndStoreObjectDetails();
 
-        // Serialize 3D and non-normalized 2D to JSON and normalized 2D to CSV
+        // Serialize 3D and non-normalized 2D to JSON and normalized 2D to TXT (COCO-style)
         foreach (var details in allObjectDetails)
         {
             SerializeGeometryData3D(details);
             SerializeGeometryData2D(details);
         }
 
-        SerializeGeometryData2DNormalizedToCSV();  // COCO-style CSV for normalized 2D data
+        SerializeGeometryData2DNormalizedToTXT();  // COCO-style TXT for normalized 2D data
 
         // Capture the screenshot
         CaptureScreenshotAndSave();
@@ -75,6 +75,13 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             if (box != null) // Ensure there is a BoundingBox component
             {
                 Vector2[] projectedCorners = ProjectCorners(box.corners);
+
+                // Check if the object is fully visible in the game tab
+                if (!AreCornersInView(projectedCorners))
+                {
+                    Debug.Log($"Object '{obj.name}' is not fully visible in the game view. Skipping.");
+                    continue; // Skip objects that aren't fully visible
+                }
 
                 // Calculate non-normalized bounding box
                 Vector2 center, size;
@@ -112,7 +119,20 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             }
         }
 
-        Debug.Log("Extracted " + allObjectDetails.Count + " object details.");
+        Debug.Log("Extracted " + allObjectDetails.Count + " fully visible object details.");
+    }
+
+    // Check if all corners are within the screen bounds
+    bool AreCornersInView(Vector2[] projectedCorners)
+    {
+        foreach (Vector2 corner in projectedCorners)
+        {
+            if (corner.x < 0 || corner.x > Screen.width || corner.y < 0 || corner.y > Screen.height)
+            {
+                return false; // If any corner is out of bounds, the object is not fully visible
+            }
+        }
+        return true; // All corners are within the screen bounds
     }
 
     // Method to calculate bounding box based on 2D corners and apply the buffer
@@ -185,36 +205,44 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         Debug.Log($"GeometryData2D for {details.name} saved to: {filePath}");
     }
 
-    // Serialize GeometryData2DNormalized to a COCO-like CSV file
-    void SerializeGeometryData2DNormalizedToCSV()
+    // Map object names/tags to IDs (Chair -> 0, Desk -> 1, Wall -> 2)
+    int MapObjectNameToID(string name)
     {
-        StringBuilder csv = new StringBuilder();
-        csv.AppendLine("id,keypoints,bounding_box_center,bounding_box_size");
+        if (name.Contains("Chair")) return 0;
+        else if (name.Contains("Desk")) return 1;
+        else if (name.Contains("Wall")) return 2;
+        else return -1;  // Default for unrecognized objects
+    }
+
+    // Serialize GeometryData2DNormalized to a COCO-like TXT file (without headers, tabs between values)
+    void SerializeGeometryData2DNormalizedToTXT()
+    {
+        StringBuilder txtBuilder = new StringBuilder();
 
         foreach (var details in allObjectDetails)
         {
-            // Generate the object ID
-            string id = details.name;
+            // Get the object ID based on its name
+            int objectID = MapObjectNameToID(details.name);
 
             // Flatten the keypoints (x, y pairs)
             List<string> keypoints = new List<string>();
             foreach (var corner in details.geometry2DNormalized.projectedCorners)
             {
-                keypoints.Add($"{corner.x:F4},{corner.y:F4}"); // Add the normalized coordinates with precision
+                keypoints.Add($"{corner.x:F4}\t{corner.y:F4}"); // Add the normalized coordinates with precision and tabs between x and y
             }
 
-            // Add bounding box center and size
-            string boundingBoxCenter = $"{details.geometry2DNormalized.boundingBoxCenter.x:F4},{details.geometry2DNormalized.boundingBoxCenter.y:F4}";
-            string boundingBoxSize = $"{details.geometry2DNormalized.boundingBoxSize.x:F4},{details.geometry2DNormalized.boundingBoxSize.y:F4}";
+            // Add bounding box center and size, separated by tabs
+            string boundingBoxCenter = $"{details.geometry2DNormalized.boundingBoxCenter.x:F4}\t{details.geometry2DNormalized.boundingBoxCenter.y:F4}";
+            string boundingBoxSize = $"{details.geometry2DNormalized.boundingBoxSize.x:F4}\t{details.geometry2DNormalized.boundingBoxSize.y:F4}";
 
-            // Construct the CSV line
-            csv.AppendLine($"{id},{string.Join(",", keypoints)},{boundingBoxCenter},{boundingBoxSize}");
+            // Construct the line with tab-separated values (use the object ID instead of name)
+            txtBuilder.AppendLine($"{objectID}\t{string.Join("\t", keypoints)}\t{boundingBoxCenter}\t{boundingBoxSize}");
         }
 
-        string filePath = Path.Combine(baseDirectory, "Geometry2DNormalized_COCO.csv");
+        string filePath = Path.Combine(baseDirectory, "Geometry2DNormalized_COCO.txt");
 
-        File.WriteAllText(filePath, csv.ToString());
-        Debug.Log($"GeometryData2DNormalized CSV saved to: {filePath}");
+        File.WriteAllText(filePath, txtBuilder.ToString());
+        Debug.Log($"GeometryData2DNormalized TXT saved to: {filePath}");
     }
 
     // Separate function to capture the screenshot using the CaptureScreenshot class
