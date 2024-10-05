@@ -349,19 +349,19 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             // Get the object ID based on its name
             int objectID = MapObjectNameToID(details.name);
 
+            // Add bounding box center and size, separated by tabs
+            string boundingBoxCenter = $"{details.geometry2DNormalized.boundingBoxCenter.x:F4} {details.geometry2DNormalized.boundingBoxCenter.y:F4}";
+            string boundingBoxSize = $"{details.geometry2DNormalized.boundingBoxSize.x:F4} {details.geometry2DNormalized.boundingBoxSize.y:F4}";
+
             // Flatten the keypoints (x, y pairs)
             List<string> keypoints = new List<string>();
             foreach (var corner in details.geometry2DNormalized.projectedCorners)
             {
-                keypoints.Add($"{corner.x:F4}\t{corner.y:F4}"); // Add the normalized coordinates with precision and tabs between x and y
+                keypoints.Add($"{corner.x:F4} {corner.y:F4}"); // Add the normalized coordinates with precision and spaces between x and y
             }
 
-            // Add bounding box center and size, separated by tabs
-            string boundingBoxCenter = $"{details.geometry2DNormalized.boundingBoxCenter.x:F4}\t{details.geometry2DNormalized.boundingBoxCenter.y:F4}";
-            string boundingBoxSize = $"{details.geometry2DNormalized.boundingBoxSize.x:F4}\t{details.geometry2DNormalized.boundingBoxSize.y:F4}";
-
             // Construct the line with tab-separated values (use the object ID instead of name)
-            txtBuilder.AppendLine($"{objectID}\t{string.Join("\t", keypoints)}\t{boundingBoxCenter}\t{boundingBoxSize}");
+            txtBuilder.AppendLine($"{objectID}\t{string.Join(" ", keypoints)}\t{boundingBoxCenter}\t{boundingBoxSize}");
         }
 
         string filePath = Path.Combine(baseDirectory, "labels", dataSplit, $"{pictureIndex}.txt");
