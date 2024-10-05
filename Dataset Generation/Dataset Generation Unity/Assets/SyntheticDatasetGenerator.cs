@@ -26,8 +26,8 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     public class GeometryData2D
     {
         public Vector2[] projectedCorners; // 2D screen positions of corners
-        public Vector2 boundingBoxCenter; // Center of the bounding box
-        public Vector2 boundingBoxSize; // Size of the bounding box (width, height)
+        public Vector2 boundingBoxCenter;  // Center of the bounding box
+        public Vector2 boundingBoxSize;    // Size of the bounding box (width, height)
     }
 
     [Tooltip("Main camera used for projecting 3D points to 2D")]
@@ -51,13 +51,11 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         // Extract object details
         ExtractAndStoreObjectDetails();
 
-        // Serialize 3D and non-normalized 2D to JSON and normalized 2D to TXT (COCO-style)
-        foreach (var details in allObjectDetails)
-        {
-            SerializeGeometryData3D(details);
-            SerializeGeometryData2D(details);
-        }
+        // Serialize all 3D and 2D data to CSV
+        SerializeAllGeometryData3DToCSV();
+        SerializeAllGeometryData2DToCSV();
 
+        // Serialize normalized 2D data to COCO-style TXT file
         SerializeGeometryData2DNormalizedToTXT();  // COCO-style TXT for normalized 2D data
 
         // Capture the screenshot
@@ -136,7 +134,6 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     }
 
     // Method to calculate bounding box based on 2D corners and apply the buffer
-    // `isNormalized` determines whether the bounding box is normalized or not
     void CalculateBoundingBox(Vector2[] corners, out Vector2 center, out Vector2 size, bool isNormalized)
     {
         float minX = float.MaxValue;
@@ -185,26 +182,6 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         return normalizedCorners;
     }
 
-    // Serialize GeometryData3D to JSON
-    void SerializeGeometryData3D(ObjectDetails details)
-    {
-        string json3D = JsonUtility.ToJson(details.geometry3D, true);
-        string filePath = Path.Combine(baseDirectory, $"{details.name}_Geometry3D.json");
-
-        File.WriteAllText(filePath, json3D);
-        Debug.Log($"GeometryData3D for {details.name} saved to: {filePath}");
-    }
-
-    // Serialize GeometryData2D (non-normalized) to JSON
-    void SerializeGeometryData2D(ObjectDetails details)
-    {
-        string json2D = JsonUtility.ToJson(details.geometry2D, true);
-        string filePath = Path.Combine(baseDirectory, $"{details.name}_Geometry2D.json");
-
-        File.WriteAllText(filePath, json2D);
-        Debug.Log($"GeometryData2D for {details.name} saved to: {filePath}");
-    }
-
     // Map object names/tags to IDs (Chair -> 0, Desk -> 1, Wall -> 2)
     int MapObjectNameToID(string name)
     {
@@ -212,6 +189,66 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         else if (name.Contains("Desk")) return 1;
         else if (name.Contains("Wall")) return 2;
         else return -1;  // Default for unrecognized objects
+    }
+
+    // Serialize all GeometryData3D for all objects into a CSV file
+    void SerializeAllGeometryData3DToCSV()
+    {
+        StringBuilder csvBuilder = new StringBuilder();
+        csvBuilder.AppendLine("objectID,objectName,positionX,positionY,positionZ,rotationX,rotationY,rotationZ,corner1X,corner1Y,corner1Z,corner2X,corner2Y,corner2Z,...");
+
+        foreach (var details in allObjectDetails)
+        {
+            int objectID = MapObjectNameToID(details.name); // Map object name to ID
+            StringBuilder rowBuilder = new StringBuilder();
+            rowBuilder.Append($"{objectID},{details.name},");
+            rowBuilder.Append($"{details.geometry3D.position.x},{details.geometry3D.position.y},{details.geometry3D.position.z},");
+            rowBuilder.Append($"{details.geometry3D.rotation.x},{details.geometry3D.rotation.y},{details.geometry3D.rotation.z},");
+
+            // Append corners (X, Y, Z for each corner)
+            foreach (var corner in details.geometry3D.corners)
+            {
+                rowBuilder.Append($"{corner.x},{corner.y},{corner.z},");
+            }
+
+            csvBuilder.AppendLine(rowBuilder.ToString().TrimEnd(',')); // Trim the last comma
+        }
+
+        string filePath = Path.Combine(baseDirectory, "Geometry3D_AllObjects.csv");
+
+        File.WriteAllText(filePath, csvBuilder.ToString());
+        Debug.Log($"3D data for all objects saved to: {filePath}");
+    }
+
+    // Serialize all non-normalized GeometryData2D for all objects into a CSV file
+    void SerializeAllGeometryData2DToCSV()
+    {
+        StringBuilder csvBuilder = new StringBuilder();
+        csvBuilder.AppendLine("objectID,objectName,corner1X,corner1Y,corner2X,corner2Y,corner3X,corner3Y,...,boundingBoxCenterX,boundingBoxCenterY,boundingBoxWidth,boundingBoxHeight");
+
+        foreach (var details in allObjectDetails)
+        {
+            int objectID = MapObjectNameToID(details.name); // Map object name to ID
+            StringBuilder rowBuilder = new StringBuilder();
+            rowBuilder.Append($"{objectID},{details.name},");
+
+            // Append 2D corners (X, Y for each corner)
+            foreach (var corner in details.geometry2D.projectedCorners)
+            {
+                rowBuilder.Append($"{corner.x},{corner.y},");
+            }
+
+            // Append bounding box center and size
+            rowBuilder.Append($"{details.geometry2D.boundingBoxCenter.x},{details.geometry2D.boundingBoxCenter.y},");
+            rowBuilder.Append($"{details.geometry2D.boundingBoxSize.x},{details.geometry2D.boundingBoxSize.y}");
+
+            csvBuilder.AppendLine(rowBuilder.ToString().TrimEnd(',')); // Trim the last comma
+        }
+
+        string filePath = Path.Combine(baseDirectory, "Geometry2D_AllObjects.csv");
+
+        File.WriteAllText(filePath, csvBuilder.ToString());
+        Debug.Log($"2D data (non-normalized) for all objects saved to: {filePath}");
     }
 
     // Serialize GeometryData2DNormalized to a COCO-like TXT file (without headers, tabs between values)
