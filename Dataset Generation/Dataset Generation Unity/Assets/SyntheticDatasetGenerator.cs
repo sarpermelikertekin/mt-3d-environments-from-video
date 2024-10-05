@@ -2,6 +2,7 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
+using System.Collections;
 
 public class SyntheticDatasetGenerator : MonoBehaviour
 {
@@ -39,7 +40,27 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     [Tooltip("Buffer to add to the bounding box size (in pixels)")]
     public float boundingBoxBuffer = 25f; // Buffer for the bounding box
 
+    [Tooltip("Toggle for capturing a screenshot or not")]
+    public bool takeScreenshot = true; // Whether or not to capture screenshots
+
+    [Tooltip("Number of base images to generate (excluding test)")]
+    public int numberOfImages = 10; // Number of base images to generate (80% train, 20% val)
+
+    [Tooltip("Delay between captures in seconds")]
+    public float delayBetweenCaptures = 1f; // Time delay between each iteration
+
+    [Tooltip("Screen width for capturing screenshots")]
+    public int screenWidth;
+
+    [Tooltip("Screen height for capturing screenshots")]
+    public int screenHeight;
+
     private string baseDirectory = @"C:\Users\sakar\OneDrive\mt-datas\synthetic_data\0_test\";
+    private int pictureIndex = 0; // Track iteration for file naming
+    private int trainThreshold; // Threshold for images going to the 'train' set
+    private int valThreshold; // Threshold for images going to the 'val' set
+    private int testThreshold = 5; // Fixed 5 images go to 'test'
+    private int totalImagesToGenerate; // Total number of images including test set
 
     void Start()
     {
@@ -48,18 +69,85 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             mainCamera = Camera.main; // Automatically use the main camera if not assigned
         }
 
-        // Extract object details
+        screenWidth = Screen.width;
+        screenHeight = Screen.height;
+
+        // Calculate how many images go into train, val, and test sets
+        totalImagesToGenerate = numberOfImages + testThreshold; // Add extra 5 for test
+        trainThreshold = Mathf.FloorToInt(0.8f * numberOfImages);
+        valThreshold = numberOfImages - trainThreshold; // Remaining images go to 'val'
+
+        // Ensure necessary directories exist
+        CreateNecessaryDirectories();
+
+        // Start the recursive image generation process
+        StartCoroutine(GenerateImageWithDelay());
+    }
+
+    void CreateNecessaryDirectories()
+    {
+        // Ensure the main directories and subdirectories (train, val, test) exist
+        string[] subFolders = { "train", "val", "test" };
+
+        foreach (var folder in subFolders)
+        {
+            Directory.CreateDirectory(Path.Combine(baseDirectory, "images", folder));
+            Directory.CreateDirectory(Path.Combine(baseDirectory, "labels", folder));
+            Directory.CreateDirectory(Path.Combine(baseDirectory, "2d_data", folder));
+            Directory.CreateDirectory(Path.Combine(baseDirectory, "3d_data", folder));
+        }
+    }
+
+    IEnumerator GenerateImageWithDelay()
+    {
+        // Determine which set (train, val, test) this image should go into
+        string dataSplit = GetDataSplit();
+
+        // Extract object details for the current image
         ExtractAndStoreObjectDetails();
 
-        // Serialize all 3D and 2D data to CSV
-        SerializeAllGeometryData3DToCSV();
-        SerializeAllGeometryData2DToCSV();
+        // Serialize the 3D and normalized 2D data for each image
+        SerializeAllGeometryData3DToCSV(dataSplit);
+        SerializeAllGeometryData2DNormalizedToCSV(dataSplit);
 
-        // Serialize normalized 2D data to COCO-style TXT file
-        SerializeGeometryData2DNormalizedToTXT();  // COCO-style TXT for normalized 2D data
+        // Serialize normalized 2D data to COCO-style TXT
+        SerializeGeometryData2DNormalizedToTXT(dataSplit);
 
-        // Capture the screenshot
-        CaptureScreenshotAndSave();
+        // Capture screenshot
+        if (takeScreenshot)
+        {
+            CaptureScreenshotAndSave(dataSplit);
+        }
+
+        // Increment picture index for the next iteration
+        pictureIndex++;
+
+        // If there are more images to generate, continue after a delay
+        if (pictureIndex < totalImagesToGenerate)
+        {
+            yield return new WaitForSeconds(delayBetweenCaptures); // Wait for the specified delay
+            StartCoroutine(GenerateImageWithDelay()); // Recursively call the function
+        }
+        else
+        {
+            Debug.Log("All images and data generation completed.");
+        }
+    }
+
+    string GetDataSplit()
+    {
+        if (pictureIndex < trainThreshold)
+        {
+            return "train";
+        }
+        else if (pictureIndex < trainThreshold + valThreshold)
+        {
+            return "val";
+        }
+        else
+        {
+            return "test";
+        }
     }
 
     void ExtractAndStoreObjectDetails()
@@ -125,7 +213,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     {
         foreach (Vector2 corner in projectedCorners)
         {
-            if (corner.x < 0 || corner.x > Screen.width || corner.y < 0 || corner.y > Screen.height)
+            if (corner.x < 0 || corner.x > screenWidth || corner.y < 0 || corner.y > screenHeight)
             {
                 return false; // If any corner is out of bounds, the object is not fully visible
             }
@@ -151,7 +239,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         }
 
         // Adjust buffer size based on whether the data is normalized or not
-        float buffer = isNormalized ? boundingBoxBuffer / Screen.width : boundingBoxBuffer;
+        float buffer = isNormalized ? boundingBoxBuffer / screenWidth : boundingBoxBuffer;
 
         // Calculate center and size of the bounding box
         center = new Vector2((minX + maxX) / 2, (minY + maxY) / 2);
@@ -166,18 +254,18 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         {
             Vector3 screenPoint = mainCamera.WorldToScreenPoint(corners[i]);
             // Mirror the y-coordinate by subtracting it from the screen height
-            projectedCorners[i] = new Vector2(screenPoint.x, Screen.height - screenPoint.y);
+            projectedCorners[i] = new Vector2(screenPoint.x, screenHeight - screenPoint.y);
         }
         return projectedCorners;
     }
 
-    // Normalize the 2D corners based on screen width and height
+    // Normalize the 2D corners based on the screen width and height set from the editor
     Vector2[] NormalizeCorners(Vector2[] corners)
     {
         Vector2[] normalizedCorners = new Vector2[corners.Length];
         for (int i = 0; i < corners.Length; i++)
         {
-            normalizedCorners[i] = new Vector2(corners[i].x / Screen.width, corners[i].y / Screen.height);
+            normalizedCorners[i] = new Vector2(corners[i].x / screenWidth, corners[i].y / screenHeight);
         }
         return normalizedCorners;
     }
@@ -192,7 +280,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     }
 
     // Serialize all GeometryData3D for all objects into a CSV file
-    void SerializeAllGeometryData3DToCSV()
+    void SerializeAllGeometryData3DToCSV(string dataSplit)
     {
         StringBuilder csvBuilder = new StringBuilder();
         csvBuilder.AppendLine("objectID,objectName,positionX,positionY,positionZ,rotationX,rotationY,rotationZ,corner1X,corner1Y,corner1Z,corner2X,corner2Y,corner2Z,...");
@@ -214,14 +302,14 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             csvBuilder.AppendLine(rowBuilder.ToString().TrimEnd(',')); // Trim the last comma
         }
 
-        string filePath = Path.Combine(baseDirectory, "Geometry3D_AllObjects.csv");
+        string filePath = Path.Combine(baseDirectory, "3d_data", dataSplit, $"{pictureIndex}.csv");
 
         File.WriteAllText(filePath, csvBuilder.ToString());
         Debug.Log($"3D data for all objects saved to: {filePath}");
     }
 
-    // Serialize all non-normalized GeometryData2D for all objects into a CSV file
-    void SerializeAllGeometryData2DToCSV()
+    // Serialize all normalized GeometryData2D for all objects into a CSV file
+    void SerializeAllGeometryData2DNormalizedToCSV(string dataSplit)
     {
         StringBuilder csvBuilder = new StringBuilder();
         csvBuilder.AppendLine("objectID,objectName,corner1X,corner1Y,corner2X,corner2Y,corner3X,corner3Y,...,boundingBoxCenterX,boundingBoxCenterY,boundingBoxWidth,boundingBoxHeight");
@@ -232,27 +320,27 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             StringBuilder rowBuilder = new StringBuilder();
             rowBuilder.Append($"{objectID},{details.name},");
 
-            // Append 2D corners (X, Y for each corner)
-            foreach (var corner in details.geometry2D.projectedCorners)
+            // Append normalized 2D corners (X, Y for each corner)
+            foreach (var corner in details.geometry2DNormalized.projectedCorners)
             {
                 rowBuilder.Append($"{corner.x},{corner.y},");
             }
 
-            // Append bounding box center and size
-            rowBuilder.Append($"{details.geometry2D.boundingBoxCenter.x},{details.geometry2D.boundingBoxCenter.y},");
-            rowBuilder.Append($"{details.geometry2D.boundingBoxSize.x},{details.geometry2D.boundingBoxSize.y}");
+            // Append bounding box center and size (normalized)
+            rowBuilder.Append($"{details.geometry2DNormalized.boundingBoxCenter.x},{details.geometry2DNormalized.boundingBoxCenter.y},");
+            rowBuilder.Append($"{details.geometry2DNormalized.boundingBoxSize.x},{details.geometry2DNormalized.boundingBoxSize.y}");
 
             csvBuilder.AppendLine(rowBuilder.ToString().TrimEnd(',')); // Trim the last comma
         }
 
-        string filePath = Path.Combine(baseDirectory, "Geometry2D_AllObjects.csv");
+        string filePath = Path.Combine(baseDirectory, "2d_data", dataSplit, $"{pictureIndex}.csv");
 
         File.WriteAllText(filePath, csvBuilder.ToString());
-        Debug.Log($"2D data (non-normalized) for all objects saved to: {filePath}");
+        Debug.Log($"Normalized 2D data for all objects saved to: {filePath}");
     }
 
     // Serialize GeometryData2DNormalized to a COCO-like TXT file (without headers, tabs between values)
-    void SerializeGeometryData2DNormalizedToTXT()
+    void SerializeGeometryData2DNormalizedToTXT(string dataSplit)
     {
         StringBuilder txtBuilder = new StringBuilder();
 
@@ -276,33 +364,17 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             txtBuilder.AppendLine($"{objectID}\t{string.Join("\t", keypoints)}\t{boundingBoxCenter}\t{boundingBoxSize}");
         }
 
-        string filePath = Path.Combine(baseDirectory, "Geometry2DNormalized_COCO.txt");
+        string filePath = Path.Combine(baseDirectory, "labels", dataSplit, $"{pictureIndex}.txt");
 
         File.WriteAllText(filePath, txtBuilder.ToString());
         Debug.Log($"GeometryData2DNormalized TXT saved to: {filePath}");
     }
 
-    // Separate function to capture the screenshot using the CaptureScreenshot class
-    void CaptureScreenshotAndSave()
+    // Capture screenshot using Unity's built-in ScreenCapture function
+    void CaptureScreenshotAndSave(string dataSplit)
     {
-        if (CaptureScreenshot.Instance != null)
-        {
-            CaptureScreenshot.Instance.capture = true; // Ensure capture is enabled
-            string screenshotFilePath = baseDirectory;
-
-            // Ensure the directory exists; if not, create it
-            if (!Directory.Exists(screenshotFilePath))
-            {
-                Directory.CreateDirectory(screenshotFilePath);
-                Debug.Log("Directory created at: " + screenshotFilePath);
-            }
-
-            // Capture the screenshot
-            CaptureScreenshot.Instance.TakeScreenshot(screenshotFilePath);
-            Debug.Log("Screenshot saved to: " + screenshotFilePath);
-
-            // Increment picture index for the next screenshot
-            CaptureScreenshot.Instance.pictureIndex++;
-        }
+        string screenshotFilePath = Path.Combine(baseDirectory, "images", dataSplit, $"{pictureIndex}.png");
+        ScreenCapture.CaptureScreenshot(screenshotFilePath);
+        Debug.Log($"Screenshot saved to: {screenshotFilePath}");
     }
 }
