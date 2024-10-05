@@ -11,7 +11,7 @@ public class BoundingBox : MonoBehaviour
     public Vector3[] corners;
 
     private Dictionary<string, Vector3> cornersDict = new Dictionary<string, Vector3>();
-    
+
     private void OnDrawGizmos()
     {
         // Calculate the bounding box from mesh vertices
@@ -56,14 +56,43 @@ public class BoundingBox : MonoBehaviour
         Gizmos.DrawLine(corners[3], corners[7]);  // Top Front Left -> Bottom Front Left
 
 #if UNITY_EDITOR
-        // Create a GUIStyle to customize the label color to black
+        // Create a GUIStyle to customize the label color
         GUIStyle labelStyle = new GUIStyle();
         labelStyle.normal.textColor = Color.black;
+        labelStyle.fontStyle = FontStyle.Bold;
 
-        // Draw labels for each corner in the Scene view with black text
+        // Get the screen position of the game object in the Scene view
+        Vector3 labelPosition = transform.position;
+
+        // Draw a green background rectangle behind the name label
+        Handles.BeginGUI();
+        {
+            Vector3 screenPosition = HandleUtility.WorldToGUIPoint(labelPosition);
+            Rect labelRect = new Rect(screenPosition.x - 50, screenPosition.y - 10, 100, 20); // Adjust the size and position of the rectangle
+
+            // Draw the green background
+            EditorGUI.DrawRect(labelRect, Color.green);
+
+            // Display the name of the GameObject over the green background
+            GUI.Label(labelRect, gameObject.name, labelStyle);
+        }
+        Handles.EndGUI();
+
+        // Draw labels for each corner in the Scene view with green background
         foreach (KeyValuePair<string, Vector3> corner in cornersDict)
         {
-            Handles.Label(corner.Value, corner.Key, labelStyle); // Use the labelStyle to set black color
+            Handles.BeginGUI();
+            {
+                Vector3 cornerScreenPosition = HandleUtility.WorldToGUIPoint(corner.Value);
+                Rect cornerLabelRect = new Rect(cornerScreenPosition.x - 40, cornerScreenPosition.y - 10, 80, 20); // Adjust size and position
+
+                // Draw the green background for each corner label
+                EditorGUI.DrawRect(cornerLabelRect, Color.green);
+
+                // Display the corner label over the green background
+                GUI.Label(cornerLabelRect, corner.Key, labelStyle);
+            }
+            Handles.EndGUI();
         }
 #endif
     }
