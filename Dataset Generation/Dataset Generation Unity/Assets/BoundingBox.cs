@@ -108,19 +108,39 @@ public class BoundingBox : MonoBehaviour
             return new Bounds(transform.position, Vector3.zero);
         }
 
-        // Initialize the bounds to the first mesh's bounds
-        Bounds combinedBounds = meshFilters[0].mesh.bounds;
-        combinedBounds = TransformBounds(combinedBounds, meshFilters[0].transform);
+        // Initialize the bounds to the first valid sharedMesh's bounds
+        Bounds combinedBounds = new Bounds();
+        bool hasValidMesh = false;
 
-        // Expand the bounds to include each mesh's bounds
         foreach (MeshFilter meshFilter in meshFilters)
         {
-            Bounds meshBounds = TransformBounds(meshFilter.mesh.bounds, meshFilter.transform);
-            combinedBounds.Encapsulate(meshBounds);
+            if (meshFilter.sharedMesh == null)
+            {
+                continue;  // Skip if sharedMesh is null
+            }
+
+            Bounds meshBounds = TransformBounds(meshFilter.sharedMesh.bounds, meshFilter.transform);
+
+            if (!hasValidMesh)
+            {
+                combinedBounds = meshBounds;  // Set the initial bounds from the first valid mesh
+                hasValidMesh = true;
+            }
+            else
+            {
+                combinedBounds.Encapsulate(meshBounds);  // Expand bounds to include subsequent meshes
+            }
+        }
+
+        // If no valid mesh was found, return an empty bounds
+        if (!hasValidMesh)
+        {
+            return new Bounds(transform.position, Vector3.zero);
         }
 
         return combinedBounds;
     }
+
 
     // Transform local bounds to world space
     private Bounds TransformBounds(Bounds localBounds, Transform transform)
