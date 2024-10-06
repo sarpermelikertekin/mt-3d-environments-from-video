@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.45140034, g: 0.5008928, b: 0.57231224, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311918, g: 0.3807398, b: 0.35872716, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -378,8 +378,10 @@ MonoBehaviour:
   wallThickness: 0.2
   wallHeight: 3
   objectBuffer: 1
+  mainCamera: {fileID: 963194227}
   wallPrefab: {fileID: 7396488072382362230, guid: 200578c001713d845bbd57a07113eb2c, type: 3}
   randomObjectPrefab: {fileID: 1376455687202864483, guid: 71cd44ebbbcaace4e99120ba6fb5da2f, type: 3}
+  cameraBuffer: 0.5
 --- !u!1 &2143873630
 GameObject:
   m_ObjectHideFlags: 0
@@ -396,7 +398,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &2143873631
 Light:
   m_ObjectHideFlags: 0
