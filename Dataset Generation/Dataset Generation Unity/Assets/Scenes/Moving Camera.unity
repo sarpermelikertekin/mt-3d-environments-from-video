@@ -315,10 +315,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1055626054}
-  - component: {fileID: 1055626058}
-  - component: {fileID: 1055626061}
   - component: {fileID: 1055626062}
-  - component: {fileID: 1055626060}
+  - component: {fileID: 1055626061}
   m_Layer: 0
   m_Name: Controller
   m_TagString: Untagged
@@ -341,46 +339,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1055626058
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1055626052}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 978db7b7349137343899a1dd214ce7a8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  capture: 1
-  fileName: Hola
-  pictureIndex: 0
-  pictureFormat: 0
---- !u!114 &1055626060
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1055626052}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1707fa9225c82d47b33a63b0189bca8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  datasetFileName: test
-  splitSet: 0
-  startingKey: 121
-  normalize: 1
-  xNormalization: 1
-  yNormalization: 1
-  numberOfImages: 15000
-  dataPointWaitTime: 0
-  counter: 0
-  keypoints: []
-  cameraObject: {fileID: 963194225}
-  objectPoses: {fileID: 0}
 --- !u!114 &1055626061
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -420,8 +378,8 @@ MonoBehaviour:
   wallThickness: 0.2
   wallHeight: 3
   objectBuffer: 1
-  wallPrefab: {fileID: 855109325627340671, guid: 200578c001713d845bbd57a07113eb2c, type: 3}
-  randomObjectPrefab: {fileID: 4121956222038891170, guid: 71cd44ebbbcaace4e99120ba6fb5da2f, type: 3}
+  wallPrefab: {fileID: 7396488072382362230, guid: 200578c001713d845bbd57a07113eb2c, type: 3}
+  randomObjectPrefab: {fileID: 1376455687202864483, guid: 71cd44ebbbcaace4e99120ba6fb5da2f, type: 3}
 --- !u!1 &2143873630
 GameObject:
   m_ObjectHideFlags: 0

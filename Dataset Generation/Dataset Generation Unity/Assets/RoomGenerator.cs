@@ -74,7 +74,7 @@ public class RoomGenerator : MonoBehaviour
         float randomZ = Random.Range(objectBuffer, roomLength - objectBuffer);
 
         // Instantiate the object at the random position
-        Vector3 randomPosition = new Vector3(randomX, 0.5f, randomZ); // Assuming object height is small, position it slightly above the floor
+        Vector3 randomPosition = new Vector3(randomX, 0f, randomZ); // Assuming object height is small, position it slightly above the floor
         GameObject randomObject = Instantiate(randomObjectPrefab, randomPosition, Quaternion.identity);
         randomObject.transform.parent = this.transform; // Set the object as a child of the RoomGenerator object
     }
