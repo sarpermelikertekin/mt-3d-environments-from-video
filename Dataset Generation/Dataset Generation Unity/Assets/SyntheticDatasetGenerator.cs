@@ -26,16 +26,13 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     [System.Serializable]
     public class GeometryData2D
     {
-        public Vector2[] projectedCorners; // 2D screen positions of corners
         public Vector2 boundingBoxCenter;  // Center of the bounding box
         public Vector2 boundingBoxSize;    // Size of the bounding box (width, height)
+        public Vector2[] projectedCorners; // 2D screen positions of corners
     }
 
     [Tooltip("Main camera used for projecting 3D points to 2D")]
     public Camera mainCamera; // Main camera to project 3D points to 2D
-
-    [Tooltip("List of all detected objects and their details")]
-    public List<ObjectDetails> allObjectDetails;
 
     [Tooltip("Buffer to add to the bounding box size (in pixels)")]
     public float boundingBoxBuffer = 25f; // Buffer for the bounding box
@@ -54,6 +51,9 @@ public class SyntheticDatasetGenerator : MonoBehaviour
 
     [Tooltip("Screen height for capturing screenshots")]
     public int screenHeight;
+
+    [Tooltip("List of all detected objects and their details")]
+    public List<ObjectDetails> allObjectDetails;
 
     private string baseDirectory = @"C:\Users\sakar\OneDrive\mt-datas\synthetic_data\0_test\";
     private int pictureIndex = 0; // Track iteration for file naming
@@ -265,7 +265,9 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         Vector2[] normalizedCorners = new Vector2[corners.Length];
         for (int i = 0; i < corners.Length; i++)
         {
+            Debug.Log(corners[i]);
             normalizedCorners[i] = new Vector2(corners[i].x / screenWidth, corners[i].y / screenHeight);
+            Debug.Log(normalizedCorners[i]);
         }
         return normalizedCorners;
     }
@@ -320,15 +322,15 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             StringBuilder rowBuilder = new StringBuilder();
             rowBuilder.Append($"{objectID},{details.name},");
 
+            // Append bounding box center and size (normalized)
+            rowBuilder.Append($"{details.geometry2DNormalized.boundingBoxCenter.x},{details.geometry2DNormalized.boundingBoxCenter.y},");
+            rowBuilder.Append($"{details.geometry2DNormalized.boundingBoxSize.x},{details.geometry2DNormalized.boundingBoxSize.y}");
+
             // Append normalized 2D corners (X, Y for each corner)
             foreach (var corner in details.geometry2DNormalized.projectedCorners)
             {
                 rowBuilder.Append($"{corner.x},{corner.y},");
             }
-
-            // Append bounding box center and size (normalized)
-            rowBuilder.Append($"{details.geometry2DNormalized.boundingBoxCenter.x},{details.geometry2DNormalized.boundingBoxCenter.y},");
-            rowBuilder.Append($"{details.geometry2DNormalized.boundingBoxSize.x},{details.geometry2DNormalized.boundingBoxSize.y}");
 
             csvBuilder.AppendLine(rowBuilder.ToString().TrimEnd(',')); // Trim the last comma
         }
@@ -361,7 +363,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             }
 
             // Construct the line with tab-separated values (use the object ID instead of name)
-            txtBuilder.AppendLine($"{objectID}\t{string.Join(" ", keypoints)}\t{boundingBoxCenter}\t{boundingBoxSize}");
+            txtBuilder.AppendLine($"{objectID} {boundingBoxCenter} {boundingBoxSize} {string.Join(" ", keypoints)}");
         }
 
         string filePath = Path.Combine(baseDirectory, "labels", dataSplit, $"{pictureIndex}.txt");
