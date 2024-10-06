@@ -55,6 +55,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     [Tooltip("List of all detected objects and their details")]
     public List<ObjectDetails> allObjectDetails;
 
+    private RoomGenerator roomGenerator; // Reference to RoomGenerator script
     private string baseDirectory = @"C:\Users\sakar\OneDrive\mt-datas\synthetic_data\0_test\";
     private int pictureIndex = 0; // Track iteration for file naming
     private int trainThreshold; // Threshold for images going to the 'train' set
@@ -64,6 +65,8 @@ public class SyntheticDatasetGenerator : MonoBehaviour
 
     void Start()
     {
+        roomGenerator = GetComponent<RoomGenerator>();
+
         if (mainCamera == null)
         {
             mainCamera = Camera.main; // Automatically use the main camera if not assigned
@@ -100,6 +103,16 @@ public class SyntheticDatasetGenerator : MonoBehaviour
 
     IEnumerator GenerateImageWithDelay()
     {
+        // Every 20 iterations, generate a new room
+        if (pictureIndex % 20 == 0)
+        {
+            roomGenerator.GenerateRoom();
+            roomGenerator.SetupCameraPositions();
+        }
+
+        // Move the camera to the next position on each iteration
+        roomGenerator.MoveToNextCameraPosition();
+
         // Determine which set (train, val, test) this image should go into
         string dataSplit = GetDataSplit();
 

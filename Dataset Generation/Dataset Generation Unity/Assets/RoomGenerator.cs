@@ -29,8 +29,8 @@ public class RoomGenerator : MonoBehaviour
     void Start()
     {
         // Initial room generation
-        GenerateRoom();
-        SetupCameraPositions();
+        //GenerateRoom();
+        //SetupCameraPositions();
     }
 
     void Update()
@@ -169,7 +169,7 @@ public class RoomGenerator : MonoBehaviour
     }
 
     // Setup camera positions in the 4 corners of the room, with a buffer
-    void SetupCameraPositions()
+    public void SetupCameraPositions()
     {
         // Define the 4 corners of the room with a buffer of 0.5 units
         cameraPositions = new Vector3[4];
@@ -186,7 +186,7 @@ public class RoomGenerator : MonoBehaviour
     }
 
     // Function to move camera to the next position in the array
-    void MoveToNextCameraPosition()
+    public void MoveToNextCameraPosition()
     {
         currentCameraIndex = (currentCameraIndex + 1) % cameraPositions.Length;
         MoveToCameraPosition(currentCameraIndex);
