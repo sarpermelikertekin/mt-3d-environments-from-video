@@ -80,10 +80,18 @@ def get_yolo_segmentation_video_output_path(video_name=None):
     """
     return os.path.join(get_yolo_path(), VIDEO_SEGMENTATION_SUBFOLDER, video_name)
 
+def get_synthetic_data_path():
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\synthetic_data"""
+    return os.path.join(COMMON_BASE_PATH, SYNTHETIC_DATA_DIR)
+
+def get_synthetic_data_validation_path():
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\synth_validation_data"""
+    return os.path.join(COMMON_BASE_PATH, SYNTH_VALIDATION_DATA_DIR)
+
 def get_synthetic_data_test_path():
     """C:\\Users\\sakar\\OneDrive\\mt-datas\\synthetic_data\\0_test"""
-    return os.path.join(COMMON_BASE_PATH, SYNTHETIC_DATA_DIR, TEST_SUBFOLDER)
+    return os.path.join(get_synthetic_data_path(), TEST_DIR)
 
-def get_synth_validation_test_path():
+def get_synthetic_data_validation_test_path():
     """C:\\Users\\sakar\\OneDrive\\mt-datas\\synth_validation_data\\0_test"""
-    return os.path.join(COMMON_BASE_PATH, SYNTH_VALIDATION_DATA_DIR, TEST_SUBFOLDER)
+    return os.path.join(get_synthetic_data_validation_path() TEST_DIR)
