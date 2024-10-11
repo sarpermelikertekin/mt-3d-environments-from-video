@@ -175,11 +175,21 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             {
                 Vector2[] projectedCorners = ProjectCorners(box.corners);
 
-                // Check if the object is fully visible in the game tab
-                if (!AreCornersInView(projectedCorners))
+                // Get visibility status for each corner
+                int[] visibility = CheckCornersVisibility(projectedCorners);
+
+                // Check if at least 4 corners are visible (i.e., have a visibility status of 0)
+                int visibleCount = 0;
+                foreach (int vis in visibility)
                 {
-                    Debug.Log($"Object '{obj.name}' is not fully visible in the game view. Skipping.");
-                    continue; // Skip objects that aren't fully visible
+                    if (vis == 0) visibleCount++;
+                }
+
+                // If fewer than 4 corners are visible, skip the object
+                if (visibleCount < 4)
+                {
+                    Debug.Log($"Object '{obj.name}' does not have at least 4 visible corners. Skipping.");
+                    continue;
                 }
 
                 // Calculate non-normalized bounding box
@@ -218,25 +228,30 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             }
         }
 
-        Debug.Log("Extracted " + allObjectDetails.Count + " fully visible object details.");
+        Debug.Log("Extracted " + allObjectDetails.Count + " objects with at least 4 visible corners.");
     }
 
-    // Check if at least 4 corners are within the screen bounds
-    bool AreCornersInView(Vector2[] projectedCorners)
-    {
-        int visibleCornerCount = 0; // Counter for visible corners
 
-        foreach (Vector2 corner in projectedCorners)
+    int[] CheckCornersVisibility(Vector2[] projectedCorners)
+    {
+        int[] visibility = new int[projectedCorners.Length]; // Array to store visibility (0 for visible, 1 for invisible)
+
+        for (int i = 0; i < projectedCorners.Length; i++)
         {
+            Vector2 corner = projectedCorners[i];
             if (corner.x >= 0 && corner.x <= screenWidth && corner.y >= 0 && corner.y <= screenHeight)
             {
-                visibleCornerCount++; // Increment counter if the corner is within screen bounds
+                visibility[i] = 0; // Corner is visible
+            }
+            else
+            {
+                visibility[i] = 1; // Corner is outside the screen (invisible)
             }
         }
 
-        // Check if at least 4 corners are visible
-        return visibleCornerCount >= 4;
+        return visibility;
     }
+
 
     // Method to calculate bounding box based on 2D corners and apply the buffer
     void CalculateBoundingBox(Vector2[] corners, out Vector2 center, out Vector2 size, bool isNormalized)
@@ -358,7 +373,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         Debug.Log($"Normalized 2D data for all objects saved to: {filePath}");
     }
 
-    // Serialize GeometryData2DNormalized to a COCO-like TXT file (without headers, tabs between values)
+    // Serialize GeometryData2DNormalized to a COCO-like TXT file (without headers, spaces between values)
     void SerializeGeometryData2DNormalizedToTXT(string dataSplit)
     {
         StringBuilder txtBuilder = new StringBuilder();
@@ -368,26 +383,31 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             // Get the object ID based on its name
             int objectID = MapObjectNameToID(details.name);
 
-            // Add bounding box center and size, separated by tabs
+            // Add bounding box center and size, separated by spaces
             string boundingBoxCenter = $"{details.geometry2DNormalized.boundingBoxCenter.x:F4} {details.geometry2DNormalized.boundingBoxCenter.y:F4}";
             string boundingBoxSize = $"{details.geometry2DNormalized.boundingBoxSize.x:F4} {details.geometry2DNormalized.boundingBoxSize.y:F4}";
 
-            // Flatten the keypoints (x, y pairs)
-            List<string> keypoints = new List<string>();
-            foreach (var corner in details.geometry2DNormalized.projectedCorners)
+            // Get the visibility status of each corner
+            int[] cornerVisibility = CheckCornersVisibility(details.geometry2DNormalized.projectedCorners);
+
+            // Flatten the keypoints (x, y pairs with visibility flags)
+            List<string> keypointsWithVisibility = new List<string>();
+            for (int i = 0; i < details.geometry2DNormalized.projectedCorners.Length; i++)
             {
-                keypoints.Add($"{corner.x:F4} {corner.y:F4}"); // Add the normalized coordinates with precision and spaces between x and y
+                Vector2 corner = details.geometry2DNormalized.projectedCorners[i];
+                keypointsWithVisibility.Add($"{corner.x:F4} {corner.y:F4} {cornerVisibility[i]}"); // Add x, y and visibility (0 or 1)
             }
 
-            // Construct the line with tab-separated values (use the object ID instead of name)
-            txtBuilder.AppendLine($"{objectID} {boundingBoxCenter} {boundingBoxSize} {string.Join(" ", keypoints)}");
+            // Construct the line with space-separated values (use the object ID instead of name)
+            txtBuilder.AppendLine($"{objectID} {boundingBoxCenter} {boundingBoxSize} {string.Join(" ", keypointsWithVisibility)}");
         }
 
+        // Write to the TXT file
         string filePath = Path.Combine(baseDirectory, "labels", dataSplit, $"{pictureIndex}.txt");
-
         File.WriteAllText(filePath, txtBuilder.ToString());
         Debug.Log($"GeometryData2DNormalized TXT saved to: {filePath}");
     }
+
 
     // Capture screenshot using Unity's built-in ScreenCapture function
     void CaptureScreenshotAndSave(string dataSplit)
