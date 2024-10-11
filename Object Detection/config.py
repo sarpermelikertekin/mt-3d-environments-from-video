@@ -9,13 +9,17 @@ YOLO_DIR = "yolo"
 MIDAS_DIR = "midas"
 OBJECTRON_DIR = 'objectron'
 TEST_DIR = "test"
+SYNTHETIC_DATA_DIR = "synthetic_data"
+SYNTH_VALIDATION_DATA_DIR = "synth_validation_data"
 
 # Define the subfolder names
-IMAGES_DIR = "images"
-VIDEOS_DIR = "videos"
-IMAGE_SEGMENTATION_DIR = "image_segmentation"
-VIDEO_SEGMENTATION_DIR = "video_segmentation"
-SINGLE_DIR = "single"
+IMAGES_SUBFOLDER = "images"
+VIDEOS_SUBFOLDER = "videos"
+IMAGE_SEGMENTATION_SUBFOLDER = "image_segmentation"
+VIDEO_SEGMENTATION_SUBFOLDER = "video_segmentation"
+SINGLE_SUBFOLDER = "single"
+TEST_SUBFOLDER = "0_test"
+
 
 def get_v2p_path():
     """C:\\Users\\sakar\\OneDrive\\mt-datas\\v2p"""
@@ -39,19 +43,19 @@ def get_test_path():
 
 def get_test_images_path():
     """C:\\Users\\sakar\\OneDrive\\mt-datas\\test\\images"""
-    return os.path.join(get_test_path(), IMAGES_DIR)
+    return os.path.join(get_test_path(), IMAGES_SUBFOLDER)
 
 def get_test_videos_path():
     """C:\\Users\\sakar\\OneDrive\\mt-datas\\test\\videos"""
-    return os.path.join(get_test_path(), VIDEOS_DIR)
+    return os.path.join(get_test_path(), VIDEOS_SUBFOLDER)
 
 def get_v2p_images_path(subfolder):
     """C:\\Users\\sakar\\OneDrive\\mt-datas\\v2p\\images"""
-    return os.path.join(get_v2p_path(), IMAGES_DIR, subfolder)
+    return os.path.join(get_v2p_path(), IMAGES_SUBFOLDER, subfolder)
 
 def get_v2p_videos_path(subfolder):
     """C:\\Users\\sakar\\OneDrive\\mt-datas\\v2p\\videos"""
-    return os.path.join(get_v2p_path(), VIDEOS_DIR, subfolder)
+    return os.path.join(get_v2p_path(), VIDEOS_SUBFOLDER, subfolder)
 
 def get_midas_output_path(video_name=None):
     """
@@ -61,7 +65,7 @@ def get_midas_output_path(video_name=None):
     """
     if video_name:
         return os.path.join(get_midas_path(), video_name)
-    return os.path.join(get_midas_path(), SINGLE_DIR)
+    return os.path.join(get_midas_path(), SINGLE_SUBFOLDER)
 
 def get_objectron_output_path(video_name=None):
     """
@@ -80,8 +84,8 @@ def get_yolo_segmentation_image_output_path(video_name=None):
     Otherwise, return the default 'single' folder for standalone image processing.
     """
     if video_name:
-        return os.path.join(get_yolo_path(), IMAGE_SEGMENTATION_DIR, video_name)
-    return os.path.join(get_yolo_path(), IMAGE_SEGMENTATION_DIR, SINGLE_DIR)
+        return os.path.join(get_yolo_path(), IMAGE_SEGMENTATION_SUBFOLDER, video_name)
+    return os.path.join(get_yolo_path(), IMAGE_SEGMENTATION_SUBFOLDER, SINGLE_SUBFOLDER)
 
 def get_yolo_segmentation_video_output_path(video_name=None):
     """
@@ -89,4 +93,20 @@ def get_yolo_segmentation_video_output_path(video_name=None):
     If a video_name is provided, return the path in the 'video_segmentation' directory for that video.
     Otherwise, return the default 'single' folder for standalone image processing.
     """
-    return os.path.join(get_yolo_path(), VIDEO_SEGMENTATION_DIR, video_name)
+    return os.path.join(get_yolo_path(), VIDEO_SEGMENTATION_SUBFOLDER, video_name)
+
+def get_synthetic_data_path():
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\synthetic_data"""
+    return os.path.join(COMMON_BASE_PATH, SYNTHETIC_DATA_DIR)
+
+def get_synthetic_data_validation_path():
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\synth_validation_data"""
+    return os.path.join(COMMON_BASE_PATH, SYNTH_VALIDATION_DATA_DIR)
+
+def get_synthetic_data_test_path():
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\synthetic_data\\0_test"""
+    return os.path.join(get_synthetic_data_path(), TEST_DIR)
+
+def get_synthetic_data_validation_test_path():
+    """C:\\Users\\sakar\\OneDrive\\mt-datas\\synth_validation_data\\0_test"""
+    return os.path.join(get_synthetic_data_validation_path() TEST_DIR)
