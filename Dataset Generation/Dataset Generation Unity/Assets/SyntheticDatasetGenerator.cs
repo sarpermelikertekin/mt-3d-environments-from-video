@@ -221,17 +221,21 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         Debug.Log("Extracted " + allObjectDetails.Count + " fully visible object details.");
     }
 
-    // Check if all corners are within the screen bounds
+    // Check if at least 4 corners are within the screen bounds
     bool AreCornersInView(Vector2[] projectedCorners)
     {
+        int visibleCornerCount = 0; // Counter for visible corners
+
         foreach (Vector2 corner in projectedCorners)
         {
-            if (corner.x < 0 || corner.x > screenWidth || corner.y < 0 || corner.y > screenHeight)
+            if (corner.x >= 0 && corner.x <= screenWidth && corner.y >= 0 && corner.y <= screenHeight)
             {
-                return false; // If any corner is out of bounds, the object is not fully visible
+                visibleCornerCount++; // Increment counter if the corner is within screen bounds
             }
         }
-        return true; // All corners are within the screen bounds
+
+        // Check if at least 4 corners are visible
+        return visibleCornerCount >= 4;
     }
 
     // Method to calculate bounding box based on 2D corners and apply the buffer
