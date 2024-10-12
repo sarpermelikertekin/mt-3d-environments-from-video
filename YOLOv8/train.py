@@ -1,6 +1,9 @@
-from ultralytics import YOLO
+import ultralytics
 
-
-model = YOLO('yolov8n-pose.pt')  # load a pretrained model (recommended for training)
-
-model.train(data='config.yaml', epochs=1, imgsz=640)
+if __name__ == "__main__":
+    model = ultralytics.YOLO("yolov8n-pose.pt")  # Load the model
+    model.train(
+        data='C:/Users/sakar/mt-3d-environments-from-video/YOLOv8/config.yaml', 
+        epochs=1, 
+        imgsz=640
+    )
