@@ -355,9 +355,11 @@ MonoBehaviour:
   boundingBoxBuffer: 25
   takeScreenshot: 1
   numberOfImages: 25
-  delayBetweenCaptures: 0.5
+  delayBetweenCaptures: 0
   screenWidth: 0
   screenHeight: 0
+  pictureIndex: 0
+  testThreshold: 10
   allObjectDetails: []
 --- !u!114 &1055626062
 MonoBehaviour:
