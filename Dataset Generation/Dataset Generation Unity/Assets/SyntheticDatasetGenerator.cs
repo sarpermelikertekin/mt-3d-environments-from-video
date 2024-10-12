@@ -52,15 +52,19 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     [Tooltip("Screen height for capturing screenshots")]
     public int screenHeight;
 
+    [Tooltip("Track iteration for file naming")]
+    public int pictureIndex = 0;
+
+    [Tooltip("Fixed n images go to 'test'")]
+    public int testThreshold;
+
     [Tooltip("List of all detected objects and their details")]
     public List<ObjectDetails> allObjectDetails;
 
     private RoomGenerator roomGenerator; // Reference to RoomGenerator script
     private string baseDirectory = @"C:\Users\sakar\OneDrive\mt-datas\synthetic_data\0_test\";
-    private int pictureIndex = 0; // Track iteration for file naming
     private int trainThreshold; // Threshold for images going to the 'train' set
     private int valThreshold; // Threshold for images going to the 'val' set
-    private int testThreshold = 5; // Fixed 5 images go to 'test'
     private int totalImagesToGenerate; // Total number of images including test set
 
     void Start()
@@ -103,8 +107,8 @@ public class SyntheticDatasetGenerator : MonoBehaviour
 
     IEnumerator GenerateImageWithDelay()
     {
-        // Every 20 iterations, generate a new room
-        if (pictureIndex % 20 == 0)
+        // Every 5 iterations, generate a new room
+        if (pictureIndex % 5 == 0)
         {
             roomGenerator.GenerateRoom();
             roomGenerator.SetupCameraPositions();
@@ -178,17 +182,17 @@ public class SyntheticDatasetGenerator : MonoBehaviour
                 // Get visibility status for each corner
                 int[] visibility = CheckCornersVisibility(projectedCorners);
 
-                // Check if at least 4 corners are visible (i.e., have a visibility status of 0)
+                // Check if at least 8 corners are visible (i.e., have a visibility status of 0)
                 int visibleCount = 0;
                 foreach (int vis in visibility)
                 {
                     if (vis == 0) visibleCount++;
                 }
 
-                // If fewer than 4 corners are visible, skip the object
-                if (visibleCount < 4)
+                // If fewer than 8 corners are visible, skip the object
+                if (visibleCount < 8)
                 {
-                    Debug.Log($"Object '{obj.name}' does not have at least 4 visible corners. Skipping.");
+                    Debug.Log($"Object '{obj.name}' does not have at least 8 visible corners. Skipping.");
                     continue;
                 }
 
