@@ -1,0 +1,12 @@
+# Data
+path: C:\Users\sakar\Semester Project\Spot Datasets\8 - Mixed\YOLO Format
+train: images/train  # train images (relative to 'path')
+val: images/val  # val images (relative to 'path')
+           
+kpt_shape: [13, 3]  # [number of keypoints, number of dim]
+flip_idx: [0, 4, 5, 6, 1, 2, 3, 10, 11, 12, 7, 8, 9]
+
+# Classes
+names:
+  0: Spot
+  1: AnyMAL
