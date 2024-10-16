@@ -1,0 +1,11 @@
+# Data
+path: C:\Users\sakar\OneDrive\mt-datas\synthetic_data\0_test
+train: images/train # train images (relative to 'path')
+val: images/val # val images (relative to 'path')
+
+kpt_shape: [8, 3] # [number of keypoints, number of dim]
+flip_idx: [3, 2, 1, 0, 7, 6, 5, 4]
+
+# Classes
+names:
+  0: Chair
