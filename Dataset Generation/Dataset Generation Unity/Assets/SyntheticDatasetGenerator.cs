@@ -67,6 +67,8 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     private int valThreshold; // Threshold for images going to the 'val' set
     private int totalImagesToGenerate; // Total number of images including test set
 
+    private GameObject GeneratedRoom; // Reference to the GeneratedRoom created by RoomGenerator
+
     void Start()
     {
         roomGenerator = GetComponent<RoomGenerator>();
@@ -102,6 +104,8 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             Directory.CreateDirectory(Path.Combine(baseDirectory, "labels", folder));
             Directory.CreateDirectory(Path.Combine(baseDirectory, "2d_data", folder));
             Directory.CreateDirectory(Path.Combine(baseDirectory, "3d_data", folder));
+            Directory.CreateDirectory(Path.Combine(baseDirectory, "scene_meta", folder));
+
         }
     }
 
@@ -117,6 +121,8 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         // Move the camera to the next position on each iteration
         roomGenerator.MoveToNextCameraPosition();
 
+        GeneratedRoom = GameObject.Find("GeneratedRoom"); // Reference the newly generated room
+
         // Determine which set (train, val, test) this image should go into
         string dataSplit = GetDataSplit();
 
@@ -129,6 +135,9 @@ public class SyntheticDatasetGenerator : MonoBehaviour
 
         // Serialize normalized 2D data to COCO-style TXT
         SerializeGeometryData2DNormalizedToTXT(dataSplit);
+
+        // Serialize the transform data of the GeneratedRoom and save as CSV
+        SerializeTransformsToCSV(dataSplit);
 
         // Capture screenshot
         if (takeScreenshot)
@@ -301,9 +310,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         Vector2[] normalizedCorners = new Vector2[corners.Length];
         for (int i = 0; i < corners.Length; i++)
         {
-            Debug.Log(corners[i]);
             normalizedCorners[i] = new Vector2(corners[i].x / screenWidth, corners[i].y / screenHeight);
-            Debug.Log(normalizedCorners[i]);
         }
         return normalizedCorners;
     }
@@ -315,6 +322,54 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         else if (name.Contains("Desk")) return 1;
         else if (name.Contains("Wall")) return 2;
         else return -1;  // Default for unrecognized objects
+    }
+
+    // Serialize the transform components (position, rotation, and scale) of all child objects in GeneratedRoom
+    void SerializeTransformsToCSV(string dataSplit)
+    {
+        List<string> transformData = new List<string>();
+
+        // Ensure GeneratedRoom is available
+        if (GeneratedRoom != null)
+        {
+            // Get all children of the GeneratedRoom GameObject
+            foreach (Transform child in GeneratedRoom.transform)
+            {
+                string data = SerializeTransform(child);
+                transformData.Add(data);
+            }
+
+            // Also serialize the main camera's transform
+            if (mainCamera != null)
+            {
+                string cameraData = SerializeTransform(mainCamera.transform);
+                transformData.Add(cameraData);
+            }
+
+            // Construct the file path using the pictureIndex
+            string filePath = Path.Combine(baseDirectory, "scene_meta", dataSplit, $"{pictureIndex}.csv");
+
+            // Write the data to the CSV file
+            File.WriteAllLines(filePath, transformData);
+            Debug.Log($"Scene metadata (transforms) saved to: {filePath}");
+        }
+        else
+        {
+            Debug.LogError("GeneratedRoom is not available for serialization.");
+        }
+    }
+
+    // Method to serialize transform data into a CSV format string
+    string SerializeTransform(Transform objTransform)
+    {
+        Vector3 position = objTransform.localPosition;
+        Quaternion rotation = objTransform.localRotation;
+        Vector3 scale = objTransform.localScale;
+
+        // Format as CSV (name, position, rotation, scale)
+        return $"{objTransform.name},{position.x},{position.y},{position.z}," +
+               $"{rotation.x},{rotation.y},{rotation.z},{rotation.w}," +
+               $"{scale.x},{scale.y},{scale.z}";
     }
 
     // Serialize all GeometryData3D for all objects into a CSV file
