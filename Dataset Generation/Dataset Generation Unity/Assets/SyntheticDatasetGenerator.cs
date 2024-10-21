@@ -88,9 +88,15 @@ public class SyntheticDatasetGenerator : MonoBehaviour
 
         // Ensure necessary directories exist
         CreateNecessaryDirectories();
+    }
 
-        // Start the recursive image generation process
-        StartCoroutine(GenerateImageWithDelay());
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            // Start the recursive image generation process
+            StartCoroutine(GenerateImageWithDelay());
+        }
     }
 
     void CreateNecessaryDirectories()
