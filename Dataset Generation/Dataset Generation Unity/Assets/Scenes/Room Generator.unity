@@ -338,6 +338,7 @@ MonoBehaviour:
   screenWidth: 0
   screenHeight: 0
   pictureIndex: 0
+  debugIndex: 0
   testThreshold: 10
   allObjectDetails: []
 --- !u!114 &1055626062
@@ -378,7 +379,7 @@ MonoBehaviour:
   wallPrefab: {fileID: 7396488072382362230, guid: 200578c001713d845bbd57a07113eb2c, type: 3}
   chairPrefab: {fileID: 1376455687202864483, guid: 71cd44ebbbcaace4e99120ba6fb5da2f, type: 3}
   primitiveType: 3
-  fileNumber: 12
+  fileNumber: 22
   datasetName: 0_test
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

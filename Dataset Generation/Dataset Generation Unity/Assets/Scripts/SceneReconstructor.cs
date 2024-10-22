@@ -45,7 +45,7 @@ public class SceneReconstructor : MonoBehaviour
                 }
 
                 // Create a new parent object for the room
-                reconstructedRoomParent = new GameObject("Reconstructed Room");
+                reconstructedRoomParent = new GameObject("GeneratedRoom");
 
                 // Spawn objects from the CSV file
                 SpawnObjectsFromCSV(filePath);
