@@ -312,7 +312,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -338,7 +338,6 @@ MonoBehaviour:
   screenWidth: 0
   screenHeight: 0
   pictureIndex: 0
-  debugIndex: 0
   testThreshold: 10
   allObjectDetails: []
 --- !u!114 &1055626062
@@ -360,9 +359,17 @@ MonoBehaviour:
   wallThickness: 0.2
   wallHeight: 3
   objectBuffer: 1
+  minObjectDistance: 2
   mainCamera: {fileID: 963194227}
   wallPrefab: {fileID: 7396488072382362230, guid: 200578c001713d845bbd57a07113eb2c, type: 3}
-  randomObjectPrefab: {fileID: 1376455687202864483, guid: 71cd44ebbbcaace4e99120ba6fb5da2f, type: 3}
+  randomObjectPrefabs:
+  - {fileID: 1376455687202864483, guid: 71cd44ebbbcaace4e99120ba6fb5da2f, type: 3}
+  - {fileID: 1606517391330733233, guid: ce03b5491e451d84fa8f4e858769d9d2, type: 3}
+  - {fileID: 3937974354391598925, guid: 5f85db52b498f744d97ce06613a39230, type: 3}
+  - {fileID: 5426193247520715165, guid: cd8125add72e1d7438859c48cd6f855a, type: 3}
+  - {fileID: 2933520361679236213, guid: a3572360975b4ed408444dd3d94a26d5, type: 3}
+  - {fileID: 1855559649484624630, guid: 3b8cab83102cb9744ab497b688616877, type: 3}
+  maxObjectsToSpawn: 5
   cameraBuffer: 0.5
 --- !u!114 &1055626063
 MonoBehaviour:
