@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class DeactivateReactivateChildren : MonoBehaviour
+public class ModelHandler : MonoBehaviour
 {
     // Automatically called when the script is initialized
     private void Start()
