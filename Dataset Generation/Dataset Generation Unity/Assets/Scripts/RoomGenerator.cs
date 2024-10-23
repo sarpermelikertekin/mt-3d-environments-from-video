@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic; // For using lists
 
 public class RoomGenerator : MonoBehaviour
 {
@@ -10,11 +11,13 @@ public class RoomGenerator : MonoBehaviour
     public float wallThickness = 0.2f; // Thickness of the walls
     public float wallHeight = 3f; // Height of the walls
     public float objectBuffer = 1f; // Buffer to keep the object from spawning too close to walls
+    public float minObjectDistance = 2f; // Minimum distance between objects to prevent overlap
 
     // Camera control variables
     public Camera mainCamera; // Reference to the main camera
     public GameObject wallPrefab;
-    public GameObject randomObjectPrefab;
+    public GameObject[] randomObjectPrefabs; // Array of object prefabs to randomly choose from
+    public int maxObjectsToSpawn = 5; // Maximum number of objects to spawn randomly
     private Vector3[] cameraPositions; // Store 4 possible camera positions
     private int currentCameraIndex = 0; // Index to keep track of the current camera position
     public float cameraBuffer = 0.5f; // Buffer for camera positioning
@@ -25,6 +28,9 @@ public class RoomGenerator : MonoBehaviour
 
     // To store the generated room elements
     private GameObject roomParent;
+
+    // List to store the positions of spawned objects
+    private List<Vector3> spawnedObjectPositions = new List<Vector3>();
 
     void Start()
     {
@@ -87,8 +93,17 @@ public class RoomGenerator : MonoBehaviour
         // Generate the ceiling at the height of the wall
         CreateCeiling(new Vector3(roomWidth / 2, wallHeight, roomLength / 2), new Vector3(roomWidth, 1, roomLength));
 
-        // Spawn a random object inside the room
-        SpawnRandomObject();
+        // Clear previously stored object positions
+        spawnedObjectPositions.Clear();
+
+        // Determine random number of objects to spawn (between 1 and maxObjectsToSpawn)
+        int randomNumberOfObjects = Random.Range(1, maxObjectsToSpawn + 1);
+
+        // Spawn random objects inside the room
+        for (int i = 0; i < randomNumberOfObjects; i++)
+        {
+            SpawnRandomObject();
+        }
 
         // Add a point light in the middle of the room at height 2.5
         CreatePointLight();
@@ -122,17 +137,60 @@ public class RoomGenerator : MonoBehaviour
         ceiling.transform.parent = roomParent.transform; // Parent the ceiling to roomParent
     }
 
-    // Function to spawn a random object inside the room
+    // Function to spawn a random object inside the room with distance validation
     void SpawnRandomObject()
     {
-        // Calculate random position within the room but with a buffer from the walls
-        float randomX = Random.Range(objectBuffer, roomWidth - objectBuffer);
-        float randomZ = Random.Range(objectBuffer, roomLength - objectBuffer);
+        // Choose a random object prefab from the array
+        GameObject randomObjectPrefab = randomObjectPrefabs[Random.Range(0, randomObjectPrefabs.Length)];
 
-        // Instantiate the object at the random position
-        Vector3 randomPosition = new Vector3(randomX, 0f, randomZ); // Assuming object height is small, position it slightly above the floor
-        GameObject randomObject = Instantiate(randomObjectPrefab, randomPosition, Quaternion.identity);
-        randomObject.transform.parent = roomParent.transform; // Parent the object to roomParent
+        // Initialize the random position with a default value (e.g., Vector3.zero)
+        Vector3 randomPosition = Vector3.zero;
+
+        // Try to find a position that's far enough from other objects
+        int maxAttempts = 100; // Limit the number of attempts to avoid infinite loops
+        bool positionIsValid = false;
+
+        for (int attempts = 0; attempts < maxAttempts; attempts++)
+        {
+            // Calculate random position within the room but with a buffer from the walls
+            float randomX = Random.Range(objectBuffer, roomWidth - objectBuffer);
+            float randomZ = Random.Range(objectBuffer, roomLength - objectBuffer);
+            randomPosition = new Vector3(randomX, 0f, randomZ);
+
+            // Check if the position is valid (far enough from other objects)
+            positionIsValid = true; // Assume the position is valid initially
+            foreach (Vector3 otherPosition in spawnedObjectPositions)
+            {
+                if (Vector3.Distance(randomPosition, otherPosition) < minObjectDistance)
+                {
+                    positionIsValid = false; // If too close to another object, position is not valid
+                    break;
+                }
+            }
+
+            // If a valid position is found, break out of the loop
+            if (positionIsValid)
+            {
+                break;
+            }
+        }
+
+        // If a valid position is found, spawn the object
+        if (positionIsValid)
+        {
+            // Generate a random Y rotation (0 to 360 degrees)
+            float randomYRotation = Random.Range(0f, 360f);
+            Quaternion randomRotation = Quaternion.Euler(0f, randomYRotation, 0f);
+
+            // Instantiate the object with the random position and random Y-axis rotation
+            GameObject randomObject = Instantiate(randomObjectPrefab, randomPosition, randomRotation);
+            randomObject.transform.parent = roomParent.transform; // Parent the object to roomParent
+            spawnedObjectPositions.Add(randomPosition); // Store the position of the spawned object
+        }
+        else
+        {
+            Debug.LogWarning("Failed to find a valid position for the object after multiple attempts.");
+        }
     }
 
     // Function to create a point light at the center of the room
