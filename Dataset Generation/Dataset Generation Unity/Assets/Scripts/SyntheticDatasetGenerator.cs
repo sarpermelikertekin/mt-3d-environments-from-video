@@ -32,19 +32,22 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     }
 
     [Tooltip("Main camera used for projecting 3D points to 2D")]
-    public Camera mainCamera; // Main camera to project 3D points to 2D
+    public Camera mainCamera;
+
+    [Tooltip("Name of the Dataset to be created")]
+    public string dataSetName;
 
     [Tooltip("Buffer to add to the bounding box size (in pixels)")]
-    public float boundingBoxBuffer = 25f; // Buffer for the bounding box
+    public float boundingBoxBuffer = 25f;
 
     [Tooltip("Toggle for capturing a screenshot or not")]
-    public bool takeScreenshot = true; // Whether or not to capture screenshots
+    public bool takeScreenshot = true;
 
     [Tooltip("Number of base images to generate (excluding test)")]
-    public int numberOfImages = 10; // Number of base images to generate (80% train, 20% val)
+    public int numberOfImages = 10;
 
     [Tooltip("Delay between captures in seconds")]
-    public float delayBetweenCaptures = 1f; // Time delay between each iteration
+    public float delayBetweenCaptures = 1f;
 
     [Tooltip("Screen width for capturing screenshots")]
     public int screenWidth;
@@ -62,7 +65,10 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     public List<ObjectDetails> allObjectDetails;
 
     private RoomGenerator roomGenerator; // Reference to RoomGenerator script
-    private string baseDirectory = @"C:\Users\sakar\OneDrive\mt-datas\synthetic_data\0_test\";
+    private SceneReconstructor sceneReconstructor; // Reference to SceneReconstructor script
+    private string baseDirectory = @"C:\Users\sakar\OneDrive\mt-datas\synthetic_data\";
+    private string debugDirectory = @"C:\Users\sakar\OneDrive\mt-datas\synth_validation_data\";
+    private string dataSetDirectory = "";
     private int trainThreshold; // Threshold for images going to the 'train' set
     private int valThreshold; // Threshold for images going to the 'val' set
     private int totalImagesToGenerate; // Total number of images including test set
@@ -72,6 +78,9 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     void Start()
     {
         roomGenerator = GetComponent<RoomGenerator>();
+        sceneReconstructor = GetComponent<SceneReconstructor>();
+
+        dataSetDirectory = Path.Combine(baseDirectory, dataSetName);
 
         if (mainCamera == null)
         {
@@ -94,8 +103,11 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.G))
         {
-            // Start the recursive image generation process
-            StartCoroutine(GenerateImageWithDelay());
+            StartCoroutine(GenerateDataPoints());
+        }
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            GenerateOneDataPoint();
         }
     }
 
@@ -106,16 +118,38 @@ public class SyntheticDatasetGenerator : MonoBehaviour
 
         foreach (var folder in subFolders)
         {
-            Directory.CreateDirectory(Path.Combine(baseDirectory, "images", folder));
-            Directory.CreateDirectory(Path.Combine(baseDirectory, "labels", folder));
-            Directory.CreateDirectory(Path.Combine(baseDirectory, "2d_data", folder));
-            Directory.CreateDirectory(Path.Combine(baseDirectory, "3d_data", folder));
-            Directory.CreateDirectory(Path.Combine(baseDirectory, "scene_meta", folder));
+            Directory.CreateDirectory(Path.Combine(dataSetDirectory, "images", folder));
+            Directory.CreateDirectory(Path.Combine(dataSetDirectory, "labels", folder));
+        }
 
+        Directory.CreateDirectory(Path.Combine(dataSetDirectory, "2d_data"));
+        Directory.CreateDirectory(Path.Combine(dataSetDirectory, "3d_data"));
+        Directory.CreateDirectory(Path.Combine(dataSetDirectory, "scene_meta"));
+    }
+
+    void GenerateOneDataPoint()
+    {
+        // Extract object details for the current image
+        ExtractAndStoreObjectDetails();
+
+        // Serialize the 3D and normalized 2D data for each image
+        SerializeAllGeometryData3DToCSV(Path.Combine(debugDirectory, dataSetName, $"{dataSetName}_{sceneReconstructor.fileNumber}_3d.csv"));
+        SerializeAllGeometryData2DNormalizedToCSV(Path.Combine(debugDirectory, dataSetName, $"{dataSetName}_{sceneReconstructor.fileNumber}_2d.csv"));
+
+        // Serialize normalized 2D data to COCO-style TXT
+        SerializeGeometryData2DNormalizedToTXT(Path.Combine(debugDirectory, dataSetName, $"{dataSetName}_{sceneReconstructor.fileNumber}_coco.txt"));
+
+        // Serialize the transform data of the GeneratedRoom and save as CSV
+        SerializeTransformsToCSV(Path.Combine(debugDirectory, dataSetName, $"{dataSetName}_{sceneReconstructor.fileNumber}_meta.csv"));
+
+        // Capture screenshot
+        if (takeScreenshot)
+        {
+            CaptureScreenshotAndSave(Path.Combine(debugDirectory, dataSetName, $"{dataSetName}_{sceneReconstructor.fileNumber}_pic.png"));
         }
     }
 
-    IEnumerator GenerateImageWithDelay()
+    IEnumerator GenerateDataPoints()
     {
         // Every 5 iterations, generate a new room
         if (pictureIndex % 5 == 0)
@@ -136,19 +170,19 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         ExtractAndStoreObjectDetails();
 
         // Serialize the 3D and normalized 2D data for each image
-        SerializeAllGeometryData3DToCSV(dataSplit);
-        SerializeAllGeometryData2DNormalizedToCSV(dataSplit);
+        SerializeAllGeometryData3DToCSV(Path.Combine(dataSetDirectory, "3d_data", dataSplit, $"{pictureIndex}.csv"));
+        SerializeAllGeometryData2DNormalizedToCSV(Path.Combine(dataSetDirectory, "2d_data", dataSplit, $"{pictureIndex}.csv"));
 
         // Serialize normalized 2D data to COCO-style TXT
-        SerializeGeometryData2DNormalizedToTXT(dataSplit);
+        SerializeGeometryData2DNormalizedToTXT(Path.Combine(dataSetDirectory, "labels", dataSplit, $"{pictureIndex}.txt"));
 
         // Serialize the transform data of the GeneratedRoom and save as CSV
-        SerializeTransformsToCSV(dataSplit);
+        SerializeTransformsToCSV(Path.Combine(dataSetDirectory, "scene_meta", $"{pictureIndex}.csv"));
 
         // Capture screenshot
         if (takeScreenshot)
         {
-            CaptureScreenshotAndSave(dataSplit);
+            CaptureScreenshotAndSave(Path.Combine(dataSetDirectory, "images", dataSplit, $"{pictureIndex}.png"));
         }
 
         // Increment picture index for the next iteration
@@ -158,7 +192,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         if (pictureIndex < totalImagesToGenerate)
         {
             yield return new WaitForSeconds(delayBetweenCaptures); // Wait for the specified delay
-            StartCoroutine(GenerateImageWithDelay()); // Recursively call the function
+            StartCoroutine(GenerateDataPoints()); // Recursively call the function
         }
         else
         {
@@ -331,7 +365,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     }
 
     // Serialize the transform components (position, rotation, and scale) of all child objects in GeneratedRoom
-    void SerializeTransformsToCSV(string dataSplit)
+    void SerializeTransformsToCSV(string filePath)
     {
         List<string> transformData = new List<string>();
 
@@ -351,9 +385,6 @@ public class SyntheticDatasetGenerator : MonoBehaviour
                 string cameraData = SerializeTransform(mainCamera.transform);
                 transformData.Add(cameraData);
             }
-
-            // Construct the file path using the pictureIndex
-            string filePath = Path.Combine(baseDirectory, "scene_meta", dataSplit, $"{pictureIndex}.csv");
 
             // Write the data to the CSV file
             File.WriteAllLines(filePath, transformData);
@@ -379,7 +410,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     }
 
     // Serialize all GeometryData3D for all objects into a CSV file
-    void SerializeAllGeometryData3DToCSV(string dataSplit)
+    void SerializeAllGeometryData3DToCSV(string filePath)
     {
         StringBuilder csvBuilder = new StringBuilder();
         csvBuilder.AppendLine("objectID,objectName,positionX,positionY,positionZ,rotationX,rotationY,rotationZ,corner1X,corner1Y,corner1Z,corner2X,corner2Y,corner2Z,...");
@@ -401,14 +432,12 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             csvBuilder.AppendLine(rowBuilder.ToString().TrimEnd(',')); // Trim the last comma
         }
 
-        string filePath = Path.Combine(baseDirectory, "3d_data", dataSplit, $"{pictureIndex}.csv");
-
         File.WriteAllText(filePath, csvBuilder.ToString());
         Debug.Log($"3D data for all objects saved to: {filePath}");
     }
 
     // Serialize all normalized GeometryData2D for all objects into a CSV file
-    void SerializeAllGeometryData2DNormalizedToCSV(string dataSplit)
+    void SerializeAllGeometryData2DNormalizedToCSV(string filePath)
     {
         StringBuilder csvBuilder = new StringBuilder();
         csvBuilder.AppendLine("objectID,objectName,corner1X,corner1Y,corner2X,corner2Y,corner3X,corner3Y,...,boundingBoxCenterX,boundingBoxCenterY,boundingBoxWidth,boundingBoxHeight");
@@ -432,14 +461,12 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             csvBuilder.AppendLine(rowBuilder.ToString().TrimEnd(',')); // Trim the last comma
         }
 
-        string filePath = Path.Combine(baseDirectory, "2d_data", dataSplit, $"{pictureIndex}.csv");
-
         File.WriteAllText(filePath, csvBuilder.ToString());
         Debug.Log($"Normalized 2D data for all objects saved to: {filePath}");
     }
 
     // Serialize GeometryData2DNormalized to a COCO-like TXT file (without headers, spaces between values)
-    void SerializeGeometryData2DNormalizedToTXT(string dataSplit)
+    void SerializeGeometryData2DNormalizedToTXT(string filePath)
     {
         StringBuilder txtBuilder = new StringBuilder();
 
@@ -468,17 +495,15 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         }
 
         // Write to the TXT file
-        string filePath = Path.Combine(baseDirectory, "labels", dataSplit, $"{pictureIndex}.txt");
         File.WriteAllText(filePath, txtBuilder.ToString());
         Debug.Log($"GeometryData2DNormalized TXT saved to: {filePath}");
     }
 
 
     // Capture screenshot using Unity's built-in ScreenCapture function
-    void CaptureScreenshotAndSave(string dataSplit)
+    void CaptureScreenshotAndSave(string filePath)
     {
-        string screenshotFilePath = Path.Combine(baseDirectory, "images", dataSplit, $"{pictureIndex}.png");
-        ScreenCapture.CaptureScreenshot(screenshotFilePath);
-        Debug.Log($"Screenshot saved to: {screenshotFilePath}");
+        ScreenCapture.CaptureScreenshot(filePath);
+        Debug.Log($"Screenshot saved to: {filePath}");
     }
 }

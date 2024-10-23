@@ -4,9 +4,6 @@ using System.IO;
 
 public class SceneReconstructor : MonoBehaviour
 {
-    [Tooltip("Path to the folder containing the CSV files")]
-    public string csvFolderPath = @"C:\Users\sakar\OneDrive\mt-datas\synthetic_data\0_test\scene_meta\train\";
-
     [Tooltip("Prefab for walls")]
     public GameObject wallPrefab;
 
@@ -19,15 +16,38 @@ public class SceneReconstructor : MonoBehaviour
     [Tooltip("File number of the CSV file to load")]
     public int fileNumber = 0;
 
+    [Tooltip("File number of the CSV file to load")]
+    public string datasetName;
+
+    private string baseDirectory = @"C:\Users\sakar\OneDrive\mt-datas\synthetic_data\";
+    private string dataSetDirectory = "";
+
+    private GameObject reconstructedRoomParent; // Parent object for reconstructed scene
+
+    void Start()
+    {
+        dataSetDirectory = Path.Combine(baseDirectory, datasetName, "scene_meta");
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
             // Load and spawn objects from the selected CSV file
-            string filePath = Path.Combine(csvFolderPath, $"{fileNumber}.csv");
+            string filePath = Path.Combine(dataSetDirectory, $"{fileNumber}.csv");
 
             if (File.Exists(filePath))
             {
+                // If a previous reconstructed room exists, delete it
+                if (reconstructedRoomParent != null)
+                {
+                    Destroy(reconstructedRoomParent);
+                }
+
+                // Create a new parent object for the room
+                reconstructedRoomParent = new GameObject("GeneratedRoom");
+
+                // Spawn objects from the CSV file
                 SpawnObjectsFromCSV(filePath);
             }
             else
@@ -88,6 +108,8 @@ public class SceneReconstructor : MonoBehaviour
                 lightGameObject.transform.position = position;
                 lightGameObject.transform.rotation = rotation;
                 lightGameObject.transform.localScale = scale;
+                lightGameObject.transform.parent = reconstructedRoomParent.transform; // Parent to Reconstructed Room
+                continue; // Skip the rest since point lights don't need scaling or other primitive settings
             }
             else if (objectName.ToLower().Contains("camera"))
             {
@@ -104,6 +126,7 @@ public class SceneReconstructor : MonoBehaviour
                 {
                     Debug.LogError("Main camera not found.");
                 }
+                continue; // Skip adding the camera to the parent object
             }
             else
             {
@@ -117,6 +140,10 @@ public class SceneReconstructor : MonoBehaviour
             {
                 // Apply the scale
                 spawnedObject.transform.localScale = scale;
+
+                // Set the parent to the "Reconstructed Room" GameObject
+                spawnedObject.transform.parent = reconstructedRoomParent.transform;
+
                 Debug.Log($"Spawned {objectName} at {position} with rotation {rotation} and scale {scale}");
             }
         }
