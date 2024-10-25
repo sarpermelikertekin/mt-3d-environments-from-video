@@ -61,12 +61,6 @@ public class RoomGenerator : MonoBehaviour
 
     public void GenerateRoom()
     {
-        // If a room already exists, delete it before creating a new one
-        if (roomParent != null)
-        {
-            DeleteRoom();
-        }
-
         // Create a new empty GameObject to hold the room elements
         roomParent = new GameObject("GeneratedRoom");
 

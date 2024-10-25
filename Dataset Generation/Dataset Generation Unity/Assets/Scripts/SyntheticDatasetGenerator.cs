@@ -38,16 +38,19 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     public string dataSetName;
 
     [Tooltip("Buffer to add to the bounding box size (in pixels)")]
-    public float boundingBoxBuffer = 25f;
+    public float boundingBoxBuffer;
 
     [Tooltip("Toggle for capturing a screenshot or not")]
     public bool takeScreenshot = true;
 
     [Tooltip("Number of base images to generate (excluding test)")]
-    public int numberOfImages = 10;
+    public int numberOfImages;
+
+    [Tooltip("Number of iiterations, after which a new room would be generated")]
+    public int iterationForRoom;
 
     [Tooltip("Delay between captures in seconds")]
-    public float delayBetweenCaptures = 1f;
+    public float delayBetweenCaptures;
 
     [Tooltip("Screen width for capturing screenshots")]
     public int screenWidth;
@@ -151,13 +154,15 @@ public class SyntheticDatasetGenerator : MonoBehaviour
 
     IEnumerator GenerateDataPoints()
     {
-        // Every 5 iterations, generate a new room
-        if (pictureIndex % 5 == 0)
+        // Every x iterations, generate a new room
+        if (pictureIndex % iterationForRoom == 0)
         {
+            roomGenerator.DeleteRoom();
+            yield return new WaitForSeconds(0.5f);
             roomGenerator.GenerateRoom();
             roomGenerator.SetupCameraPositions();
         }
-
+        yield return new WaitForSeconds(0.5f);
         // Move the camera to the next position on each iteration
         roomGenerator.MoveToNextCameraPosition();
 
@@ -170,8 +175,8 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         ExtractAndStoreObjectDetails();
 
         // Serialize the 3D and normalized 2D data for each image
-        SerializeAllGeometryData3DToCSV(Path.Combine(dataSetDirectory, "3d_data", dataSplit, $"{pictureIndex}.csv"));
-        SerializeAllGeometryData2DNormalizedToCSV(Path.Combine(dataSetDirectory, "2d_data", dataSplit, $"{pictureIndex}.csv"));
+        SerializeAllGeometryData3DToCSV(Path.Combine(dataSetDirectory, "3d_data", $"{pictureIndex}.csv"));
+        SerializeAllGeometryData2DNormalizedToCSV(Path.Combine(dataSetDirectory, "2d_data", $"{pictureIndex}.csv"));
 
         // Serialize normalized 2D data to COCO-style TXT
         SerializeGeometryData2DNormalizedToTXT(Path.Combine(dataSetDirectory, "labels", dataSplit, $"{pictureIndex}.txt"));
@@ -413,7 +418,6 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     void SerializeAllGeometryData3DToCSV(string filePath)
     {
         StringBuilder csvBuilder = new StringBuilder();
-        csvBuilder.AppendLine("objectID,objectName,positionX,positionY,positionZ,rotationX,rotationY,rotationZ,corner1X,corner1Y,corner1Z,corner2X,corner2Y,corner2Z,...");
 
         foreach (var details in allObjectDetails)
         {
@@ -440,7 +444,6 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     void SerializeAllGeometryData2DNormalizedToCSV(string filePath)
     {
         StringBuilder csvBuilder = new StringBuilder();
-        csvBuilder.AppendLine("objectID,objectName,corner1X,corner1Y,corner2X,corner2Y,corner3X,corner3Y,...,boundingBoxCenterX,boundingBoxCenterY,boundingBoxWidth,boundingBoxHeight");
 
         foreach (var details in allObjectDetails)
         {

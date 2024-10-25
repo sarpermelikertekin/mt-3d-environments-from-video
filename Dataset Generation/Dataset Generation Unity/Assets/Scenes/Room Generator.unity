@@ -334,7 +334,8 @@ MonoBehaviour:
   boundingBoxBuffer: 25
   takeScreenshot: 1
   numberOfImages: 25
-  delayBetweenCaptures: 0
+  iterationForRoom: 2
+  delayBetweenCaptures: 3
   screenWidth: 0
   screenHeight: 0
   pictureIndex: 0
@@ -365,9 +366,7 @@ MonoBehaviour:
   randomObjectPrefabs:
   - {fileID: 2146450166384225612, guid: 6701eaaa355c82049b783fc1b55b108d, type: 3}
   - {fileID: 1709260401402099211, guid: 68027c88e7f08244a962bca8934ec25f, type: 3}
-  - {fileID: 2933520361679236213, guid: a3572360975b4ed408444dd3d94a26d5, type: 3}
-  - {fileID: 1855559649484624630, guid: 3b8cab83102cb9744ab497b688616877, type: 3}
-  maxObjectsToSpawn: 5
+  maxObjectsToSpawn: 3
   cameraBuffer: 0.5
 --- !u!114 &1055626063
 MonoBehaviour:
