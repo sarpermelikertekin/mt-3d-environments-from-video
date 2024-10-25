@@ -157,10 +157,12 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         // Every x iterations, generate a new room
         if (pictureIndex % iterationForRoom == 0)
         {
+            roomGenerator.DeleteRoom();
+            yield return new WaitForSeconds(0.5f);
             roomGenerator.GenerateRoom();
             roomGenerator.SetupCameraPositions();
         }
-
+        yield return new WaitForSeconds(0.5f);
         // Move the camera to the next position on each iteration
         roomGenerator.MoveToNextCameraPosition();
 
@@ -416,7 +418,6 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     void SerializeAllGeometryData3DToCSV(string filePath)
     {
         StringBuilder csvBuilder = new StringBuilder();
-        csvBuilder.AppendLine("objectID,objectName,positionX,positionY,positionZ,rotationX,rotationY,rotationZ,corner1X,corner1Y,corner1Z,corner2X,corner2Y,corner2Z,...");
 
         foreach (var details in allObjectDetails)
         {
@@ -443,7 +444,6 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     void SerializeAllGeometryData2DNormalizedToCSV(string filePath)
     {
         StringBuilder csvBuilder = new StringBuilder();
-        csvBuilder.AppendLine("objectID,objectName,corner1X,corner1Y,corner2X,corner2Y,corner3X,corner3Y,...,boundingBoxCenterX,boundingBoxCenterY,boundingBoxWidth,boundingBoxHeight");
 
         foreach (var details in allObjectDetails)
         {
