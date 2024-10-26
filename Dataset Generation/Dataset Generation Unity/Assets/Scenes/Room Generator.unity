@@ -330,12 +330,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 963194227}
-  dataSetName: 0_test
+  dataSetName: 2_multi_model_color_chair_desk
   boundingBoxBuffer: 25
   takeScreenshot: 1
-  numberOfImages: 25
-  iterationForRoom: 2
-  delayBetweenCaptures: 3
+  numberOfImages: 1000
+  iterationForRoom: 10
+  delayBetweenCaptures: 0
   screenWidth: 0
   screenHeight: 0
   pictureIndex: 0

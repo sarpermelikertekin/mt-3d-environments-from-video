@@ -173,11 +173,11 @@ public class RoomGenerator : MonoBehaviour
         if (positionIsValid)
         {
             // Generate a random Y rotation (0 to 360 degrees)
-            float randomYRotation = Random.Range(0f, 360f);
-            Quaternion randomRotation = Quaternion.Euler(0f, randomYRotation, 0f);
+            //float randomYRotation = Random.Range(0f, 360f);
+            //Quaternion randomRotation = Quaternion.Euler(0f, randomYRotation, 0f);
 
             // Instantiate the object with the random position and random Y-axis rotation
-            GameObject randomObject = Instantiate(randomObjectPrefab, randomPosition, randomRotation);
+            GameObject randomObject = Instantiate(randomObjectPrefab, randomPosition, Quaternion.identity);
             randomObject.transform.parent = roomParent.transform; // Parent the object to roomParent
             spawnedObjectPositions.Add(randomPosition); // Store the position of the spawned object
         }
