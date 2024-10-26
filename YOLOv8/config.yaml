@@ -1,5 +1,5 @@
 # Data
-path: C:\Users\sakar\OneDrive\mt-datas\synthetic_data\0_test
+path: C:\Users\sakar\OneDrive\mt-datas\synthetic_data\1_chair
 train: images/train # train images (relative to 'path')
 val: images/val # val images (relative to 'path')
 
