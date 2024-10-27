@@ -423,7 +423,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         {
             int objectID = MapObjectNameToID(details.name); // Map object name to ID
             StringBuilder rowBuilder = new StringBuilder();
-            rowBuilder.Append($"{objectID},{details.name},");
+            rowBuilder.Append($"{objectID},");
             rowBuilder.Append($"{details.geometry3D.position.x},{details.geometry3D.position.y},{details.geometry3D.position.z},");
             rowBuilder.Append($"{details.geometry3D.rotation.x},{details.geometry3D.rotation.y},{details.geometry3D.rotation.z},");
 
@@ -449,11 +449,11 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         {
             int objectID = MapObjectNameToID(details.name); // Map object name to ID
             StringBuilder rowBuilder = new StringBuilder();
-            rowBuilder.Append($"{objectID},{details.name},");
+            rowBuilder.Append($"{objectID},");
 
             // Append bounding box center and size (normalized)
             rowBuilder.Append($"{details.geometry2DNormalized.boundingBoxCenter.x},{details.geometry2DNormalized.boundingBoxCenter.y},");
-            rowBuilder.Append($"{details.geometry2DNormalized.boundingBoxSize.x},{details.geometry2DNormalized.boundingBoxSize.y}");
+            rowBuilder.Append($"{details.geometry2DNormalized.boundingBoxSize.x},{details.geometry2DNormalized.boundingBoxSize.y},");
 
             // Append normalized 2D corners (X, Y for each corner)
             foreach (var corner in details.geometry2DNormalized.projectedCorners)
