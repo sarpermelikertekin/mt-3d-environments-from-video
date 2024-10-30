@@ -21,6 +21,10 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         public Vector3 position;
         public Vector3 rotation;
         public Vector3[] corners; // 3D world positions of corners
+
+        public Vector3 relativePosition;
+        public Vector3 relativeRotation;
+        public Vector3[] relativeCorners; // 3D world positions of corners relative to camera
     }
 
     [System.Serializable]
@@ -282,6 +286,9 @@ public class SyntheticDatasetGenerator : MonoBehaviour
                     }
                 };
 
+                // Calculate relative transformations and store them
+                CalculateRelativeTransformations(details, obj.transform);
+
                 allObjectDetails.Add(details);
             }
         }
@@ -289,6 +296,23 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         Debug.Log("Extracted " + allObjectDetails.Count + " objects with at least 8 visible corners.");
     }
 
+    // Method to calculate relative position and rotation
+    void CalculateRelativeTransformations(ObjectDetails details, Transform objTransform)
+    {
+        // Calculate relative position by simple vector subtraction
+        details.geometry3D.relativePosition = objTransform.position - mainCamera.transform.position;
+
+        // Calculate relative rotation
+        Quaternion relativeRotation = Quaternion.Inverse(mainCamera.transform.rotation) * objTransform.rotation;
+        details.geometry3D.relativeRotation = relativeRotation.eulerAngles;
+
+        // Calculate relative corner positions
+        details.geometry3D.relativeCorners = new Vector3[details.geometry3D.corners.Length];
+        for (int i = 0; i < details.geometry3D.corners.Length; i++)
+        {
+            details.geometry3D.relativeCorners[i] = details.geometry3D.corners[i] - mainCamera.transform.position;
+        }
+    }
 
     int[] CheckCornersVisibility(Vector2[] projectedCorners)
     {
@@ -424,11 +448,13 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             int objectID = MapObjectNameToID(details.name); // Map object name to ID
             StringBuilder rowBuilder = new StringBuilder();
             rowBuilder.Append($"{objectID},");
-            rowBuilder.Append($"{details.geometry3D.position.x},{details.geometry3D.position.y},{details.geometry3D.position.z},");
-            rowBuilder.Append($"{details.geometry3D.rotation.x},{details.geometry3D.rotation.y},{details.geometry3D.rotation.z},");
 
-            // Append corners (X, Y, Z for each corner)
-            foreach (var corner in details.geometry3D.corners)
+            // Append relative position and rotation
+            rowBuilder.Append($"{details.geometry3D.relativePosition.x},{details.geometry3D.relativePosition.y},{details.geometry3D.relativePosition.z},");
+            rowBuilder.Append($"{details.geometry3D.relativeRotation.x},{details.geometry3D.relativeRotation.y},{details.geometry3D.relativeRotation.z},");
+
+            // Append relative corners
+            foreach (var corner in details.geometry3D.relativeCorners)
             {
                 rowBuilder.Append($"{corner.x},{corner.y},{corner.z},");
             }
@@ -437,8 +463,9 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         }
 
         File.WriteAllText(filePath, csvBuilder.ToString());
-        Debug.Log($"3D data for all objects saved to: {filePath}");
+        Debug.Log($"Relative 3D data for all objects saved to: {filePath}");
     }
+
 
     // Serialize all normalized GeometryData2D for all objects into a CSV file
     void SerializeAllGeometryData2DNormalizedToCSV(string filePath)

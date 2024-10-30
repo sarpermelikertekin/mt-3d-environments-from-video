@@ -330,12 +330,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 963194227}
-  dataSetName: abcd
+  dataSetName: 1_black_chair
   boundingBoxBuffer: 25
   takeScreenshot: 1
-  numberOfImages: 10
-  iterationForRoom: 1
-  delayBetweenCaptures: 2
+  numberOfImages: 1000
+  iterationForRoom: 5
+  delayBetweenCaptures: 0
   screenWidth: 0
   screenHeight: 0
   pictureIndex: 0
@@ -364,7 +364,7 @@ MonoBehaviour:
   mainCamera: {fileID: 963194227}
   wallPrefab: {fileID: 7396488072382362230, guid: 200578c001713d845bbd57a07113eb2c, type: 3}
   randomObjectPrefabs:
-  - {fileID: 1606517391330733233, guid: ce03b5491e451d84fa8f4e858769d9d2, type: 3}
+  - {fileID: 2146450166384225612, guid: 6701eaaa355c82049b783fc1b55b108d, type: 3}
   maxObjectsToSpawn: 1
   cameraBuffer: 0.5
 --- !u!114 &1055626063
