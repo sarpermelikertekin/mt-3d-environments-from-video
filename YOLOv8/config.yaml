@@ -1,5 +1,5 @@
 # Data
-path: C:\Users\sakar\OneDrive\mt-datas\synthetic_data\1_black_chair
+path: C:\Users\sakar\OneDrive\mt-datas\synthetic_data\3_working_bench
 train: images/train # train images (relative to 'path')
 val: images/val # val images (relative to 'path')
 
@@ -9,4 +9,6 @@ flip_idx: [3, 2, 1, 0, 7, 6, 5, 4]
 # Classes
 names:
   0: Chair
-#  1: Desk
+  1: Desk
+  2: Laptop
+  3: Monitor

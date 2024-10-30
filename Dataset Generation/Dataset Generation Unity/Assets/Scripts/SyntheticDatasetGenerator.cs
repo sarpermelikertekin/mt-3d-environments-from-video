@@ -389,7 +389,8 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     {
         if (name.Contains("Chair")) return 0;
         else if (name.Contains("Desk")) return 1;
-        else if (name.Contains("Wall")) return 2;
+        else if (name.Contains("Laptop")) return 2;
+        else if (name.Contains("Monitor")) return 3;
         else return -1;  // Default for unrecognized objects
     }
 
