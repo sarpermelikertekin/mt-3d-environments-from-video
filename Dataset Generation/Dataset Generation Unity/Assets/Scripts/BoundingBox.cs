@@ -12,7 +12,7 @@ public class BoundingBox : MonoBehaviour
 
     private Dictionary<string, Vector3> cornersDict = new Dictionary<string, Vector3>();
 
-    private void OnDrawGizmos()
+    private void Start()
     {
         // Calculate the bounding box from mesh vertices
         Bounds combinedBounds = CalculateMeshBounds();
@@ -33,7 +33,10 @@ public class BoundingBox : MonoBehaviour
         {
             cornersDict["Corner" + i] = corners[i];
         }
+    }
 
+    private void OnDrawGizmos()
+    {
         // Set the color for the bounding box
         Gizmos.color = boundingBoxColor;
 

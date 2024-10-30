@@ -330,7 +330,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 963194227}
-  dataSetName: 0_test
+  dataSetName: abcd
   boundingBoxBuffer: 25
   takeScreenshot: 1
   numberOfImages: 10
