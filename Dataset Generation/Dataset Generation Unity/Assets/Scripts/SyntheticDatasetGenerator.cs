@@ -236,11 +236,11 @@ public class SyntheticDatasetGenerator : MonoBehaviour
                 // Get visibility status for each corner
                 int[] visibility = CheckCornersVisibility(projectedCorners);
 
-                // Check if at least 8 corners are visible (i.e., have a visibility status of 0)
+                // Check if at least 8 corners are visible (i.e., have a visibility status of 2)
                 int visibleCount = 0;
                 foreach (int vis in visibility)
                 {
-                    if (vis == 0) visibleCount++;
+                    if (vis == 2) visibleCount++; // Updated check for visibility status to 2
                 }
 
                 // If fewer than 8 corners are visible, skip the object
@@ -286,24 +286,24 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             }
         }
 
-        Debug.Log("Extracted " + allObjectDetails.Count + " objects with at least 4 visible corners.");
+        Debug.Log("Extracted " + allObjectDetails.Count + " objects with at least 8 visible corners.");
     }
 
 
     int[] CheckCornersVisibility(Vector2[] projectedCorners)
     {
-        int[] visibility = new int[projectedCorners.Length]; // Array to store visibility (0 for visible, 1 for invisible)
+        int[] visibility = new int[projectedCorners.Length]; // Array to store visibility (2 for visible, 1 for invisible)
 
         for (int i = 0; i < projectedCorners.Length; i++)
         {
             Vector2 corner = projectedCorners[i];
             if (corner.x >= 0 && corner.x <= screenWidth && corner.y >= 0 && corner.y <= screenHeight)
             {
-                visibility[i] = 0; // Corner is visible
+                visibility[i] = 2; // Corner is visible (updated to 2)
             }
             else
             {
-                visibility[i] = 1; // Corner is outside the screen (invisible)
+                visibility[i] = 1; // Corner is outside the screen (invisible, remains 1)
             }
         }
 
@@ -490,7 +490,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             for (int i = 0; i < details.geometry2DNormalized.projectedCorners.Length; i++)
             {
                 Vector2 corner = details.geometry2DNormalized.projectedCorners[i];
-                keypointsWithVisibility.Add($"{corner.x:F4} {corner.y:F4} {cornerVisibility[i]}"); // Add x, y and visibility (0 or 1)
+                keypointsWithVisibility.Add($"{corner.x:F4} {corner.y:F4} {cornerVisibility[i]}"); // Add x, y and visibility (1 or 2)
             }
 
             // Construct the line with space-separated values (use the object ID instead of name)
@@ -501,7 +501,6 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         File.WriteAllText(filePath, txtBuilder.ToString());
         Debug.Log($"GeometryData2DNormalized TXT saved to: {filePath}");
     }
-
 
     // Capture screenshot using Unity's built-in ScreenCapture function
     void CaptureScreenshotAndSave(string filePath)

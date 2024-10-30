@@ -330,12 +330,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 963194227}
-  dataSetName: 2_multi_model_color_chair_desk
+  dataSetName: 0_test
   boundingBoxBuffer: 25
   takeScreenshot: 1
-  numberOfImages: 1000
-  iterationForRoom: 10
-  delayBetweenCaptures: 0
+  numberOfImages: 10
+  iterationForRoom: 1
+  delayBetweenCaptures: 2
   screenWidth: 0
   screenHeight: 0
   pictureIndex: 0
@@ -353,9 +353,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5aa41baa6b035884e9e4066cfc1ca0aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minRoomWidth: 3
+  minRoomWidth: 5
   maxRoomWidth: 10
-  minRoomLength: 3
+  minRoomLength: 5
   maxRoomLength: 10
   wallThickness: 0.2
   wallHeight: 3
@@ -364,9 +364,8 @@ MonoBehaviour:
   mainCamera: {fileID: 963194227}
   wallPrefab: {fileID: 7396488072382362230, guid: 200578c001713d845bbd57a07113eb2c, type: 3}
   randomObjectPrefabs:
-  - {fileID: 2146450166384225612, guid: 6701eaaa355c82049b783fc1b55b108d, type: 3}
-  - {fileID: 1709260401402099211, guid: 68027c88e7f08244a962bca8934ec25f, type: 3}
-  maxObjectsToSpawn: 3
+  - {fileID: 1606517391330733233, guid: ce03b5491e451d84fa8f4e858769d9d2, type: 3}
+  maxObjectsToSpawn: 1
   cameraBuffer: 0.5
 --- !u!114 &1055626063
 MonoBehaviour:
