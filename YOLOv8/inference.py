@@ -4,7 +4,7 @@ import os
 
 # Paths
 model_path = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/train/weights/last.pt'
-image_path = 'C:/Users/sakar/OneDrive/mt-datas/synthetic_data/3_working_bench/images/test/1007.png'
+image_path = 'C:/Users/sakar/OneDrive/mt-datas/synthetic_data/1_realistic_chair/images/test/1001.png'
 
 # Load the YOLO model
 model = YOLO(model_path)
