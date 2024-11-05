@@ -162,11 +162,11 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         if (pictureIndex % iterationForRoom == 0)
         {
             roomGenerator.DeleteRoom();
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.2f);
             roomGenerator.GenerateRoom();
             roomGenerator.SetupCameraPositions();
         }
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.2f);
         // Move the camera to the next position on each iteration
         roomGenerator.MoveToNextCameraPosition();
 
