@@ -3,6 +3,10 @@ using System.Collections.Generic; // For using lists
 
 public class RoomGenerator : MonoBehaviour
 {
+    public Material[] materialArray; // Array of possible materials for walls, floor, and ceiling
+    public enum MaterialMode { AllSame, FloorDifferent, AllDifferent, EverySurfaceRandom }
+    public MaterialMode materialMode = MaterialMode.AllSame; // Default mode
+
     // Room dimensions range (in units)
     public float minRoomWidth = 3f; // Minimum width of the room
     public float maxRoomWidth = 10f; // Maximum width of the room
@@ -61,74 +65,108 @@ public class RoomGenerator : MonoBehaviour
 
     public void GenerateRoom()
     {
-        // Create a new empty GameObject to hold the room elements
         roomParent = new GameObject("GeneratedRoom");
 
-        // Randomize the room dimensions
         roomWidth = Random.Range(minRoomWidth, maxRoomWidth);
         roomLength = Random.Range(minRoomLength, maxRoomLength);
 
-        // Generate the walls and floor
-        // Wall 1: Back wall (along Z-axis, width along X)
-        CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, 0), new Vector3(roomWidth, wallHeight, wallThickness));
+        // Randomly select a material mode each time
+        materialMode = (MaterialMode)System.Enum.GetValues(typeof(MaterialMode))
+           .GetValue(Random.Range(0, System.Enum.GetValues(typeof(MaterialMode)).Length));
 
-        // Wall 2: Front wall (opposite to the back wall, along Z-axis)
-        CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, roomLength), new Vector3(roomWidth, wallHeight, wallThickness));
+        // Set up materials based on the selected mode
+        Material wallMaterial, floorMaterial, ceilingMaterial;
+        Material wall1Material, wall2Material, wall3Material, wall4Material;
 
-        // Wall 3: Left wall (along X-axis, length along Z)
-        CreateWall(new Vector3(0, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength));
+        switch (materialMode)
+        {
+            case MaterialMode.AllSame:
+                wallMaterial = floorMaterial = ceilingMaterial = materialArray[Random.Range(0, materialArray.Length)];
+                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, 0), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial);
+                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, roomLength), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial);
+                CreateWall(new Vector3(0, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial);
+                CreateWall(new Vector3(roomWidth, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial);
+                CreateFloor(new Vector3(roomWidth / 2, 0, roomLength / 2), new Vector3(roomWidth, 1, roomLength), floorMaterial);
+                CreateCeiling(new Vector3(roomWidth / 2, wallHeight, roomLength / 2), new Vector3(roomWidth, 1, roomLength), ceilingMaterial);
+                break;
 
-        // Wall 4: Right wall (opposite to the left wall, along X-axis)
-        CreateWall(new Vector3(roomWidth, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength));
+            case MaterialMode.FloorDifferent:
+                wallMaterial = ceilingMaterial = materialArray[Random.Range(0, materialArray.Length)];
+                floorMaterial = materialArray[Random.Range(0, materialArray.Length)];
+                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, 0), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial);
+                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, roomLength), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial);
+                CreateWall(new Vector3(0, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial);
+                CreateWall(new Vector3(roomWidth, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial);
+                CreateFloor(new Vector3(roomWidth / 2, 0, roomLength / 2), new Vector3(roomWidth, 1, roomLength), floorMaterial);
+                CreateCeiling(new Vector3(roomWidth / 2, wallHeight, roomLength / 2), new Vector3(roomWidth, 1, roomLength), ceilingMaterial);
+                break;
 
-        // Generate the floor
-        CreateFloor(new Vector3(roomWidth / 2, 0, roomLength / 2), new Vector3(roomWidth, 1, roomLength));
+            case MaterialMode.AllDifferent:
+                wallMaterial = materialArray[Random.Range(0, materialArray.Length)];
+                floorMaterial = materialArray[Random.Range(0, materialArray.Length)];
+                ceilingMaterial = materialArray[Random.Range(0, materialArray.Length)];
+                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, 0), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial);
+                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, roomLength), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial);
+                CreateWall(new Vector3(0, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial);
+                CreateWall(new Vector3(roomWidth, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial);
+                CreateFloor(new Vector3(roomWidth / 2, 0, roomLength / 2), new Vector3(roomWidth, 1, roomLength), floorMaterial);
+                CreateCeiling(new Vector3(roomWidth / 2, wallHeight, roomLength / 2), new Vector3(roomWidth, 1, roomLength), ceilingMaterial);
+                break;
 
-        // Generate the ceiling at the height of the wall
-        CreateCeiling(new Vector3(roomWidth / 2, wallHeight, roomLength / 2), new Vector3(roomWidth, 1, roomLength));
+            case MaterialMode.EverySurfaceRandom:
+                wall1Material = materialArray[Random.Range(0, materialArray.Length)];
+                wall2Material = materialArray[Random.Range(0, materialArray.Length)];
+                wall3Material = materialArray[Random.Range(0, materialArray.Length)];
+                wall4Material = materialArray[Random.Range(0, materialArray.Length)];
+                floorMaterial = materialArray[Random.Range(0, materialArray.Length)];
+                ceilingMaterial = materialArray[Random.Range(0, materialArray.Length)];
 
-        // Clear previously stored object positions
+                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, 0), new Vector3(roomWidth, wallHeight, wallThickness), wall1Material);
+                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, roomLength), new Vector3(roomWidth, wallHeight, wallThickness), wall2Material);
+                CreateWall(new Vector3(0, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wall3Material);
+                CreateWall(new Vector3(roomWidth, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wall4Material);
+                CreateFloor(new Vector3(roomWidth / 2, 0, roomLength / 2), new Vector3(roomWidth, 1, roomLength), floorMaterial);
+                CreateCeiling(new Vector3(roomWidth / 2, wallHeight, roomLength / 2), new Vector3(roomWidth, 1, roomLength), ceilingMaterial);
+                break;
+        }
+
         spawnedObjectPositions.Clear();
-
-        // Determine random number of objects to spawn (between 1 and maxObjectsToSpawn)
         int randomNumberOfObjects = Random.Range(1, maxObjectsToSpawn + 1);
 
-        // Spawn random objects inside the room
         for (int i = 0; i < randomNumberOfObjects; i++)
         {
             SpawnRandomObject();
         }
 
-        // Add a point light in the middle of the room at height 2.5
         CreatePointLight();
     }
 
-    // Helper function to create a wall using the wall prefab
-    void CreateWall(Vector3 position, Vector3 scale)
+    void CreateWall(Vector3 position, Vector3 scale, Material material)
     {
-        GameObject wall = Instantiate(wallPrefab); // Instantiate the wall prefab
-        wall.transform.position = position; // Set position of the wall
-        wall.transform.localScale = scale; // Set the scale (size) of the wall
-        wall.transform.parent = roomParent.transform; // Parent the wall to roomParent
+        GameObject wall = Instantiate(wallPrefab);
+        wall.transform.position = position;
+        wall.transform.localScale = scale;
+        wall.transform.parent = roomParent.transform;
+        wall.GetComponent<Renderer>().material = material;
     }
 
-    // Helper function to create the floor
-    void CreateFloor(Vector3 position, Vector3 scale)
+    void CreateFloor(Vector3 position, Vector3 scale, Material material)
     {
-        GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Plane); // Create a plane primitive for the floor
-        floor.transform.position = position; // Set position of the floor
-        floor.transform.localScale = new Vector3(scale.x / 10, 1, scale.z / 10); // Scale the plane (planes scale 10x smaller)
-        floor.transform.parent = roomParent.transform; // Parent the floor to roomParent
+        GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        floor.transform.position = position;
+        floor.transform.localScale = new Vector3(scale.x / 10, 1, scale.z / 10);
+        floor.transform.parent = roomParent.transform;
+        floor.GetComponent<Renderer>().material = material;
     }
 
-    // Helper function to create the ceiling
-    void CreateCeiling(Vector3 position, Vector3 scale)
+    void CreateCeiling(Vector3 position, Vector3 scale, Material material)
     {
-        GameObject ceiling = GameObject.CreatePrimitive(PrimitiveType.Plane); // Create a plane primitive for the ceiling
-        ceiling.transform.position = position; // Set position of the ceiling
-        ceiling.transform.localScale = new Vector3(scale.x / 10, 1, scale.z / 10); // Scale the plane (planes scale 10x smaller)
-        ceiling.transform.Rotate(180, 0, 0); // Rotate the ceiling to face downward
-        ceiling.transform.parent = roomParent.transform; // Parent the ceiling to roomParent
+        GameObject ceiling = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        ceiling.transform.position = position;
+        ceiling.transform.localScale = new Vector3(scale.x / 10, 1, scale.z / 10);
+        ceiling.transform.Rotate(180, 0, 0);
+        ceiling.transform.parent = roomParent.transform;
+        ceiling.GetComponent<Renderer>().material = material;
     }
 
     // Function to spawn a random object inside the room with distance validation
