@@ -70,6 +70,10 @@ public class RoomGenerator : MonoBehaviour
         roomWidth = Random.Range(minRoomWidth, maxRoomWidth);
         roomLength = Random.Range(minRoomLength, maxRoomLength);
 
+        // Randomly select a material mode each time
+        materialMode = (MaterialMode)System.Enum.GetValues(typeof(MaterialMode))
+           .GetValue(Random.Range(0, System.Enum.GetValues(typeof(MaterialMode)).Length));
+
         // Set up materials based on the selected mode
         Material wallMaterial, floorMaterial, ceilingMaterial;
         Material wall1Material, wall2Material, wall3Material, wall4Material;
