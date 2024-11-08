@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 3576492607782954257}
   m_Layer: 0
   m_Name: model
-  m_TagString: Detect
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
