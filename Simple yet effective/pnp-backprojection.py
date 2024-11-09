@@ -25,14 +25,20 @@ scene_meta_df = pd.read_csv(scene_meta_path, header=None)
 camera_position = scene_meta_df.iloc[0, 1:4].values.astype(float)
 rotation_angles = scene_meta_df.iloc[0, 4:7].values.astype(float)
 
-print("Camera Position:", camera_position)
-print("Rotation Angles (degrees):", rotation_angles)
+print("Camera Position (Unity Left-Handed):", camera_position)
+print("Rotation Angles (degrees, Unity Left-Handed):", rotation_angles)
+
+# Flip the Z axis for right-handed coordinate conversion
+camera_position[2] = -camera_position[2]
 
 # Convert rotation angles to radians and then to a rotation matrix
 rotation_radians = np.radians(rotation_angles)
 rotation_matrix, _ = cv2.Rodrigues(rotation_radians)
 
-print("Rotation Matrix:\n", rotation_matrix)
+# Flip Z-axis in the rotation matrix for the right-handed system
+rotation_matrix[:, 2] *= -1
+print("Adjusted Camera Position (Right-Handed):", camera_position)
+print("Adjusted Rotation Matrix (Right-Handed):\n", rotation_matrix)
 
 # Read 2D corner points from the label file (TXT)
 label_path = f"{base_labels_path}\\{filename}.txt"
@@ -44,7 +50,7 @@ all_world_points_3d = []
 for i, line in enumerate(lines):
     print(f"\nProcessing Object {i + 1}")
     
-    # Parse each line to get the 2D corners (skip first 5 elements, then take x, y and ignore z for each triplet)
+    # Parse each line to get the 2D corners (skip first 4 elements, then take x, y and ignore z for each triplet)
     data = line.strip().split()
     print("Raw Data:", data)
     
@@ -70,7 +76,7 @@ for i, line in enumerate(lines):
     print("3D Rays in Camera Coordinates:\n", rays_3d.T)
 
     # Define depth (scale factor) for each point, or set it to a fixed value if depth is not known
-    depth = 1  # Assuming all points lie on a plane at depth = 1
+    depth = 3.0  # Replace this with a scene-specific depth if known
     corner_3d_points = depth * rays_3d.T
     print("3D Corner Points in Camera Coordinates (scaled by depth):\n", corner_3d_points)
 
