@@ -5,9 +5,9 @@ import glob
 import pandas as pd
 
 # Define paths for 2D and 3D data
-path_2d = r'C:\Users\sakar\OneDrive\mt-datas\synthetic_data\4_texture_door_window_household\2d_data'
-path_3d = r'C:\Users\sakar\OneDrive\mt-datas\synthetic_data\4_texture_door_window_household\3d_data'
-image_path = r'C:\Users\sakar\OneDrive\mt-datas\synthetic_data\4_texture_door_window_household\images\train'  # Adjust this to the correct image folder
+path_2d = r'C:\Users\sakar\OneDrive\mt-datas\synthetic_data\4_1_texture_door_window_household\2d_data'
+path_3d = r'C:\Users\sakar\OneDrive\mt-datas\synthetic_data\4_1_texture_door_window_household\3d_data'
+image_path = r'C:\Users\sakar\OneDrive\mt-datas\synthetic_data\4_1_texture_door_window_household\images\train'  # Adjust this to the correct image folder
 
 # Get the first 10 CSV files from each directory
 csv_files_2d = sorted(glob.glob(os.path.join(path_2d, "*.csv")))[:10]
