@@ -1,5 +1,5 @@
 # Data
-path: C:\Users\sakar\OneDrive\mt-datas\synthetic_data\1_realistic_chair
+path: C:\Users\sakar\OneDrive\mt-datas\synthetic_data\4_texture_door_window_household
 train: images/train # train images (relative to 'path')
 val: images/val # val images (relative to 'path')
 
@@ -11,4 +11,8 @@ names:
   0: Chair
   1: Desk
   2: Laptop
-  3: Monitor
+  3: Monitor        
+  4: Window
+  5: Door
+  6: Sofa
+  7: Cabinet

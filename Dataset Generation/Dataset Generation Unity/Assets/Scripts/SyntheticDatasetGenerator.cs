@@ -82,6 +82,20 @@ public class SyntheticDatasetGenerator : MonoBehaviour
 
     private GameObject GeneratedRoom; // Reference to the GeneratedRoom created by RoomGenerator
 
+    // Map object names/tags to IDs (Chair -> 0, Desk -> 1, Wall -> 2)
+    int MapObjectNameToID(string name)
+    {
+        if (name.Contains("Chair")) return 0;
+        else if (name.Contains("Desk")) return 1;
+        else if (name.Contains("Laptop")) return 2;
+        else if (name.Contains("Monitor")) return 3;
+        else if (name.Contains("Window")) return 4;
+        else if (name.Contains("Door")) return 5;
+        else if (name.Contains("Sofa")) return 6;
+        else if (name.Contains("Cabinet")) return 7;
+        else return -1;  // Default for unrecognized objects
+    }
+
     void Start()
     {
         roomGenerator = GetComponent<RoomGenerator>();
@@ -382,16 +396,6 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             normalizedCorners[i] = new Vector2(corners[i].x / screenWidth, corners[i].y / screenHeight);
         }
         return normalizedCorners;
-    }
-
-    // Map object names/tags to IDs (Chair -> 0, Desk -> 1, Wall -> 2)
-    int MapObjectNameToID(string name)
-    {
-        if (name.Contains("Chair")) return 0;
-        else if (name.Contains("Desk")) return 1;
-        else if (name.Contains("Laptop")) return 2;
-        else if (name.Contains("Monitor")) return 3;
-        else return -1;  // Default for unrecognized objects
     }
 
     // Serialize the transform components (position, rotation, and scale) of all child objects in GeneratedRoom

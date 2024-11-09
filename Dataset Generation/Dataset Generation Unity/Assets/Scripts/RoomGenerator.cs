@@ -7,6 +7,10 @@ public class RoomGenerator : MonoBehaviour
     public enum MaterialMode { AllSame, FloorDifferent, AllDifferent, EverySurfaceRandom }
     public MaterialMode materialMode = MaterialMode.AllSame; // Default mode
 
+    // Prefabs for doors and windows
+    public GameObject doorPrefab;
+    public GameObject windowPrefab;
+
     // Room dimensions range (in units)
     public float minRoomWidth = 3f; // Minimum width of the room
     public float maxRoomWidth = 10f; // Maximum width of the room
@@ -70,11 +74,9 @@ public class RoomGenerator : MonoBehaviour
         roomWidth = Random.Range(minRoomWidth, maxRoomWidth);
         roomLength = Random.Range(minRoomLength, maxRoomLength);
 
-        // Randomly select a material mode each time
         materialMode = (MaterialMode)System.Enum.GetValues(typeof(MaterialMode))
-           .GetValue(Random.Range(0, System.Enum.GetValues(typeof(MaterialMode)).Length));
+            .GetValue(Random.Range(0, System.Enum.GetValues(typeof(MaterialMode)).Length));
 
-        // Set up materials based on the selected mode
         Material wallMaterial, floorMaterial, ceilingMaterial;
         Material wall1Material, wall2Material, wall3Material, wall4Material;
 
@@ -82,10 +84,10 @@ public class RoomGenerator : MonoBehaviour
         {
             case MaterialMode.AllSame:
                 wallMaterial = floorMaterial = ceilingMaterial = materialArray[Random.Range(0, materialArray.Length)];
-                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, 0), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial);
-                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, roomLength), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial);
-                CreateWall(new Vector3(0, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial);
-                CreateWall(new Vector3(roomWidth, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial);
+                CreateWallWithDoorOrWindow(new Vector3(roomWidth / 2, wallHeight / 2, 0), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial, Vector3.forward);
+                CreateWallWithDoorOrWindow(new Vector3(roomWidth / 2, wallHeight / 2, roomLength), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial, Vector3.back);
+                CreateWallWithDoorOrWindow(new Vector3(0, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial, Vector3.right);
+                CreateWallWithDoorOrWindow(new Vector3(roomWidth, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial, Vector3.left);
                 CreateFloor(new Vector3(roomWidth / 2, 0, roomLength / 2), new Vector3(roomWidth, 1, roomLength), floorMaterial);
                 CreateCeiling(new Vector3(roomWidth / 2, wallHeight, roomLength / 2), new Vector3(roomWidth, 1, roomLength), ceilingMaterial);
                 break;
@@ -93,10 +95,10 @@ public class RoomGenerator : MonoBehaviour
             case MaterialMode.FloorDifferent:
                 wallMaterial = ceilingMaterial = materialArray[Random.Range(0, materialArray.Length)];
                 floorMaterial = materialArray[Random.Range(0, materialArray.Length)];
-                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, 0), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial);
-                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, roomLength), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial);
-                CreateWall(new Vector3(0, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial);
-                CreateWall(new Vector3(roomWidth, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial);
+                CreateWallWithDoorOrWindow(new Vector3(roomWidth / 2, wallHeight / 2, 0), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial, Vector3.forward);
+                CreateWallWithDoorOrWindow(new Vector3(roomWidth / 2, wallHeight / 2, roomLength), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial, Vector3.back);
+                CreateWallWithDoorOrWindow(new Vector3(0, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial, Vector3.right);
+                CreateWallWithDoorOrWindow(new Vector3(roomWidth, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial, Vector3.left);
                 CreateFloor(new Vector3(roomWidth / 2, 0, roomLength / 2), new Vector3(roomWidth, 1, roomLength), floorMaterial);
                 CreateCeiling(new Vector3(roomWidth / 2, wallHeight, roomLength / 2), new Vector3(roomWidth, 1, roomLength), ceilingMaterial);
                 break;
@@ -105,10 +107,10 @@ public class RoomGenerator : MonoBehaviour
                 wallMaterial = materialArray[Random.Range(0, materialArray.Length)];
                 floorMaterial = materialArray[Random.Range(0, materialArray.Length)];
                 ceilingMaterial = materialArray[Random.Range(0, materialArray.Length)];
-                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, 0), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial);
-                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, roomLength), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial);
-                CreateWall(new Vector3(0, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial);
-                CreateWall(new Vector3(roomWidth, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial);
+                CreateWallWithDoorOrWindow(new Vector3(roomWidth / 2, wallHeight / 2, 0), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial, Vector3.forward);
+                CreateWallWithDoorOrWindow(new Vector3(roomWidth / 2, wallHeight / 2, roomLength), new Vector3(roomWidth, wallHeight, wallThickness), wallMaterial, Vector3.back);
+                CreateWallWithDoorOrWindow(new Vector3(0, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial, Vector3.right);
+                CreateWallWithDoorOrWindow(new Vector3(roomWidth, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wallMaterial, Vector3.left);
                 CreateFloor(new Vector3(roomWidth / 2, 0, roomLength / 2), new Vector3(roomWidth, 1, roomLength), floorMaterial);
                 CreateCeiling(new Vector3(roomWidth / 2, wallHeight, roomLength / 2), new Vector3(roomWidth, 1, roomLength), ceilingMaterial);
                 break;
@@ -121,10 +123,10 @@ public class RoomGenerator : MonoBehaviour
                 floorMaterial = materialArray[Random.Range(0, materialArray.Length)];
                 ceilingMaterial = materialArray[Random.Range(0, materialArray.Length)];
 
-                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, 0), new Vector3(roomWidth, wallHeight, wallThickness), wall1Material);
-                CreateWall(new Vector3(roomWidth / 2, wallHeight / 2, roomLength), new Vector3(roomWidth, wallHeight, wallThickness), wall2Material);
-                CreateWall(new Vector3(0, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wall3Material);
-                CreateWall(new Vector3(roomWidth, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wall4Material);
+                CreateWallWithDoorOrWindow(new Vector3(roomWidth / 2, wallHeight / 2, 0), new Vector3(roomWidth, wallHeight, wallThickness), wall1Material, Vector3.forward);
+                CreateWallWithDoorOrWindow(new Vector3(roomWidth / 2, wallHeight / 2, roomLength), new Vector3(roomWidth, wallHeight, wallThickness), wall2Material, Vector3.back);
+                CreateWallWithDoorOrWindow(new Vector3(0, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wall3Material, Vector3.right);
+                CreateWallWithDoorOrWindow(new Vector3(roomWidth, wallHeight / 2, roomLength / 2), new Vector3(wallThickness, wallHeight, roomLength), wall4Material, Vector3.left);
                 CreateFloor(new Vector3(roomWidth / 2, 0, roomLength / 2), new Vector3(roomWidth, 1, roomLength), floorMaterial);
                 CreateCeiling(new Vector3(roomWidth / 2, wallHeight, roomLength / 2), new Vector3(roomWidth, 1, roomLength), ceilingMaterial);
                 break;
@@ -141,13 +143,30 @@ public class RoomGenerator : MonoBehaviour
         CreatePointLight();
     }
 
-    void CreateWall(Vector3 position, Vector3 scale, Material material)
+
+    void CreateWallWithDoorOrWindow(Vector3 position, Vector3 scale, Material material, Vector3 direction)
     {
-        GameObject wall = Instantiate(wallPrefab);
-        wall.transform.position = position;
+        GameObject wall = Instantiate(wallPrefab, position, Quaternion.identity, roomParent.transform);
         wall.transform.localScale = scale;
-        wall.transform.parent = roomParent.transform;
         wall.GetComponent<Renderer>().material = material;
+
+        // Decide randomly whether to place a door or window
+        if (Random.value < 0.5f) return; // 50% chance to skip adding a door or window
+
+        GameObject prefab = (Random.value < 0.5f) ? doorPrefab : windowPrefab;
+        float yOffset = prefab == doorPrefab ? 0 : Random.Range(0.45f, 0.7f); // Door at y=0, window between 0.45 and 0.7
+        float distanceFromWall = prefab == doorPrefab ? 0.2f : 0.1f;
+
+        // Position and rotation based on wall direction
+        Vector3 spawnPosition = position + direction * distanceFromWall;
+        spawnPosition.y = yOffset;
+
+        Quaternion rotation = Quaternion.identity;
+        if (direction == Vector3.right) rotation = Quaternion.Euler(0, -90, 0);
+        else if (direction == Vector3.left) rotation = Quaternion.Euler(0, 90, 0);
+        else if (direction == Vector3.back) rotation = Quaternion.Euler(0, 180, 0);
+
+        GameObject obj = Instantiate(prefab, spawnPosition, rotation, roomParent.transform);
     }
 
     void CreateFloor(Vector3 position, Vector3 scale, Material material)
@@ -168,6 +187,7 @@ public class RoomGenerator : MonoBehaviour
         ceiling.transform.parent = roomParent.transform;
         ceiling.GetComponent<Renderer>().material = material;
     }
+
 
     // Function to spawn a random object inside the room with distance validation
     void SpawnRandomObject()
