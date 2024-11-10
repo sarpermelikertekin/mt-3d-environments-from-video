@@ -433,13 +433,13 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     // Method to serialize transform data into a CSV format string
     string SerializeTransform(Transform objTransform)
     {
-        Vector3 position = objTransform.localPosition;
-        Quaternion rotation = objTransform.localRotation;
-        Vector3 scale = objTransform.localScale;
+        Vector3 position = objTransform.position; // Global position
+        Vector3 rotation = objTransform.rotation.eulerAngles; // Global rotation in Euler angles
+        Vector3 scale = objTransform.lossyScale; // Global scale
 
         // Format as CSV (name, position, rotation, scale)
         return $"{objTransform.name},{position.x},{position.y},{position.z}," +
-               $"{rotation.x},{rotation.y},{rotation.z},{rotation.w}," +
+               $"{rotation.x},{rotation.y},{rotation.z}," +
                $"{scale.x},{scale.y},{scale.z}";
     }
 
