@@ -343,11 +343,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 963194227}
-  dataSetName: 0_test
+  dataSetName: 4_2_texture_door_window_household
   boundingBoxBuffer: 25
   takeScreenshot: 1
   numberOfImages: 5000
-  iterationForRoom: 2
+  iterationForRoom: 4
   delayBetweenCaptures: 0
   screenWidth: 0
   screenHeight: 0
@@ -448,6 +448,7 @@ MonoBehaviour:
   - {fileID: 7406491475852582817, guid: ff8ac8e56e041c145afdedad24e2327e, type: 3}
   - {fileID: 8291058731593141339, guid: d014a38304e4f924f9dcadf0daf5ec42, type: 3}
   maxObjectsToSpawn: 3
+  currentCameraIndex: 0
   cameraBuffer: 0.5
 --- !u!114 &1055626063
 MonoBehaviour:

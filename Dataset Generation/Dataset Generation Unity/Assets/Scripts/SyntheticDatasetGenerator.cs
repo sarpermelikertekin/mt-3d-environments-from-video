@@ -118,6 +118,8 @@ public class SyntheticDatasetGenerator : MonoBehaviour
 
         // Ensure necessary directories exist
         CreateNecessaryDirectories();
+
+        SaveCameraIntrinsicMatrix();
     }
 
     void Update()
@@ -146,6 +148,31 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         Directory.CreateDirectory(Path.Combine(dataSetDirectory, "2d_data"));
         Directory.CreateDirectory(Path.Combine(dataSetDirectory, "3d_data"));
         Directory.CreateDirectory(Path.Combine(dataSetDirectory, "scene_meta"));
+    }
+
+    void SaveCameraIntrinsicMatrix()
+    {
+        // Calculate intrinsic parameters
+        float width = mainCamera.pixelWidth;
+        float height = mainCamera.pixelHeight;
+        float fx = (width / 2.0f) / Mathf.Tan(mainCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+        float fy = (height / 2.0f) / Mathf.Tan(mainCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+        float cx = width / 2.0f;
+        float cy = height / 2.0f;
+
+        // Construct the intrinsic matrix as a string for easy saving
+        StringBuilder intrinsicMatrixBuilder = new StringBuilder();
+        intrinsicMatrixBuilder.AppendLine("Intrinsic Matrix:");
+        intrinsicMatrixBuilder.AppendLine($"{fx} 0 {cx} 0");
+        intrinsicMatrixBuilder.AppendLine($"0 {fy} {cy} 0");
+        intrinsicMatrixBuilder.AppendLine($"0 0 1 0");
+        intrinsicMatrixBuilder.AppendLine($"0 0 0 1");
+
+        // Save to a file
+        string intrinsicFilePath = Path.Combine(dataSetDirectory, "camera_intrinsic_matrix.txt");
+        File.WriteAllText(intrinsicFilePath, intrinsicMatrixBuilder.ToString());
+
+        Debug.Log($"Intrinsic matrix saved to: {intrinsicFilePath}");
     }
 
     void GenerateOneDataPoint()
