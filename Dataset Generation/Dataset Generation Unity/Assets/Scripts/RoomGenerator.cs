@@ -27,7 +27,7 @@ public class RoomGenerator : MonoBehaviour
     public GameObject[] randomObjectPrefabs; // Array of object prefabs to randomly choose from
     public int maxObjectsToSpawn = 5; // Maximum number of objects to spawn randomly
     private Vector3[] cameraPositions; // Store 4 possible camera positions
-    private int currentCameraIndex = 0; // Index to keep track of the current camera position
+    public int currentCameraIndex = 0; // Index to keep track of the current camera position
     public float cameraBuffer = 0.5f; // Buffer for camera positioning
 
     // Actual dimensions (randomized)

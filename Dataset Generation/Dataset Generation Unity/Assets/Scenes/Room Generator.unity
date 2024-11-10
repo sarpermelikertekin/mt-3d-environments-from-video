@@ -343,7 +343,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 963194227}
-  dataSetName: 4_1_texture_door_window_household
+  dataSetName: 0_test
   boundingBoxBuffer: 25
   takeScreenshot: 1
   numberOfImages: 5000

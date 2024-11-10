@@ -180,9 +180,14 @@ public class SyntheticDatasetGenerator : MonoBehaviour
             roomGenerator.GenerateRoom();
             roomGenerator.SetupCameraPositions();
         }
+
+        else
+        {
+            roomGenerator.MoveToNextCameraPosition();
+        }
+
         yield return new WaitForSeconds(0.2f);
         // Move the camera to the next position on each iteration
-        roomGenerator.MoveToNextCameraPosition();
 
         GeneratedRoom = GameObject.Find("GeneratedRoom"); // Reference the newly generated room
 
