@@ -93,6 +93,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
         else if (name.Contains("Door")) return 5;
         else if (name.Contains("Sofa")) return 6;
         else if (name.Contains("Cabinet")) return 7;
+        else if (name.Contains("Edge")) return 8;
         else return -1;  // Default for unrecognized objects
     }
 

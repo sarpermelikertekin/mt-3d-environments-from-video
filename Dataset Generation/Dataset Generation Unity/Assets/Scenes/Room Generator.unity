@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311918, g: 0.3807398, b: 0.35872716, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -330,10 +330,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 963194227}
-  dataSetName: 4_2_texture_door_window_household
+  dataSetName: 5_Edges
   boundingBoxBuffer: 25
   takeScreenshot: 1
-  numberOfImages: 5000
+  numberOfImages: 3000
   iterationForRoom: 4
   delayBetweenCaptures: 0
   screenWidth: 0
@@ -418,6 +418,7 @@ MonoBehaviour:
   materialMode: 0
   doorPrefab: {fileID: 4596241936551700454, guid: a6cadd00beef37c4c8512c0454151c8d, type: 3}
   windowPrefab: {fileID: 5366685204350364441, guid: 0fe5ff565c4a30c429850503eebb20e7, type: 3}
+  edgePrefab: {fileID: 7196994370901778901, guid: 3412c48038cfc4b4ea422418985ea161, type: 3}
   minRoomWidth: 5
   maxRoomWidth: 10
   minRoomLength: 5
