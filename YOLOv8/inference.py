@@ -4,8 +4,8 @@ import csv
 import os
 
 # Paths
-model_path = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/train/weights/last.pt'
-image_path = 'C:/Users/sakar/OneDrive/mt-datas/synthetic_data/1_realistic_chair/images/train/1.png'
+model_path = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/train8/weights/last.pt'
+image_path = 'C:/Users/sakar/OneDrive/mt-datas/synthetic_data/5_Edges/images/test/3001.png'
 output_folder = 'C:/Users/sakar/OneDrive/mt-datas/yolo/pose_estimation'
 output_image_path = os.path.join(output_folder, 'result.png')
 output_csv_path = os.path.join(output_folder, 'result.csv')

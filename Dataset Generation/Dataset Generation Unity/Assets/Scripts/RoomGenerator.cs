@@ -10,6 +10,7 @@ public class RoomGenerator : MonoBehaviour
     // Prefabs for doors and windows
     public GameObject doorPrefab;
     public GameObject windowPrefab;
+    public GameObject edgePrefab;
 
     // Room dimensions range (in units)
     public float minRoomWidth = 3f; // Minimum width of the room
@@ -141,8 +142,36 @@ public class RoomGenerator : MonoBehaviour
         }
 
         CreatePointLight();
+
+        PlaceEdgePrefabs();
     }
 
+    void PlaceEdgePrefabs()
+    {
+        if (edgePrefab == null)
+        {
+            Debug.LogWarning("Edge prefab is not assigned.");
+            return;
+        }
+
+        // Define the four corner positions of the room
+        Vector3[] cornerPositions = new Vector3[8];
+        cornerPositions[0] = new Vector3(0, 0, 0); // Bottom-left corner on floor
+        cornerPositions[1] = new Vector3(roomWidth, 0, 0); // Bottom-right corner on floor
+        cornerPositions[2] = new Vector3(0, 0, roomLength); // Top-left corner on floor
+        cornerPositions[3] = new Vector3(roomWidth, 0, roomLength); // Top-right corner on floor
+        cornerPositions[4] = new Vector3(0, wallHeight, 0); // Top-left corner on ceiling
+        cornerPositions[5] = new Vector3(roomWidth, wallHeight, 0); // Top-right corner on ceiling
+        cornerPositions[6] = new Vector3(0, wallHeight, roomLength); // Bottom-left corner on ceiling
+        cornerPositions[7] = new Vector3(roomWidth, wallHeight, roomLength); // Bottom-right corner on ceiling
+
+        // Instantiate an edge prefab at each corner position
+        foreach (Vector3 corner in cornerPositions)
+        {
+            GameObject edge = Instantiate(edgePrefab, corner, Quaternion.identity, roomParent.transform);
+            edge.transform.position += new Vector3(wallThickness / 2, 0, wallThickness / 2); // Adjust for wall thickness
+        }
+    }
 
     void CreateWallWithDoorOrWindow(Vector3 position, Vector3 scale, Material material, Vector3 direction)
     {
