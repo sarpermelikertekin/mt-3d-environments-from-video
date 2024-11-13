@@ -1,5 +1,5 @@
 # Data
-path: C:\Users\sakar\OneDrive\mt-datas\synthetic_data\4_texture_door_window_household
+path: C:\Users\sakar\OneDrive\mt-datas\synthetic_data\5_edges
 train: images/train # train images (relative to 'path')
 val: images/val # val images (relative to 'path')
 
@@ -16,3 +16,4 @@ names:
   5: Door
   6: Sofa
   7: Cabinet
+  8: Edge
