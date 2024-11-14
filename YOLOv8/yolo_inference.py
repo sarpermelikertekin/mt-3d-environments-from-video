@@ -90,9 +90,6 @@ def run_yolo_inference(model_path, image_path, output_image_path, output_csv_pat
     print(f"Data has been saved to {output_csv_path}")
     print(f"Annotated image has been saved to {output_image_path}")
 
-    # Show the annotated image
-    img.show()
-
 def main():
     # Define paths and parameters for YOLO inference
     model_path = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/train/weights/last.pt'

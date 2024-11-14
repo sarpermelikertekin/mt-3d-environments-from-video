@@ -25,14 +25,15 @@ def main():
     # Step 1: Run YOLO inference
     yolo_inference.run_yolo_inference(model_path_yolo, image_path, output_image_path, output_yolo_path)
     
-    # Step 2: Run Pose Estimation
-    # Define the model path for 3D predictions
-    model_path_pose = r"C:\Users\sakar\mt-3d-environments-from-video\lifting_models\sye0.pth"
-    
-    # Run pose estimation and save the predictions with `_sye` suffix in the same output folder
+    # Step 2: Run Pose Estimation with dynamic model selection based on object ID
     predictions_3d = sye_inference.load_model_and_predict_3d(
-        output_yolo_path, model_path_pose, output_folder, dataset_name, subset, file_name
+        data_2d_path=output_yolo_path,
+        output_folder=output_folder,
+        dataset_name=dataset_name,
+        subset=subset,
+        file_name=file_name
     )
+    
     if predictions_3d is not None:
         print(f"3D Predictions from Pose Estimation saved with '_sye' suffix in: {output_folder}")
 

@@ -25,26 +25,36 @@ class PoseEstimationNet(nn.Module):
         return x
 
 # Function to load the trained model, use it for inference, and write results to CSV
-def load_model_and_predict_3d(data_2d_path, model_path, output_folder, dataset_name, subset, file_name, input_size=20, output_size=30):
+def load_model_and_predict_3d(data_2d_path, output_folder, dataset_name, subset, file_name, input_size=20, output_size=30):
+    # Load the first column of data_2d_path to determine the model variant
+    try:
+        df_2d = pd.read_csv(data_2d_path, header=None)
+        object_id = int(df_2d.iloc[0, 0])  # Get the first value in the first column
+        model_path = f"C:/Users/sakar/mt-3d-environments-from-video/lifting_models/sye{object_id}.pth"
+        
+        # Ensure the model file exists
+        if not os.path.exists(model_path):
+            print(f"Model file not found: {model_path}")
+            return None
+
+        print(f"Using model: {model_path}")
+    except Exception as e:
+        print(f"Error reading data or determining model path: {e}")
+        return None
+
     # Instantiate the model architecture and load weights
     model = PoseEstimationNet(input_size=input_size, output_size=output_size)
     model.load_state_dict(torch.load(model_path))
     model.eval()  # Set the model to evaluation mode
 
-    # Load the 2D data for inference
-    try:
-        df_2d = pd.read_csv(data_2d_path, header=None)
-        df_2d = df_2d.iloc[:, 1:]  # Drop the ID column
-        data_2d_tensor = torch.tensor(df_2d.values, dtype=torch.float32)
-    except Exception as e:
-        print(f"Error loading or processing 2D data: {e}")
-        return None
+    # Prepare data for inference by dropping the ID column
+    data_2d_tensor = torch.tensor(df_2d.iloc[:, 1:].values, dtype=torch.float32)
 
     # Run the model to predict 3D points
     with torch.no_grad():
         predictions_3d = model(data_2d_tensor)
 
-    # Convert predictions to a DataFrame
+    # Convert predictions to a DataFrame with 2 decimal precision
     predictions_df = pd.DataFrame(predictions_3d.numpy()).round(2)
     
     # Create output directory if it doesn't exist
@@ -61,20 +71,19 @@ def load_model_and_predict_3d(data_2d_path, model_path, output_folder, dataset_n
 
 # Main function (for direct execution)
 def main():
-    # Define paths
+    # Define paths and parameters
     base_path = r"C:\Users\sakar\OneDrive\mt-datas\yolo\pose_estimation"
     dataset_name = "1_realistic_chair"
     subset = "train"
     file_name = "2"
     data_2d_sample_path = os.path.join(base_path, f"{dataset_name}_{subset}_{file_name}_yolo_result.csv")
 
-    # Define the model path and output folder
-    model_path = r"C:\Users\sakar\mt-3d-environments-from-video\lifting_models\sye0.pth"
+    # Define the output folder
     output_folder = r"C:\Users\sakar\OneDrive\mt-datas\yolo\pose_estimation"
 
     # Run inference and save results to CSV
     predictions_3d = load_model_and_predict_3d(
-        data_2d_sample_path, model_path, output_folder, dataset_name, subset, file_name
+        data_2d_sample_path, output_folder, dataset_name, subset, file_name
     )
     if predictions_3d is not None:
         print("3D Predictions:", predictions_3d)
