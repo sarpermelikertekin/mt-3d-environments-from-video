@@ -97,11 +97,17 @@ def run_yolo_inference(model_path, dataset_name, subset, file_name, output_folde
     # Show the annotated image
     img.show()
 
-# Example usage of the function
-model_path = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/train/weights/last.pt'
-dataset_name = "1_realistic_chair"
-subset = "train"
-file_name = "2"
-output_folder = 'C:/Users/sakar/OneDrive/mt-datas/yolo/pose_estimation'
+def main():
+    # Define parameters for the YOLO inference
+    model_path = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/train/weights/last.pt'
+    dataset_name = "1_realistic_chair"
+    subset = "train"
+    file_name = "2"
+    output_folder = 'C:/Users/sakar/OneDrive/mt-datas/yolo/pose_estimation'
 
-run_yolo_inference(model_path, dataset_name, subset, file_name, output_folder)
+    # Run the YOLO inference
+    run_yolo_inference(model_path, dataset_name, subset, file_name, output_folder)
+
+# Execute main function when script is run directly
+if __name__ == "__main__":
+    main()
