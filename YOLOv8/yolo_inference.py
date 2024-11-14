@@ -3,12 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 import csv
 import os
 
-def run_yolo_inference(model_path, dataset_name, subset, file_name, output_folder):
-    # Construct paths using parameters
-    image_path = f'C:/Users/sakar/OneDrive/mt-datas/synthetic_data/{dataset_name}/images/{subset}/{file_name}.png'
-    output_image_path = os.path.join(output_folder, f'{dataset_name}_{subset}_{file_name}_yolo_result.png')
-    output_csv_path = os.path.join(output_folder, f'{dataset_name}_{subset}_{file_name}_yolo_result.csv')
-
+def run_yolo_inference(model_path, image_path, output_image_path, output_csv_path):
     # Load the YOLO model
     model = YOLO(model_path)
 
@@ -67,6 +62,7 @@ def run_yolo_inference(model_path, dataset_name, subset, file_name, output_folde
             top_square = keypoints[:4]
             bottom_square = keypoints[4:8]
             for i in range(4):
+                # Ensure each `draw.line` has properly closed brackets and parentheses
                 draw.line([top_square[i], top_square[(i + 1) % 4]], fill="green", width=2)
                 draw.line([bottom_square[i], bottom_square[(i + 1) % 4]], fill="green", width=2)
                 draw.line([top_square[i], bottom_square[i]], fill="green", width=2)
@@ -77,7 +73,7 @@ def run_yolo_inference(model_path, dataset_name, subset, file_name, output_folde
                 norm_x, norm_y = round(x / width, 2), round(y / height, 2)
                 row.extend([norm_x, norm_y])
 
-            # Trim row to exactly 21 elements id, 4 bb info, 16 keypoint info
+            # Trim row to exactly 21 elements (id, 4 bb info, 16 keypoint info)
             row = row[:21]
             csv_data.append(row)
 
@@ -98,16 +94,23 @@ def run_yolo_inference(model_path, dataset_name, subset, file_name, output_folde
     img.show()
 
 def main():
-    # Define parameters for the YOLO inference
+    # Define paths and parameters for YOLO inference
     model_path = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/train/weights/last.pt'
     dataset_name = "1_realistic_chair"
     subset = "train"
     file_name = "2"
     output_folder = 'C:/Users/sakar/OneDrive/mt-datas/yolo/pose_estimation'
 
-    # Run the YOLO inference
-    run_yolo_inference(model_path, dataset_name, subset, file_name, output_folder)
+    # Ensure the output directory exists
+    os.makedirs(output_folder, exist_ok=True)
 
-# Execute main function when script is run directly
+    # Define image path, output image path, and output CSV path
+    image_path = f'C:/Users/sakar/OneDrive/mt-datas/synthetic_data/{dataset_name}/images/{subset}/{file_name}.png'
+    output_image_path = os.path.join(output_folder, f'{dataset_name}_{subset}_{file_name}_yolo_result.png')
+    output_csv_path = os.path.join(output_folder, f'{dataset_name}_{subset}_{file_name}_yolo_result.csv')
+
+    # Run YOLO inference
+    run_yolo_inference(model_path, image_path, output_image_path, output_csv_path)
+
 if __name__ == "__main__":
     main()

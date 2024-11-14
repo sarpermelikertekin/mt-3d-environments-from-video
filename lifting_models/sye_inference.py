@@ -25,7 +25,7 @@ class PoseEstimationNet(nn.Module):
         return x
 
 # Function to load the trained model, use it for inference, and write results to CSV
-def load_model_and_predict_3d(data_2d_path, model_path, output_folder, input_size=20, output_size=30):
+def load_model_and_predict_3d(data_2d_path, model_path, output_folder, dataset_name, subset, file_name, input_size=20, output_size=30):
     # Instantiate the model architecture and load weights
     model = PoseEstimationNet(input_size=input_size, output_size=output_size)
     model.load_state_dict(torch.load(model_path))
@@ -45,13 +45,13 @@ def load_model_and_predict_3d(data_2d_path, model_path, output_folder, input_siz
         predictions_3d = model(data_2d_tensor)
 
     # Convert predictions to a DataFrame
-    predictions_df = pd.DataFrame(predictions_3d.numpy())
+    predictions_df = pd.DataFrame(predictions_3d.numpy()).round(2)
     
     # Create output directory if it doesn't exist
     os.makedirs(output_folder, exist_ok=True)
     
-    # Define the output CSV file path
-    output_csv_path = os.path.join(output_folder, "predictions_3d.csv")
+    # Define the output CSV file path with _sye suffix
+    output_csv_path = os.path.join(output_folder, f"{dataset_name}_{subset}_{file_name}_sye_result.csv")
     
     # Write the predictions DataFrame to a CSV file
     predictions_df.to_csv(output_csv_path, index=False, header=False)
@@ -63,15 +63,19 @@ def load_model_and_predict_3d(data_2d_path, model_path, output_folder, input_siz
 def main():
     # Define paths
     base_path = r"C:\Users\sakar\OneDrive\mt-datas\yolo\pose_estimation"
-    filename = "1_realistic_chair_train_2_yolo_result.csv"
-    data_2d_sample_path = os.path.join(base_path, filename)
+    dataset_name = "1_realistic_chair"
+    subset = "train"
+    file_name = "2"
+    data_2d_sample_path = os.path.join(base_path, f"{dataset_name}_{subset}_{file_name}_yolo_result.csv")
 
     # Define the model path and output folder
     model_path = r"C:\Users\sakar\mt-3d-environments-from-video\lifting_models\sye0.pth"
     output_folder = r"C:\Users\sakar\OneDrive\mt-datas\yolo\pose_estimation"
-    
+
     # Run inference and save results to CSV
-    predictions_3d = load_model_and_predict_3d(data_2d_sample_path, model_path, output_folder)
+    predictions_3d = load_model_and_predict_3d(
+        data_2d_sample_path, model_path, output_folder, dataset_name, subset, file_name
+    )
     if predictions_3d is not None:
         print("3D Predictions:", predictions_3d)
 
