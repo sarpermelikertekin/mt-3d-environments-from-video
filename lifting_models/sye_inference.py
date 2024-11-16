@@ -57,6 +57,9 @@ def load_model_and_predict_3d(data_2d_path, output_folder, dataset_name, subset,
     # Convert predictions to a DataFrame with 2 decimal precision
     predictions_df = pd.DataFrame(predictions_3d.numpy()).round(2)
     
+    # Add the ID column to the predictions DataFrame
+    predictions_df.insert(0, 'ID', df_2d.iloc[:, 0])
+    
     # Create output directory if it doesn't exist
     os.makedirs(output_folder, exist_ok=True)
     

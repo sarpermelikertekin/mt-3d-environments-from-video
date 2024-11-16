@@ -48,24 +48,27 @@ def run_yolo_inference(model_path, image_path, output_image_path, output_csv_pat
         if keypoints:
             keypoints = [(int(x), int(y)) for x, y in keypoints[0] if x != 0 and y != 0]
 
-            # Draw keypoints with labels
-            for keypoint_index, (x, y) in enumerate(keypoints):
-                text = str(keypoint_index)
-                draw.ellipse([x - 3, y - 3, x + 3, y + 3], fill="blue", outline="blue")
-                bbox = draw.textbbox((x, y), text, font=font)
-                text_width = bbox[2] - bbox[0]
-                text_height = bbox[3] - bbox[1]
-                draw.rectangle([x, y, x + text_width + 6, y + text_height + 4], fill="blue")
-                draw.text((x + 3, y + 2), text, fill="white", font=font)
+            # Check if there are enough keypoints for top and bottom squares
+            if len(keypoints) >= 8:
+                # Draw keypoints with labels
+                for keypoint_index, (x, y) in enumerate(keypoints):
+                    text = str(keypoint_index)
+                    draw.ellipse([x - 3, y - 3, x + 3, y + 3], fill="blue", outline="blue")
+                    bbox = draw.textbbox((x, y), text, font=font)
+                    text_width = bbox[2] - bbox[0]
+                    text_height = bbox[3] - bbox[1]
+                    draw.rectangle([x, y, x + text_width + 6, y + text_height + 4], fill="blue")
+                    draw.text((x + 3, y + 2), text, fill="white", font=font)
 
-            # Draw top and bottom squares and connecting lines
-            top_square = keypoints[:4]
-            bottom_square = keypoints[4:8]
-            for i in range(4):
-                # Ensure each `draw.line` has properly closed brackets and parentheses
-                draw.line([top_square[i], top_square[(i + 1) % 4]], fill="green", width=2)
-                draw.line([bottom_square[i], bottom_square[(i + 1) % 4]], fill="green", width=2)
-                draw.line([top_square[i], bottom_square[i]], fill="green", width=2)
+                # Draw top and bottom squares and connecting lines
+                top_square = keypoints[:4]
+                bottom_square = keypoints[4:8]
+                for i in range(4):
+                    draw.line([top_square[i], top_square[(i + 1) % 4]], fill="green", width=2)
+                    draw.line([bottom_square[i], bottom_square[(i + 1) % 4]], fill="green", width=2)
+                    draw.line([top_square[i], bottom_square[i]], fill="green", width=2)
+            else:
+                print(f"[WARNING] Not enough keypoints for 3D box drawing. Detected {len(keypoints)} keypoints.")
 
             # Normalize keypoints and prepare CSV data for this detection
             row = [class_id, round(norm_center_x, 2), round(norm_center_y, 2), round(norm_bbox_width, 2), round(norm_bbox_height, 2)]
