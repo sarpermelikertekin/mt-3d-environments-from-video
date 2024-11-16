@@ -25,7 +25,7 @@ class PoseEstimationNet(nn.Module):
         return x
 
 # Function to load the trained model, use it for inference, and write results to CSV
-def load_model_and_predict_3d(data_2d_path, output_folder, dataset_name, subset, file_name, input_size=20, output_size=30):
+def load_model_and_predict_3d(data_2d_path, output_folder, file_name, input_size=20, output_size=30):
     # Load the first column of data_2d_path to determine the model variant
     try:
         df_2d = pd.read_csv(data_2d_path, header=None)
@@ -64,7 +64,7 @@ def load_model_and_predict_3d(data_2d_path, output_folder, dataset_name, subset,
     os.makedirs(output_folder, exist_ok=True)
     
     # Define the output CSV file path with _sye suffix
-    output_csv_path = os.path.join(output_folder, f"{dataset_name}_{subset}_{file_name}_sye_result.csv")
+    output_csv_path = os.path.join(output_folder, f"{file_name}_sye_result.csv")
     
     # Write the predictions DataFrame to a CSV file
     predictions_df.to_csv(output_csv_path, index=False, header=False)
