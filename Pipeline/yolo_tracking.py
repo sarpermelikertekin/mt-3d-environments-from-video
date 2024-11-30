@@ -1,52 +1,40 @@
-from ultralytics import YOLO
+import sys
 import os
 import shutil
 import pandas as pd
+from ultralytics import YOLO
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from lifting_models import sye_inference  # Import the provided module and function
 
 
 def track_objects_with_yolo(video_path, model_path, output_base_dir):
     """
     Track objects in a video using YOLOv8's built-in tracking mode, saving results (bounding boxes, IDs, and poses)
     in a custom directory, while keeping original results intact and creating an annotated_frames folder.
-
-    Args:
-        video_path (str): Path to the input video file.
-        model_path (str): Path to the YOLOv8 model file.
-        output_base_dir (str): Base directory to save the results.
     """
-    # YOLO's default results folder
     yolo_default_track_dir = os.path.join('runs', 'pose', 'track')
 
     # Load YOLOv8 model
     model = YOLO(model_path)
-
-    # Get video name without extension
     video_name = os.path.splitext(os.path.basename(video_path))[0]
-
-    # Define the custom output folder for this video with "_track" appended
     output_folder = os.path.join(output_base_dir, f"{video_name}_track")
 
-    # Ensure output folder exists
+    # Clear and recreate output folder
     if os.path.exists(output_folder):
-        shutil.rmtree(output_folder)  # Clear old results
+        shutil.rmtree(output_folder)
     os.makedirs(output_folder)
 
-    # Clear YOLO's default tracking folder if it exists
+    # Clear YOLO's default output directory
     if os.path.exists(yolo_default_track_dir):
         shutil.rmtree(yolo_default_track_dir)
 
-    # Perform tracking with YOLO
-    model.track(
-        source=video_path,
-        show=True,
-        save=True,
-        save_txt=True,
-        save_conf=True
-    )
+    # Run YOLO tracking on the video
+    model.track(source=video_path, show=True, save=True, save_txt=True, save_conf=True)
 
-    # Verify that YOLO's default track directory exists after processing
+    # Copy YOLO's output to the custom directory
     if os.path.exists(yolo_default_track_dir):
-        # Copy original contents to the custom output folder
         for item in os.listdir(yolo_default_track_dir):
             src_path = os.path.join(yolo_default_track_dir, item)
             dest_path = os.path.join(output_folder, item)
@@ -54,67 +42,57 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir):
                 shutil.copytree(src_path, dest_path)
             else:
                 shutil.copy2(src_path, dest_path)
+        shutil.rmtree(yolo_default_track_dir)  # Clear YOLO's directory after copying
 
-        # Optionally, clear YOLO's default track folder after copying
-        shutil.rmtree(yolo_default_track_dir)
-
-    # Define the annotated frames folder
+    # Create annotated_frames folder
     annotated_frames_folder = os.path.join(output_folder, "annotated_frames")
     os.makedirs(annotated_frames_folder, exist_ok=True)
 
-    # Modify the label files to drop confidence values for objects and keypoints
+    # Process YOLO's labels to remove confidence values
     frame_results_dir = os.path.join(output_folder, "labels")
     if os.path.exists(frame_results_dir):
         for label_file in os.listdir(frame_results_dir):
             src_label_path = os.path.join(frame_results_dir, label_file)
             dest_label_path = os.path.join(annotated_frames_folder, label_file)
 
-            # Modify content: drop confidence values
             with open(src_label_path, 'r') as src_file, open(dest_label_path, 'w') as dest_file:
                 for line in src_file:
                     parts = line.strip().split()
                     if len(parts) > 5:
-                        # Format:
-                        # <class_id> <cx> <cy> <w> <h> <x1> <y1> ... <x8> <y8> <track_id>
+                        # YOLO format: <class_id> <cx> <cy> <w> <h> <x1> <y1> <conf1> ... <x8> <y8> <conf8> <total_confidence> <track_id>
                         class_id, cx, cy, w, h = parts[:5]
-                        keypoints = parts[5:-1]
+                        keypoints_and_conf = parts[5:-2]  # Exclude total_confidence and track_id
                         track_id = parts[-1]
 
-                        # Skip objects without a valid track_id
                         if not track_id.isdigit():
                             continue
 
-                        # Filter out confidence values for keypoints
-                        keypoints_without_conf = [kp for i, kp in enumerate(keypoints) if i % 3 != 2]  # Keep x, y only
+                        # Remove every third value (confidence) from keypoints_and_conf
+                        keypoints_without_conf = [kp for i, kp in enumerate(keypoints_and_conf) if (i % 3) != 2]
 
-                        # Combine the required parts
+                        # Combine data into the new line
                         modified_line = ' '.join([class_id, cx, cy, w, h] + keypoints_without_conf + [track_id]) + '\n'
                         dest_file.write(modified_line)
 
-    # Process annotated_frames to create single_objects.csv
-    create_single_objects_csv(annotated_frames_folder, output_folder)
+    # Generate single_objects.csv and lift 2D keypoints to 3D
+    single_objects_csv_path = create_single_objects_csv(annotated_frames_folder, output_folder)
+    if single_objects_csv_path is None:
+        print("Error: single_objects.csv was not generated.")
+        return
 
-    # Define the output video path
-    output_video = os.path.join(output_folder, f"{video_name}_tracked.mp4")
+    lift_objects_to_3d(single_objects_csv_path, output_folder)
 
-    print(f"Processed video saved at: {output_video}")
-    print(f"Original results saved in: {output_folder}")
+    # Log final output
     print(f"Annotated frames saved at: {annotated_frames_folder}")
-    print(f"All results are saved in: {output_folder}")
+    print(f"All results saved in: {output_folder}")
 
 
 def create_single_objects_csv(annotated_frames_folder, output_folder):
     """
     Process the annotated frames to create single_objects.csv, ensuring one row per unique object.
-
-    Args:
-        annotated_frames_folder (str): Path to the annotated_frames folder.
-        output_folder (str): Path to the output folder.
     """
     center_closest_records = {}
-
     for label_file in os.listdir(annotated_frames_folder):
-        # Extract frame number by splitting at '_' and stripping the last part
         try:
             frame_number = int(label_file.split('_')[-1].split('.')[0].strip())
         except ValueError:
@@ -122,7 +100,6 @@ def create_single_objects_csv(annotated_frames_folder, output_folder):
             continue
 
         label_path = os.path.join(annotated_frames_folder, label_file)
-
         with open(label_path, 'r') as file:
             for line in file:
                 parts = line.strip().split()
@@ -130,14 +107,10 @@ def create_single_objects_csv(annotated_frames_folder, output_folder):
                 keypoints = parts[5:-1]
                 track_id = parts[-1]
 
-                # Skip objects without a valid track_id
+                # Skip objects without valid track_id
                 if not track_id.isdigit():
                     continue
-
-                # Convert cx (center x) to a float
                 cx = float(cx)
-
-                # Check if this object is closest to the center
                 if track_id not in center_closest_records or abs(cx - 0.5) < abs(center_closest_records[track_id]["cx"] - 0.5):
                     center_closest_records[track_id] = {
                         "class_id": class_id,
@@ -147,15 +120,92 @@ def create_single_objects_csv(annotated_frames_folder, output_folder):
                         "h": h,
                         "keypoints": ' '.join(keypoints),
                         "track_id": track_id,
-                        "frame_number": frame_number  # Ensure frame number is at the end
+                        "frame_number": frame_number
                     }
 
-    # Save single_objects.csv
+    if not center_closest_records:
+        print("Error: No valid data to save in single_objects.csv.")
+        return None
+
     single_objects_csv_path = os.path.join(output_folder, "single_objects.csv")
     single_objects_df = pd.DataFrame(center_closest_records.values())
     single_objects_df.to_csv(single_objects_csv_path, index=False)
+    print(f"Generated CSV: {single_objects_csv_path}")
 
-    print(f"single_objects.csv saved at: {single_objects_csv_path}")
+    return single_objects_csv_path
+
+
+def lift_objects_to_3d(objects_csv_path, output_folder):
+    """
+    Use the `load_model_and_predict_3d` function to lift 2D keypoints to 3D.
+    Create a separate CSV that includes frame number information after predictions are generated.
+    """
+    # Read the objects.csv file
+    objects_df = pd.read_csv(objects_csv_path)
+    if objects_df.empty:
+        print("Error: Objects CSV is empty. Cannot perform 3D lifting.")
+        return
+
+    # Expand keypoints into separate columns
+    keypoints_split = objects_df["keypoints"].str.split(expand=True)
+
+    # Convert all expanded keypoints to numeric
+    keypoints_split = keypoints_split.apply(pd.to_numeric, errors="coerce")
+
+    # Drop rows with invalid or missing keypoints
+    if keypoints_split.isnull().any(axis=None):
+        print("Warning: Detected invalid keypoints. Dropping affected rows.")
+        print(keypoints_split[keypoints_split.isnull().any(axis=1)])  # Debug: Print invalid rows
+        keypoints_split = keypoints_split.dropna()
+
+    # Drop the original keypoints column and merge the numeric keypoints back
+    data_2d = objects_df.drop(columns=["keypoints", "track_id", "frame_number"])  # Keep `frame_number` separate
+    data_2d = pd.concat([data_2d.reset_index(drop=True), keypoints_split.reset_index(drop=True)], axis=1)
+
+    # Save validated 2D data to a temporary CSV
+    data_2d_path = os.path.join(output_folder, "objects_2d_temp.csv")
+    data_2d.to_csv(data_2d_path, index=False, header=False)
+    print(f"Generated 2D CSV for lifting: {data_2d_path}")
+
+    # Perform 2D-to-3D lifting
+    try:
+        # Use the lifting model to generate 3D data
+        sye_inference.load_model_and_predict_3d(data_2d_path, output_folder, "objects_3d")
+        final_csv_path = os.path.join(output_folder, "objects_3d_sye_result.csv")
+        print(f"Generated 3D CSV: {final_csv_path}")
+
+        # Validate the generated 3D file
+        if not os.path.exists(final_csv_path):
+            print(f"Error: 3D CSV {final_csv_path} was not created.")
+            return
+
+        # After predictions, create a 3D CSV with frame numbers
+        create_3d_with_frame(objects_csv_path, final_csv_path, output_folder)
+
+    except Exception as e:
+        print(f"Error during 3D lifting: {e}")
+
+
+def create_3d_with_frame(objects_csv_path, predictions_3d_path, output_folder):
+    """
+    Append frame number information to the 3D predictions CSV.
+    """
+    # Read the original 2D data and the generated 3D data
+    objects_df = pd.read_csv(objects_csv_path)
+    predictions_3d_df = pd.read_csv(predictions_3d_path, header=None)
+
+    # Ensure the row counts match
+    if len(objects_df) != len(predictions_3d_df):
+        print("Error: Mismatch between 2D objects and 3D predictions row counts.")
+        return
+
+    # Add the `frame_number` column from the original 2D data to the 3D data
+    predictions_3d_df["frame_number"] = objects_df["frame_number"].values
+
+    # Save the updated 3D data with frame numbers
+    enhanced_3d_path = os.path.join(output_folder, "objects_3d_with_frame.csv")
+    predictions_3d_df.to_csv(enhanced_3d_path, index=False, header=False)
+    print(f"Generated 3D CSV with frame numbers: {enhanced_3d_path}")
 
 
 # Example usage
