@@ -2,6 +2,7 @@ import sys
 import os
 import shutil
 import pandas as pd
+import numpy as np
 from ultralytics import YOLO
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -81,6 +82,10 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir):
         return
 
     lift_objects_to_3d(single_objects_csv_path, output_folder)
+
+    # Apply transformations to align to 0-degree frame
+    transformed_csv_path = align_3d_to_zero_degree(output_folder)
+    print(f"Generated transformed CSV: {transformed_csv_path}")
 
     # Log final output
     print(f"Annotated frames saved at: {annotated_frames_folder}")
@@ -206,6 +211,84 @@ def create_3d_with_frame(objects_csv_path, predictions_3d_path, output_folder):
     enhanced_3d_path = os.path.join(output_folder, "objects_3d_with_frame.csv")
     predictions_3d_df.to_csv(enhanced_3d_path, index=False, header=False)
     print(f"Generated 3D CSV with frame numbers: {enhanced_3d_path}")
+
+
+def align_3d_to_zero_degree(output_folder):
+    """
+    Transform the 3D points and rotation to the 0-degree frame based on frame numbers.
+    Ensures all transformed coordinates remain positive.
+    """
+    # Path to the generated 3D CSV with frame numbers
+    input_csv_path = os.path.join(output_folder, "objects_3d_with_frame.csv")
+    if not os.path.exists(input_csv_path):
+        print("Error: 3D CSV with frame information not found.")
+        return None
+
+    # Read the 3D data
+    df_3d = pd.read_csv(input_csv_path, header=None)
+
+    # Define constants for transformation
+    max_angle = 90.0  # Maximum rotation angle in degrees
+    num_frames = df_3d[27].max()  # Assuming frame number is at the last column
+
+    # Find the minimum X, Y, Z across all points for translation to positive space
+    min_coords = np.inf * np.ones(3)  # [min_x, min_y, min_z]
+
+    # Transform each row based on its frame number
+    transformed_rows = []
+    for _, row in df_3d.iterrows():
+        frame_number = row[27]
+        angle = (frame_number / num_frames) * max_angle  # Calculate rotation angle
+        angle_rad = np.radians(angle)  # Convert angle to radians
+
+        # Create rotation matrix for the angle (rotating around Y-axis)
+        rotation_matrix = np.array([
+            [np.cos(angle_rad), 0, np.sin(angle_rad)],
+            [0, 1, 0],
+            [-np.sin(angle_rad), 0, np.cos(angle_rad)]
+        ])
+
+        # Transform position (pos x, y, z)
+        pos = np.array([row[1], row[2], row[3]])  # Assuming x, y, z are at columns 1, 2, 3
+        transformed_pos = rotation_matrix @ pos
+
+        # Update min_coords for translation
+        min_coords = np.minimum(min_coords, transformed_pos)
+
+        # Transform keypoints
+        keypoints = np.array(row[6:27]).reshape(-1, 3)  # Assuming keypoints start at column 6
+        transformed_keypoints = (rotation_matrix @ keypoints.T).T
+
+        # Update min_coords for keypoints
+        min_coords = np.minimum(min_coords, transformed_keypoints.min(axis=0))
+
+        # Combine transformed data
+        transformed_row = [row[0]] + transformed_pos.tolist() + list(row[4:6]) + transformed_keypoints.flatten().tolist() + [frame_number]
+        transformed_rows.append(transformed_row)
+
+    # Translate all coordinates to ensure positivity
+    translated_rows = []
+    for row in transformed_rows:
+        # Translate position
+        translated_pos = np.array(row[1:4]) - min_coords
+
+        # Translate keypoints
+        keypoints = np.array(row[6:27]).reshape(-1, 3)
+        translated_keypoints = (keypoints - min_coords).flatten()
+
+        # Combine translated data
+        translated_row = [row[0]] + translated_pos.tolist() + list(row[4:6]) + translated_keypoints.tolist() + [row[-1]]
+        translated_rows.append(translated_row)
+
+    # Create a new DataFrame for the translated data
+    translated_df = pd.DataFrame(translated_rows).round(4)
+
+    # Save the translated data to a new CSV
+    translated_csv_path = os.path.join(output_folder, "objects_3d_transformed.csv")
+    translated_df.to_csv(translated_csv_path, index=False, header=False)
+
+    print(f"Generated transformed CSV: {translated_csv_path}")
+    return translated_csv_path
 
 
 # Example usage
