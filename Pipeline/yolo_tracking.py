@@ -87,9 +87,35 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir):
     transformed_csv_path = align_3d_to_zero_degree(output_folder)
     print(f"Generated transformed CSV: {transformed_csv_path}")
 
+    # Split the transformed CSV into edges and objects
+    split_csv_by_id(transformed_csv_path, output_folder)
+
     # Log final output
     print(f"Annotated frames saved at: {annotated_frames_folder}")
     print(f"All results saved in: {output_folder}")
+
+
+def split_csv_by_id(transformed_csv_path, output_folder):
+    """
+    Split the transformed CSV into two separate files based on the ID in the 0th column.
+    """
+    # Read the transformed 3D data
+    df_transformed = pd.read_csv(transformed_csv_path, header=None)
+
+    # Filter rows where ID is 8 (edges) and others (objects)
+    edges_df = df_transformed[df_transformed[0] == 8]
+    objects_df = df_transformed[df_transformed[0] != 8]
+
+    # Save the edges and objects CSV files
+    edges_csv_path = os.path.join(output_folder, "edges.csv")
+    objects_csv_path = os.path.join(output_folder, "objects.csv")
+
+    edges_df.to_csv(edges_csv_path, index=False, header=False)
+    objects_df.to_csv(objects_csv_path, index=False, header=False)
+
+    print(f"Generated edges CSV: {edges_csv_path}")
+    print(f"Generated objects CSV: {objects_csv_path}")
+
 
 
 def create_single_objects_csv(annotated_frames_folder, output_folder):
