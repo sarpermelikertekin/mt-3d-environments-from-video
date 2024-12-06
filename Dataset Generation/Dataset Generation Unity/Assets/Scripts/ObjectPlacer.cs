@@ -4,8 +4,9 @@ using System.IO;
 
 public class ObjectPlacer : MonoBehaviour
 {
-    [Header("CSV File")]
-    public TextAsset csvFile;
+    [Header("CSV Files")]
+    public TextAsset objectCsvFile; // CSV file for object placement
+    public TextAsset roomCsvFile; // CSV file for room dimensions
 
     [Header("Prefabs")]
     public List<GameObject> objectPrefabs; // Assign prefabs for each ID in order
@@ -17,28 +18,79 @@ public class ObjectPlacer : MonoBehaviour
 
     private void Start()
     {
-        ParseCSVAndPlaceObjects();
-    }
-
-    void ParseCSVAndPlaceObjects()
-    {
-        if (csvFile == null)
+        if (roomCsvFile != null)
         {
-            Debug.LogError("CSV file not assigned.");
-            return;
+            GenerateRoomFromCSV();
         }
 
-        string[] lines = csvFile.text.Split('\n');
+        if (objectCsvFile != null)
+        {
+            ParseCSVAndPlaceObjects();
+        }
+    }
+
+    void GenerateRoomFromCSV()
+    {
+        string[] lines = roomCsvFile.text.Split('\n');
+        if (lines.Length == 0) return;
+
+        float minX = float.MaxValue, minY = float.MaxValue, minZ = float.MaxValue;
+        float maxX = float.MinValue, maxY = float.MinValue, maxZ = float.MinValue;
+
         foreach (string line in lines)
         {
             if (string.IsNullOrWhiteSpace(line)) continue;
 
             string[] values = line.Split(',');
 
-            // Parse object ID
+            float x = float.Parse(values[1]);
+            float y = float.Parse(values[2]);
+            float z = float.Parse(values[3]);
+
+            // Update min and max values
+            minX = Mathf.Min(minX, x);
+            minY = Mathf.Min(minY, y);
+            minZ = Mathf.Min(minZ, z);
+
+            maxX = Mathf.Max(maxX, x);
+            maxY = Mathf.Max(maxY, y);
+            maxZ = Mathf.Max(maxZ, z);
+        }
+
+        // Compute room dimensions
+        float width = maxX - minX;
+        float height = maxY - minY;
+        float depth = maxZ - minZ;
+
+        Debug.Log(width + " " + height + " " + depth);
+
+        // Generate walls
+        GenerateWall(new Vector3(minX + width / 2, minY, minZ), new Vector3(width, height, 0.1f)); // Front wall
+        GenerateWall(new Vector3(minX + width / 2, minY, maxZ), new Vector3(width, height, 0.1f)); // Back wall
+        GenerateWall(new Vector3(minX, minY, minZ + depth / 2), new Vector3(0.1f, height, depth)); // Left wall
+        GenerateWall(new Vector3(maxX, minY, minZ + depth / 2), new Vector3(0.1f, height, depth)); // Right wall
+    }
+
+
+    void GenerateWall(Vector3 position, Vector3 scale)
+    {
+        GameObject wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        wall.transform.position = position;
+        wall.transform.localScale = scale;
+        wall.GetComponent<Renderer>().material.color = Color.gray; // Set wall color
+    }
+
+    void ParseCSVAndPlaceObjects()
+    {
+        string[] lines = objectCsvFile.text.Split('\n');
+        foreach (string line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            string[] values = line.Split(',');
+
             int objectID = Mathf.RoundToInt(float.Parse(values[0]));
 
-            // Parse position and rotation
             Vector3 relativePosition = new Vector3(
                 float.Parse(values[1]),
                 float.Parse(values[2]),
@@ -50,10 +102,8 @@ public class ObjectPlacer : MonoBehaviour
                 float.Parse(values[6])
             );
 
-            // Transform to world position relative to the origin
             Vector3 worldPosition = cameraPosition + relativePosition;
 
-            // Parse keypoints
             List<Vector3> keypoints = new List<Vector3>();
             for (int i = 7; i < values.Length; i += 3)
             {
@@ -67,14 +117,12 @@ public class ObjectPlacer : MonoBehaviour
                 keypoints.Add(cameraPosition + keypoint);
             }
 
-            // Place object and visualize keypoints
             PlaceObject(objectID, worldPosition, rotation, keypoints);
         }
     }
 
     void PlaceObject(int objectID, Vector3 position, Quaternion rotation, List<Vector3> keypoints)
     {
-        // Instantiate object if prefab exists for the given ID
         if (objectID >= 0 && objectID < objectPrefabs.Count)
         {
             GameObject prefab = objectPrefabs[objectID];
@@ -84,7 +132,6 @@ public class ObjectPlacer : MonoBehaviour
             }
         }
 
-        // Add keypoints to Gizmo drawing list
         foreach (var keypoint in keypoints)
         {
             gizmoPoints.Add((keypoint, GetColorByID(objectID)));
@@ -93,7 +140,6 @@ public class ObjectPlacer : MonoBehaviour
 
     Color GetColorByID(int id)
     {
-        // Generate a consistent color for each ID
         return new Color(
             Mathf.Abs(Mathf.Sin(id * 0.5f)),
             Mathf.Abs(Mathf.Cos(id * 0.5f)),
@@ -103,13 +149,12 @@ public class ObjectPlacer : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        // Draw keypoints with Gizmos
         if (gizmoPoints == null) return;
 
         foreach (var point in gizmoPoints)
         {
             Gizmos.color = point.color;
-            Gizmos.DrawSphere(point.position, 0.1f); // Draw small spheres for keypoints
+            Gizmos.DrawSphere(point.position, 0.1f);
         }
     }
 }

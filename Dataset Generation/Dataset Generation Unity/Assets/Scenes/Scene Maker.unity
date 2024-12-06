@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -152,7 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 046c9d7fe80d23c4cb96189bc7e59e5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  csvFile: {fileID: 4900000, guid: 2997625db67ffe1429c93ed9a3006f78, type: 3}
+  objectCsvFile: {fileID: 4900000, guid: 2997625db67ffe1429c93ed9a3006f78, type: 3}
+  roomCsvFile: {fileID: 4900000, guid: 1c73aacb050f6a3439d73fb63a49d302, type: 3}
   objectPrefabs:
   - {fileID: 1376455687202864483, guid: 71cd44ebbbcaace4e99120ba6fb5da2f, type: 3}
   - {fileID: 5426193247520715165, guid: cd8125add72e1d7438859c48cd6f855a, type: 3}
