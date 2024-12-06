@@ -19,6 +19,8 @@ public class RoomGenerator : MonoBehaviour
     public float maxRoomLength = 10f; // Maximum length of the room
     public float minRoomHeight = 2f; // Minimum height of the walls
     public float maxRoomHeight = 4f; // Maximum height of the walls
+    public float minCameraHeight = 1.2f; // Minimum height of the walls
+    public float maxCameraHeight = 1.8f; // Maximum height of the walls
     public float wallThickness = 0.2f; // Thickness of the walls
     public float objectBuffer = 1f; // Buffer to keep the object from spawning too close to walls
     public float minObjectDistance = 2f; // Minimum distance between objects to prevent overlap
@@ -36,6 +38,8 @@ public class RoomGenerator : MonoBehaviour
     private float roomWidth;
     private float roomLength;
     private float roomHeight;
+    private float cameraHeight;
+
 
     // To store the generated room elements
     private GameObject roomParent;
@@ -313,12 +317,14 @@ public class RoomGenerator : MonoBehaviour
     // Setup camera positions in the 4 corners of the room, with a buffer
     public void SetupCameraPositions()
     {
+        cameraHeight = Random.Range(minCameraHeight, maxCameraHeight);
+
         // Define the 4 corners of the room with a buffer of 0.5 units
         cameraPositions = new Vector3[4];
-        cameraPositions[0] = new Vector3(cameraBuffer, 1.4f, cameraBuffer);  // Bottom-left corner with buffer
-        cameraPositions[1] = new Vector3(roomWidth - cameraBuffer, 1.4f, cameraBuffer);  // Bottom-right corner with buffer
-        cameraPositions[2] = new Vector3(cameraBuffer, 1.4f, roomLength - cameraBuffer);  // Top-left corner with buffer
-        cameraPositions[3] = new Vector3(roomWidth - cameraBuffer, 1.4f, roomLength - cameraBuffer);  // Top-right corner with buffer
+        cameraPositions[0] = new Vector3(cameraBuffer, cameraHeight, cameraBuffer);  // Bottom-left corner with buffer
+        cameraPositions[1] = new Vector3(roomWidth - cameraBuffer, cameraHeight, cameraBuffer);  // Bottom-right corner with buffer
+        cameraPositions[2] = new Vector3(cameraBuffer, cameraHeight, roomLength - cameraBuffer);  // Top-left corner with buffer
+        cameraPositions[3] = new Vector3(roomWidth - cameraBuffer, cameraHeight, roomLength - cameraBuffer);  // Top-right corner with buffer
 
         // Reset camera index
         currentCameraIndex = 0;
@@ -339,11 +345,8 @@ public class RoomGenerator : MonoBehaviour
     {
         Vector3 cameraPosition = cameraPositions[index];
 
-        // Ensure the camera's height is always 1.4f
-        cameraPosition.y = 1.4f;
-
         // Look at the center of the room at the same height as the camera
-        Vector3 lookAtTarget = new Vector3(roomWidth / 2, 1.4f, roomLength / 2);
+        Vector3 lookAtTarget = new Vector3(roomWidth / 2, cameraPosition.y, roomLength / 2);
 
         // Apply random rotation between -45 and 45 degrees
         Quaternion rotation = Quaternion.LookRotation(lookAtTarget - cameraPosition);
