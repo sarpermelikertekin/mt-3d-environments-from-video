@@ -62,6 +62,72 @@ public class ErrorCalculator : MonoBehaviour
         Debug.Log($"X Difference: {Mathf.Abs(groundTruthSize.x - roomSize.x)}");
         Debug.Log($"Y Difference: {Mathf.Abs(groundTruthSize.y - roomSize.y)}");
         Debug.Log($"Z Difference: {Mathf.Abs(groundTruthSize.z - roomSize.z)}");
+
+        // ---- Nearest Object Distance Calculation ----
+
+        CalculateNearestObjectDistances();
+    }
+
+    void CalculateNearestObjectDistances()
+    {
+        float totalDistance = 0f;
+        int matchedObjects = 0;
+
+        foreach (Transform groundTruthChild in groundTruth.transform)
+        {
+            string groundTruthName = NormalizeName(groundTruthChild.name);
+            Transform nearestObject = null;
+            float nearestDistance = float.MaxValue;
+
+            foreach (Transform roomChild in room.transform)
+            {
+                string roomName = NormalizeName(roomChild.name);
+
+                if (groundTruthName == roomName)
+                {
+                    float distance = Vector3.Distance(groundTruthChild.position, roomChild.position);
+                    if (distance < nearestDistance)
+                    {
+                        nearestDistance = distance;
+                        nearestObject = roomChild;
+                    }
+                }
+            }
+
+            if (nearestObject != null)
+            {
+                Debug.Log($"Nearest object to {groundTruthChild.name} is {nearestObject.name} with distance {nearestDistance:F2}");
+                totalDistance += nearestDistance;
+                matchedObjects++;
+            }
+            else
+            {
+                Debug.Log($"No matching object found for {groundTruthChild.name} in the room.");
+            }
+        }
+
+        // Calculate and report the average distance
+        if (matchedObjects > 0)
+        {
+            float averageDistance = totalDistance / matchedObjects;
+            Debug.Log($"Average distance between matched objects: {averageDistance:F2}");
+        }
+        else
+        {
+            Debug.Log("No matched objects to calculate average distance.");
+        }
+    }
+
+    string NormalizeName(string name)
+    {
+        // Normalizes names by removing variations like " (Clone)" or numbering
+        int index = name.IndexOf(' ');
+        if (index > 0) name = name.Substring(0, index);
+
+        index = name.IndexOf('(');
+        if (index > 0) name = name.Substring(0, index);
+
+        return name.Trim();
     }
 
     Dictionary<int, int> GetNormalizedObjectCounts(GameObject parent)
