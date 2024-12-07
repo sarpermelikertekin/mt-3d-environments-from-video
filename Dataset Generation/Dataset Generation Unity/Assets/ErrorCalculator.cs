@@ -15,25 +15,27 @@ public class ErrorCalculator : MonoBehaviour
             return;
         }
 
+        // ---- Object Comparison ----
+
         // Generate normalized object counts for groundTruth and room
         Dictionary<int, int> groundTruthCounts = GetNormalizedObjectCounts(groundTruth);
         Dictionary<int, int> roomCounts = GetNormalizedObjectCounts(room);
 
         // Generate reports for both
-        Debug.Log("Ground Truth Report:");
+        Debug.Log("Ground Truth Object Report:");
         foreach (var kvp in groundTruthCounts)
         {
             Debug.Log($"{GetCategoryName(kvp.Key)}: {kvp.Value}");
         }
 
-        Debug.Log("Room Report:");
+        Debug.Log("Room Object Report:");
         foreach (var kvp in roomCounts)
         {
             Debug.Log($"{GetCategoryName(kvp.Key)}: {kvp.Value}");
         }
 
         // Compare the counts
-        Debug.Log("Comparison Report:");
+        Debug.Log("Object Comparison Report:");
         HashSet<int> allCategories = new HashSet<int>(groundTruthCounts.Keys.Union(roomCounts.Keys));
         foreach (int category in allCategories)
         {
@@ -45,6 +47,21 @@ public class ErrorCalculator : MonoBehaviour
                 Debug.Log($"{GetCategoryName(category)}: GroundTruth has {groundTruthCount}, Room has {roomCount}");
             }
         }
+
+        // ---- Room Size Comparison ----
+
+        Vector3 groundTruthSize = MeasureRoomSize(groundTruth);
+        Vector3 roomSize = MeasureRoomSize(room);
+
+        // Report room sizes
+        Debug.Log($"Ground Truth Room Size: X={groundTruthSize.x}, Y={groundTruthSize.y}, Z={groundTruthSize.z}");
+        Debug.Log($"Generated Room Size: X={roomSize.x}, Y={roomSize.y}, Z={roomSize.z}");
+
+        // Compare room sizes
+        Debug.Log("Room Size Comparison Report:");
+        Debug.Log($"X Difference: {Mathf.Abs(groundTruthSize.x - roomSize.x)}");
+        Debug.Log($"Y Difference: {Mathf.Abs(groundTruthSize.y - roomSize.y)}");
+        Debug.Log($"Z Difference: {Mathf.Abs(groundTruthSize.z - roomSize.z)}");
     }
 
     Dictionary<int, int> GetNormalizedObjectCounts(GameObject parent)
@@ -98,6 +115,36 @@ public class ErrorCalculator : MonoBehaviour
             case 7: return "Cabinet";
             default: return "Unknown";
         }
+    }
+
+    Vector3 MeasureRoomSize(GameObject parent)
+    {
+        float minX = float.MaxValue, minZ = float.MaxValue;
+        float maxX = float.MinValue, maxZ = float.MinValue;
+        float sizeY = 0;
+
+        foreach (Transform child in parent.transform)
+        {
+            if (child.name.Contains("Wall")) // Check if the object is a wall
+            {
+                Vector3 position = child.position;
+
+                // Update min and max values for X and Z
+                minX = Mathf.Min(minX, position.x);
+                minZ = Mathf.Min(minZ, position.z);
+                maxX = Mathf.Max(maxX, position.x);
+                maxZ = Mathf.Max(maxZ, position.z);
+
+                // Update the Y dimension based on wall height
+                sizeY = Mathf.Max(sizeY, child.localScale.y);
+            }
+        }
+
+        // Calculate room size (dimensions)
+        float sizeX = maxX - minX;
+        float sizeZ = maxZ - minZ;
+
+        return new Vector3(sizeX, sizeY, sizeZ);
     }
 
     void Start()
