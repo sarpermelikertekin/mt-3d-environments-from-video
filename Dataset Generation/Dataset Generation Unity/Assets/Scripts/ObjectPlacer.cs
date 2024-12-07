@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.IO;
 
 public class ObjectPlacer : MonoBehaviour
 {
@@ -16,8 +15,18 @@ public class ObjectPlacer : MonoBehaviour
 
     private List<(Vector3 position, Color color)> gizmoPoints = new List<(Vector3 position, Color color)>(); // Gizmo data
 
+    private GameObject roomObject; // Room parent object
+
+    private ErrorCalculator errorCalculator;
+
     private void Start()
     {
+        // Create the empty room object
+        roomObject = new GameObject("Room");
+        roomObject.transform.position = Vector3.zero;
+        roomObject.transform.rotation = Quaternion.identity;
+        roomObject.transform.localScale = Vector3.one;
+
         if (roomCsvFile != null)
         {
             GenerateRoomFromCSV();
@@ -27,6 +36,10 @@ public class ObjectPlacer : MonoBehaviour
         {
             ParseCSVAndPlaceObjects();
         }
+
+        errorCalculator = gameObject.GetComponent<ErrorCalculator>();
+        errorCalculator.enabled = true;
+        errorCalculator.room = roomObject;
     }
 
     void GenerateRoomFromCSV()
@@ -71,13 +84,17 @@ public class ObjectPlacer : MonoBehaviour
         GenerateWall(new Vector3(maxX, minY, minZ + depth / 2), new Vector3(0.1f, height, depth)); // Right wall
     }
 
-
     void GenerateWall(Vector3 position, Vector3 scale)
     {
         GameObject wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
         wall.transform.position = position;
         wall.transform.localScale = scale;
         wall.GetComponent<Renderer>().material.color = Color.gray; // Set wall color
+
+        wall.name = "Wall";
+
+        // Parent the wall to the room object
+        wall.transform.SetParent(roomObject.transform);
     }
 
     void ParseCSVAndPlaceObjects()
@@ -128,7 +145,10 @@ public class ObjectPlacer : MonoBehaviour
             GameObject prefab = objectPrefabs[objectID];
             if (prefab != null)
             {
-                Instantiate(prefab, position, rotation);
+                GameObject obj = Instantiate(prefab, position, rotation);
+
+                // Parent the instantiated object to the room object
+                obj.transform.SetParent(roomObject.transform);
             }
         }
 
