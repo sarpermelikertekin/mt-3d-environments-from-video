@@ -8,10 +8,10 @@ from lifting_models import sye_inference
 
 def main():
     # Paths and parameters
-    model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/train/weights/last.pt'
-    dataset_name = "1_realistic_chair"
-    subset = "train"
-    file_name = "2"
+    model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/5_objects_and_edges/weights/last.pt'
+    dataset_name = "5_objects_and_edges"
+    subset = "test"
+    file_name = "3007"
     output_folder = 'C:/Users/sakar/OneDrive/mt-datas/yolo/pose_estimation'
 
     # Ensure the output directory exists
@@ -29,8 +29,6 @@ def main():
     predictions_3d = sye_inference.load_model_and_predict_3d(
         data_2d_path=output_yolo_path,
         output_folder=output_folder,
-        dataset_name=dataset_name,
-        subset=subset,
         file_name=file_name
     )
     
