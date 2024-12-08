@@ -330,10 +330,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 963194227}
-  dataSetName: 5_Edges
+  dataSetName: 7_only_objects
   boundingBoxBuffer: 25
   takeScreenshot: 1
-  numberOfImages: 3000
+  numberOfImages: 6000
   iterationForRoom: 4
   delayBetweenCaptures: 0
   screenWidth: 0
@@ -423,8 +423,11 @@ MonoBehaviour:
   maxRoomWidth: 10
   minRoomLength: 5
   maxRoomLength: 10
+  minRoomHeight: 2
+  maxRoomHeight: 4
+  minCameraHeight: 1.2
+  maxCameraHeight: 1.8
   wallThickness: 0.2
-  wallHeight: 3
   objectBuffer: 1
   minObjectDistance: 2
   mainCamera: {fileID: 963194227}
