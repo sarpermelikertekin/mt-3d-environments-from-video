@@ -84,7 +84,7 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir):
     lift_objects_to_3d(single_objects_csv_path, output_folder)
 
     # Apply transformations to align to 0-degree frame
-    transformed_csv_path = align_3d_to_zero_degree(output_folder)
+    transformed_csv_path = align_3d_to_zero_degree(output_folder, video_path)
     print(f"Generated transformed CSV: {transformed_csv_path}")
 
     # Split the transformed CSV into edges and objects
@@ -115,7 +115,6 @@ def split_csv_by_id(transformed_csv_path, output_folder):
 
     print(f"Generated edges CSV: {edges_csv_path}")
     print(f"Generated objects CSV: {objects_csv_path}")
-
 
 
 def create_single_objects_csv(annotated_frames_folder, output_folder):
@@ -162,7 +161,6 @@ def create_single_objects_csv(annotated_frames_folder, output_folder):
     single_objects_df = pd.DataFrame(center_closest_records.values())
     single_objects_df.to_csv(single_objects_csv_path, index=False)
     print(f"Generated CSV: {single_objects_csv_path}")
-
     return single_objects_csv_path
 
 
@@ -239,7 +237,9 @@ def create_3d_with_frame(objects_csv_path, predictions_3d_path, output_folder):
     print(f"Generated 3D CSV with frame numbers: {enhanced_3d_path}")
 
 
-def align_3d_to_zero_degree(output_folder):
+import cv2  # Required for video processing
+
+def align_3d_to_zero_degree(output_folder, video_path):
     """
     Transform the 3D points and rotation to the 0-degree frame based on frame numbers.
     Ensures all transformed coordinates remain positive.
@@ -250,12 +250,19 @@ def align_3d_to_zero_degree(output_folder):
         print("Error: 3D CSV with frame information not found.")
         return None
 
+    # Get the total number of frames from the video
+    video_capture = cv2.VideoCapture(video_path)
+    if not video_capture.isOpened():
+        print(f"Error: Cannot open video file: {video_path}")
+        return None
+    num_frames = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
+    video_capture.release()
+
     # Read the 3D data
     df_3d = pd.read_csv(input_csv_path, header=None)
 
     # Define constants for transformation
     max_angle = 90.0  # Maximum rotation angle in degrees
-    num_frames = df_3d[27].max()  # Assuming frame number is at the last column
 
     # Find the minimum X, Y, Z across all points for translation to positive space
     min_coords = np.inf * np.ones(3)  # [min_x, min_y, min_z]
@@ -263,7 +270,8 @@ def align_3d_to_zero_degree(output_folder):
     # Transform each row based on its frame number
     transformed_rows = []
     for _, row in df_3d.iterrows():
-        frame_number = row[27]
+        object_id = row[0]  # The first column is the object ID
+        frame_number = row.iloc[-1]  # Frame number is the last column
         angle = (frame_number / num_frames) * max_angle  # Calculate rotation angle
         angle_rad = np.radians(angle)  # Convert angle to radians
 
@@ -274,36 +282,43 @@ def align_3d_to_zero_degree(output_folder):
             [-np.sin(angle_rad), 0, np.cos(angle_rad)]
         ])
 
-        # Transform position (pos x, y, z)
-        pos = np.array([row[1], row[2], row[3]])  # Assuming x, y, z are at columns 1, 2, 3
+        # Transform position (columns 1, 2, 3 for x, y, z)
+        pos = np.array(row.iloc[1:4])  # x, y, z
         transformed_pos = rotation_matrix @ pos
 
         # Update min_coords for translation
         min_coords = np.minimum(min_coords, transformed_pos)
 
-        # Transform keypoints
-        keypoints = np.array(row[6:27]).reshape(-1, 3)  # Assuming keypoints start at column 6
-        transformed_keypoints = (rotation_matrix @ keypoints.T).T
+        # Transform keypoints (columns 7 to 30 for 8 keypoints)
+        keypoints = np.array(row.iloc[7:31]).reshape(-1, 3)  # Reshape to 8x3
+        transformed_keypoints = (rotation_matrix @ keypoints.T).T  # Transform keypoints
 
         # Update min_coords for keypoints
         min_coords = np.minimum(min_coords, transformed_keypoints.min(axis=0))
 
         # Combine transformed data
-        transformed_row = [row[0]] + transformed_pos.tolist() + list(row[4:6]) + transformed_keypoints.flatten().tolist() + [frame_number]
+        transformed_row = (
+            [object_id] + transformed_pos.tolist() + row.iloc[4:7].tolist() +
+            transformed_keypoints.flatten().tolist() + [frame_number]
+        )
         transformed_rows.append(transformed_row)
 
     # Translate all coordinates to ensure positivity
     translated_rows = []
     for row in transformed_rows:
+        object_id = row[0]  # Preserve the object ID
         # Translate position
         translated_pos = np.array(row[1:4]) - min_coords
 
         # Translate keypoints
-        keypoints = np.array(row[6:27]).reshape(-1, 3)
+        keypoints = np.array(row[7:31]).reshape(-1, 3)
         translated_keypoints = (keypoints - min_coords).flatten()
 
         # Combine translated data
-        translated_row = [row[0]] + translated_pos.tolist() + list(row[4:6]) + translated_keypoints.tolist() + [row[-1]]
+        translated_row = (
+            [object_id] + translated_pos.tolist() + row[4:7] +
+            translated_keypoints.tolist() + [row[-1]]
+        )
         translated_rows.append(translated_row)
 
     # Create a new DataFrame for the translated data
@@ -319,7 +334,7 @@ def align_3d_to_zero_degree(output_folder):
 
 # Example usage
 model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/5_objects_and_edges/weights/last.pt'
-video_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth/test_room_1/Movie_000.mp4'
+video_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth/Movie_001.mp4'
 output_base_dir = r"C:/Users/sakar/OneDrive/mt-datas/yoro"
 
 track_objects_with_yolo(video_path, model_path_yolo, output_base_dir)
