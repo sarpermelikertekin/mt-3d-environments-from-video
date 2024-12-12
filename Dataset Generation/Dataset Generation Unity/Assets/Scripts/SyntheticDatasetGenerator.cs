@@ -346,20 +346,32 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     // Method to calculate relative position and rotation
     void CalculateRelativeTransformations(ObjectDetails details, Transform objTransform)
     {
-        // Calculate relative position by simple vector subtraction
-        details.geometry3D.relativePosition = objTransform.position - mainCamera.transform.position;
+        // Calculate relative position
+        Vector3 objectPosition = objTransform.position;
+        Vector3 cameraPosition = mainCamera.transform.position;
+        Quaternion cameraRotation = mainCamera.transform.rotation;
+
+        // Transform the object's global position to the camera's local space
+        details.geometry3D.relativePosition = Quaternion.Inverse(cameraRotation) * (objectPosition - cameraPosition);
 
         // Calculate relative rotation
-        Quaternion relativeRotation = Quaternion.Inverse(mainCamera.transform.rotation) * objTransform.rotation;
+        Quaternion objectRotation = objTransform.rotation;
+        Quaternion relativeRotation = Quaternion.Inverse(cameraRotation) * objectRotation;
+
+        // Convert relative rotation to Euler angles (Vector3)
         details.geometry3D.relativeRotation = relativeRotation.eulerAngles;
 
         // Calculate relative corner positions
         details.geometry3D.relativeCorners = new Vector3[details.geometry3D.corners.Length];
         for (int i = 0; i < details.geometry3D.corners.Length; i++)
         {
-            details.geometry3D.relativeCorners[i] = details.geometry3D.corners[i] - mainCamera.transform.position;
+            Vector3 cornerGlobalPosition = details.geometry3D.corners[i];
+            Vector3 cornerRelativePosition = cornerGlobalPosition - cameraPosition;
+            details.geometry3D.relativeCorners[i] = Quaternion.Inverse(cameraRotation) * cornerRelativePosition;
         }
     }
+
+
 
     int[] CheckCornersVisibility(Vector2[] projectedCorners)
     {
