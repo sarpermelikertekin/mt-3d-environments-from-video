@@ -334,7 +334,7 @@ def align_3d_to_zero_degree(output_folder, video_path):
 
 # Example usage
 model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/5_objects_and_edges/weights/last.pt'
-video_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth/Movie_001.mp4'
+video_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth/Movie_009.mp4'
 output_base_dir = r"C:/Users/sakar/OneDrive/mt-datas/yoro"
 
 track_objects_with_yolo(video_path, model_path_yolo, output_base_dir)
