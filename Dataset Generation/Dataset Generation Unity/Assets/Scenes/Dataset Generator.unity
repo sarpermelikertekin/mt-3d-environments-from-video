@@ -330,10 +330,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 963194227}
-  dataSetName: 7_only_objects
+  dataSetName: 8_correct_relative
   boundingBoxBuffer: 25
   takeScreenshot: 1
-  numberOfImages: 6000
+  numberOfImages: 3000
   iterationForRoom: 4
   delayBetweenCaptures: 0
   screenWidth: 0
