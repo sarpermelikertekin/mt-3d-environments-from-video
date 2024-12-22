@@ -98,7 +98,7 @@ def load_model_and_predict_3d(data_2d_path, output_folder, file_name, input_size
 def main():
     # Define paths and parameters
     base_path = r"C:\Users\sakar\OneDrive\mt-datas\yolo\pose_estimation"
-    dataset_name = "5_objects_and_edges"
+    dataset_name = "8_correct_relative"
     subset = "test"
     file_name = "3007"
     data_2d_sample_path = os.path.join(base_path, f"{dataset_name}_{subset}_{file_name}_yolo_result.csv")

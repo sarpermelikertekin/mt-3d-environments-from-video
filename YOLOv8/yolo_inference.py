@@ -92,7 +92,7 @@ def run_yolo_inference(model_path, image_path, output_image_path, output_csv_pat
 def main():
     # Define paths and parameters for YOLO inference
     model_path = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/5_objects_and_edges/weights/last.pt'
-    dataset_name = "5_objects_and_edges"
+    dataset_name = "8_correct_relative"
     subset = "test"
     file_name = "3007"
     output_folder = 'C:/Users/sakar/OneDrive/mt-datas/yolo/pose_estimation'
