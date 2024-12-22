@@ -27,10 +27,6 @@ def run_yolo_inference(model_path, image_path, output_image_path, output_csv_pat
         # Get the class ID for the detected object
         class_id = int(result.boxes.cls[0])  # Get the class ID as an integer
 
-        # Normalize bounding box values by image width and height
-        norm_x1, norm_y1 = x1 / width, y1 / height
-        norm_x2, norm_y2 = x2 / width, y2 / height
-
         # Draw the bounding box in red
         draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
 

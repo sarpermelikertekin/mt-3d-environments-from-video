@@ -4,13 +4,15 @@ import shutil
 import pandas as pd
 import numpy as np
 from ultralytics import YOLO
+import cv2
+from scipy.spatial.transform import Rotation as R
+
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from lifting_models import sye_inference  # Import the provided module and function
 
-
-def track_objects_with_yolo(video_path, model_path, output_base_dir):
+def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_position, camera_rotation):
     """
     Track objects in a video using YOLOv8's built-in tracking mode, saving results (bounding boxes, IDs, and poses)
     in a custom directory, while keeping original results intact and creating an annotated_frames folder.
@@ -85,10 +87,13 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir):
 
     # Apply transformations to align to 0-degree frame
     transformed_csv_path = align_3d_to_zero_degree(output_folder, video_path)
-    print(f"Generated transformed CSV: {transformed_csv_path}")
+    print(f"Generated Frame to Camera transformed CSV: {transformed_csv_path}")
+    
+    transformed_objects_csv_path = transform_object_positions(output_folder, transformed_csv_path, camera_position, camera_rotation)
+    print(f"Generated Camera to World transformed CSV: {transformed_csv_path}")
 
     # Split the transformed CSV into edges and objects
-    split_csv_by_id(transformed_csv_path, output_folder)
+    split_csv_by_id(transformed_objects_csv_path, output_folder)
 
     # Log final output
     print(f"Annotated frames saved at: {annotated_frames_folder}")
@@ -236,9 +241,6 @@ def create_3d_with_frame(objects_csv_path, predictions_3d_path, output_folder):
     predictions_3d_df.to_csv(enhanced_3d_path, index=False, header=False)
     print(f"Generated 3D CSV with frame numbers: {enhanced_3d_path}")
 
-
-import cv2  # Required for video processing
-
 def align_3d_to_zero_degree(output_folder, video_path):
     """
     Transform the 3D points and rotation to the 0-degree frame based on frame numbers.
@@ -331,10 +333,55 @@ def align_3d_to_zero_degree(output_folder, video_path):
     print(f"Generated transformed CSV: {translated_csv_path}")
     return translated_csv_path
 
+def transform_object_positions(output_folder, input_csv, camera_position, camera_rotation):
+    """
+    Transform object positions and rotations relative to the camera's rotated frame.
+    Save the results in a new CSV.
+    """
+    # Load the 3D object data
+    df = pd.read_csv(input_csv, header=None)
+
+    # Initialize the list for transformed data
+    transformed_data = []
+
+    # Compute the inverse of the camera's rotation matrix
+    camera_rotation_matrix = R.from_euler('xyz', camera_rotation, degrees=True).as_matrix()
+    inverse_camera_rotation = np.linalg.inv(camera_rotation_matrix)
+
+    for _, row in df.iterrows():
+        object_id = row[0]  # Object ID
+        pos = np.array(row[1:4])  # Original position (x, y, z)
+        rot = np.array(row[4:7])  # Original rotation (rx, ry, rz)
+
+        # Transform position relative to the camera's position
+        relative_pos = pos - camera_position
+
+        # Rotate the position into the camera's reference frame
+        transformed_pos = inverse_camera_rotation @ relative_pos
+
+        # Rotate the object's orientation into the camera's reference frame
+        object_rotation_matrix = R.from_euler('xyz', rot, degrees=True).as_matrix()
+        transformed_rotation_matrix = inverse_camera_rotation @ object_rotation_matrix
+        transformed_rot = R.from_matrix(transformed_rotation_matrix).as_euler('xyz', degrees=True)
+
+        # Combine transformed data into a new row
+        transformed_row = [object_id] + transformed_pos.tolist() + transformed_rot.tolist() + row[7:].tolist()
+        transformed_data.append(transformed_row)
+
+    # Save the transformed data to a CSV
+    transformed_csv_path = os.path.join(output_folder, "transformed_objects.csv")
+    transformed_df = pd.DataFrame(transformed_data).round(4)
+    transformed_df.to_csv(transformed_csv_path, index=False, header=False)
+    print(f"Transformed objects CSV created at: {transformed_csv_path}")
+    return transformed_csv_path
+
+# Define the camera position
+camera_position = np.array([0, 0, 0])
+camera_rotation = [0, 0, 0]
 
 # Example usage
 model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/5_objects_and_edges/weights/last.pt'
 video_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth/Movie_009.mp4'
 output_base_dir = r"C:/Users/sakar/OneDrive/mt-datas/yoro"
 
-track_objects_with_yolo(video_path, model_path_yolo, output_base_dir)
+track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position, camera_rotation)
