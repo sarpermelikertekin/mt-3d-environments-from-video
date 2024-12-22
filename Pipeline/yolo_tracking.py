@@ -89,6 +89,7 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_posi
     transformed_csv_path = align_3d_to_zero_degree(output_folder, video_path)
     print(f"Generated Frame to Camera transformed CSV: {transformed_csv_path}")
     
+    # Apply transformations to align to origin frame
     transformed_objects_csv_path = transform_object_positions(output_folder, transformed_csv_path, camera_position, camera_rotation)
     print(f"Generated Camera to World transformed CSV: {transformed_csv_path}")
 
@@ -112,8 +113,8 @@ def split_csv_by_id(transformed_csv_path, output_folder):
     objects_df = df_transformed[df_transformed[0] != 8]
 
     # Save the edges and objects CSV files
-    edges_csv_path = os.path.join(output_folder, "edges.csv")
-    objects_csv_path = os.path.join(output_folder, "objects.csv")
+    edges_csv_path = os.path.join(output_folder, f"{file_name}_edges.csv")
+    objects_csv_path = os.path.join(output_folder, f"{file_name}_objects.csv")
 
     edges_df.to_csv(edges_csv_path, index=False, header=False)
     objects_df.to_csv(objects_csv_path, index=False, header=False)
@@ -241,10 +242,19 @@ def create_3d_with_frame(objects_csv_path, predictions_3d_path, output_folder):
     predictions_3d_df.to_csv(enhanced_3d_path, index=False, header=False)
     print(f"Generated 3D CSV with frame numbers: {enhanced_3d_path}")
 
-def align_3d_to_zero_degree(output_folder, video_path):
+def align_3d_to_zero_degree(output_folder, video_path, start_angle=0, end_angle=90):
     """
     Transform the 3D points and rotation to the 0-degree frame based on frame numbers.
-    Ensures all transformed coordinates remain positive.
+    Ensures consistent transformation, independent of rotation direction.
+
+    Parameters:
+        output_folder (str): Path to the output folder.
+        video_path (str): Path to the video file.
+        start_angle (float): Starting angle of the camera's rotation (in degrees).
+        end_angle (float): Ending angle of the camera's rotation (in degrees).
+
+    Returns:
+        str: Path to the transformed CSV file aligned to the 0-degree perspective.
     """
     # Path to the generated 3D CSV with frame numbers
     input_csv_path = os.path.join(output_folder, "objects_3d_with_frame.csv")
@@ -263,75 +273,63 @@ def align_3d_to_zero_degree(output_folder, video_path):
     # Read the 3D data
     df_3d = pd.read_csv(input_csv_path, header=None)
 
-    # Define constants for transformation
-    max_angle = 90.0  # Maximum rotation angle in degrees
+    # Determine the rotation direction
+    forward_rotation = start_angle < end_angle
 
-    # Find the minimum X, Y, Z across all points for translation to positive space
-    min_coords = np.inf * np.ones(3)  # [min_x, min_y, min_z]
+    # Compute the rotation angle increment per frame
+    angle_increment = abs(end_angle - start_angle) / (num_frames - 1)
 
     # Transform each row based on its frame number
     transformed_rows = []
     for _, row in df_3d.iterrows():
         object_id = row[0]  # The first column is the object ID
-        frame_number = row.iloc[-1]  # Frame number is the last column
-        angle = (frame_number / num_frames) * max_angle  # Calculate rotation angle
-        angle_rad = np.radians(angle)  # Convert angle to radians
+        pos = np.array(row.iloc[1:4])  # x, y, z position
+        frame_number = row.iloc[-1]  # Frame number
+        rot = np.array(row.iloc[4:7])  # Rotation as Euler angles (rx, ry, rz)
 
-        # Create rotation matrix for the angle (rotating around Y-axis)
-        rotation_matrix = np.array([
+        # Calculate the current frame's rotation angle
+        if forward_rotation:
+            angle = start_angle + frame_number * angle_increment
+        else:
+            angle = end_angle - frame_number * angle_increment  # Reverse direction
+
+        angle_rad = np.radians(angle)
+
+        # Create the rotation matrix for aligning to 0°
+        rotation_to_zero = np.array([
             [np.cos(angle_rad), 0, np.sin(angle_rad)],
             [0, 1, 0],
             [-np.sin(angle_rad), 0, np.cos(angle_rad)]
         ])
 
-        # Transform position (columns 1, 2, 3 for x, y, z)
-        pos = np.array(row.iloc[1:4])  # x, y, z
-        transformed_pos = rotation_matrix @ pos
+        # Transform position to the 0° frame
+        aligned_pos = rotation_to_zero @ pos
 
-        # Update min_coords for translation
-        min_coords = np.minimum(min_coords, transformed_pos)
+        # Transform keypoints to the 0° frame (if keypoints exist)
+        keypoints = np.array(row.iloc[7:31]).reshape(-1, 3)  # Reshape to 8x3 (assuming 8 keypoints)
+        aligned_keypoints = (rotation_to_zero @ keypoints.T).T  # Transform keypoints
 
-        # Transform keypoints (columns 7 to 30 for 8 keypoints)
-        keypoints = np.array(row.iloc[7:31]).reshape(-1, 3)  # Reshape to 8x3
-        transformed_keypoints = (rotation_matrix @ keypoints.T).T  # Transform keypoints
-
-        # Update min_coords for keypoints
-        min_coords = np.minimum(min_coords, transformed_keypoints.min(axis=0))
+        # Transform rotation to the 0° frame
+        object_rotation_matrix = R.from_euler('xyz', rot, degrees=True).as_matrix()  # Original rotation matrix
+        aligned_rotation_matrix = rotation_to_zero @ object_rotation_matrix  # Apply the inverse rotation
+        aligned_rot = R.from_matrix(aligned_rotation_matrix).as_euler('xyz', degrees=True)  # Back to Euler angles
 
         # Combine transformed data
         transformed_row = (
-            [object_id] + transformed_pos.tolist() + row.iloc[4:7].tolist() +
-            transformed_keypoints.flatten().tolist() + [frame_number]
+            [object_id] + aligned_pos.tolist() + aligned_rot.tolist() +
+            aligned_keypoints.flatten().tolist() + [frame_number]
         )
         transformed_rows.append(transformed_row)
 
-    # Translate all coordinates to ensure positivity
-    translated_rows = []
-    for row in transformed_rows:
-        object_id = row[0]  # Preserve the object ID
-        # Translate position
-        translated_pos = np.array(row[1:4]) - min_coords
+    # Create a new DataFrame for the transformed data
+    transformed_df = pd.DataFrame(transformed_rows).round(4)
 
-        # Translate keypoints
-        keypoints = np.array(row[7:31]).reshape(-1, 3)
-        translated_keypoints = (keypoints - min_coords).flatten()
+    # Save the transformed data to a new CSV
+    transformed_csv_path = os.path.join(output_folder, "objects_3d_transformed.csv")
+    transformed_df.to_csv(transformed_csv_path, index=False, header=False)
 
-        # Combine translated data
-        translated_row = (
-            [object_id] + translated_pos.tolist() + row[4:7] +
-            translated_keypoints.tolist() + [row[-1]]
-        )
-        translated_rows.append(translated_row)
-
-    # Create a new DataFrame for the translated data
-    translated_df = pd.DataFrame(translated_rows).round(4)
-
-    # Save the translated data to a new CSV
-    translated_csv_path = os.path.join(output_folder, "objects_3d_transformed.csv")
-    translated_df.to_csv(translated_csv_path, index=False, header=False)
-
-    print(f"Generated transformed CSV: {translated_csv_path}")
-    return translated_csv_path
+    print(f"Generated transformed CSV: {transformed_csv_path}")
+    return transformed_csv_path
 
 def transform_object_positions(output_folder, input_csv, camera_position, camera_rotation):
     """
@@ -379,9 +377,12 @@ def transform_object_positions(output_folder, input_csv, camera_position, camera
 camera_position = np.array([0, 0, 0])
 camera_rotation = [0, 0, 0]
 
+file_name = "Movie_005"
+
 # Example usage
 model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/5_objects_and_edges/weights/last.pt'
-video_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth/Movie_009.mp4'
+video_base_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth'
+video_path = os.path.join(video_base_path, f"{file_name}.mp4")
 output_base_dir = r"C:/Users/sakar/OneDrive/mt-datas/yoro"
 
 track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position, camera_rotation)
