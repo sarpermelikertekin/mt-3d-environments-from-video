@@ -38,7 +38,7 @@ def load_model_and_predict_3d(data_2d_path, output_folder, file_name, input_size
         all_predictions = []
 
         # Process each row independently
-        for index, row in df_2d.iterrows():
+        for _, row in df_2d.iterrows():
             object_id = int(row.iloc[0])  # Extract the object ID from the first column
             model_path = f"C:/Users/sakar/mt-3d-environments-from-video/lifting_models/sye{object_id}.pth"
             if not os.path.exists(model_path):
@@ -98,9 +98,9 @@ def load_model_and_predict_3d(data_2d_path, output_folder, file_name, input_size
 def main():
     # Define paths and parameters
     base_path = r"C:\Users\sakar\OneDrive\mt-datas\yolo\pose_estimation"
-    dataset_name = "1_realistic_chair"
-    subset = "train"
-    file_name = "2"
+    dataset_name = "5_objects_and_edges"
+    subset = "test"
+    file_name = "3007"
     data_2d_sample_path = os.path.join(base_path, f"{dataset_name}_{subset}_{file_name}_yolo_result.csv")
 
     # Define the output folder
@@ -108,7 +108,7 @@ def main():
 
     # Run inference and save results to CSV
     predictions_3d = load_model_and_predict_3d(
-        data_2d_sample_path, output_folder, dataset_name, subset, file_name
+        data_2d_sample_path, output_folder, file_name
     )
     if predictions_3d is not None:
         print("3D Predictions:", predictions_3d)
