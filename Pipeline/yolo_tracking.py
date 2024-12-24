@@ -12,7 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from lifting_models import sye_inference  # Import the provided module and function
 
-def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_position, camera_rotation):
+def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_position, camera_rotation, start_angle, end_angle):
     """
     Track objects in a video using YOLOv8's built-in tracking mode, saving results (bounding boxes, IDs, and poses)
     in a custom directory, while keeping original results intact and creating an annotated_frames folder.
@@ -86,7 +86,7 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_posi
     lift_objects_to_3d(single_objects_csv_path, output_folder)
 
     # Apply transformations to align to 0-degree frame
-    transformed_csv_path = align_3d_to_zero_degree(output_folder, video_path)
+    transformed_csv_path = align_3d_to_zero_degree(output_folder, video_path, start_angle, end_angle)
     print(f"Generated Frame to Camera transformed CSV: {transformed_csv_path}")
     
     # Apply transformations to align to origin frame
@@ -242,7 +242,7 @@ def create_3d_with_frame(objects_csv_path, predictions_3d_path, output_folder):
     predictions_3d_df.to_csv(enhanced_3d_path, index=False, header=False)
     print(f"Generated 3D CSV with frame numbers: {enhanced_3d_path}")
 
-def align_3d_to_zero_degree(output_folder, video_path, start_angle=0, end_angle=90):
+def align_3d_to_zero_degree(output_folder, video_path, start_angle, end_angle):
     """
     Transform the 3D points and rotation to the 0-degree frame based on frame numbers.
     Ensures consistent transformation, independent of rotation direction.
@@ -291,19 +291,24 @@ def align_3d_to_zero_degree(output_folder, video_path, start_angle=0, end_angle=
         if forward_rotation:
             angle = start_angle + frame_number * angle_increment
         else:
-            angle = end_angle - frame_number * angle_increment  # Reverse direction
+            angle = start_angle - frame_number * angle_increment  # Reverse direction
 
         angle_rad = np.radians(angle)
+        print(forward_rotation)
+        print(f"id:{str(object_id)} angle:" + str(angle))
 
         # Create the rotation matrix for aligning to 0°
         rotation_to_zero = np.array([
-            [np.cos(angle_rad), 0, np.sin(angle_rad)],
+            [np.cos(-angle_rad), 0, np.sin(-angle_rad)],
             [0, 1, 0],
-            [-np.sin(angle_rad), 0, np.cos(angle_rad)]
+            [-np.sin(-angle_rad), 0, np.cos(-angle_rad)]
         ])
+        print(rotation_to_zero)
 
         # Transform position to the 0° frame
         aligned_pos = rotation_to_zero @ pos
+        print(pos)
+        print(aligned_pos)
 
         # Transform keypoints to the 0° frame (if keypoints exist)
         keypoints = np.array(row.iloc[7:31]).reshape(-1, 3)  # Reshape to 8x3 (assuming 8 keypoints)
@@ -377,7 +382,9 @@ def transform_object_positions(output_folder, input_csv, camera_position, camera
 camera_position = np.array([0, 0, 0])
 camera_rotation = [0, 0, 0]
 
-file_name = "Movie_005"
+file_name = "Movie_013"
+start_angle = 90
+end_angle = 0
 
 # Example usage
 model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/5_objects_and_edges/weights/last.pt'
@@ -385,4 +392,4 @@ video_base_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth'
 video_path = os.path.join(video_base_path, f"{file_name}.mp4")
 output_base_dir = r"C:/Users/sakar/OneDrive/mt-datas/yoro"
 
-track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position, camera_rotation)
+track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position, camera_rotation, start_angle, end_angle)
