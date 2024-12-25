@@ -75,13 +75,15 @@ public class ObjectPlacer : MonoBehaviour
         float height = maxY - minY;
         float depth = maxZ - minZ;
 
-        Debug.Log(width + " " + height + " " + depth);
+        Debug.Log($"minX: {minX} - minY: {minY} - minZ: {minZ} \n maxX: {maxX} - maxY: {maxY} - maxZ: {maxZ}");
+
+        Debug.Log($"width: {width} - height: {height} - depth: {depth}");
 
         // Generate walls
-        GenerateWall(new Vector3(minX + width / 2, minY, minZ), new Vector3(width, height, 0.1f)); // Front wall
-        GenerateWall(new Vector3(minX + width / 2, minY, maxZ), new Vector3(width, height, 0.1f)); // Back wall
-        GenerateWall(new Vector3(minX, minY, minZ + depth / 2), new Vector3(0.1f, height, depth)); // Left wall
-        GenerateWall(new Vector3(maxX, minY, minZ + depth / 2), new Vector3(0.1f, height, depth)); // Right wall
+        GenerateWall(new Vector3(width / 2, height/2, 0), new Vector3(width, height, 0.1f)); // Front wall
+        GenerateWall(new Vector3(width / 2, height / 2, depth), new Vector3(width, height, 0.1f)); // Back wall
+        GenerateWall(new Vector3(0, height / 2, depth / 2), new Vector3(0.1f, height, depth)); // Left wall
+        GenerateWall(new Vector3(width, height / 2, depth / 2), new Vector3(0.1f, height, depth)); // Right wall
     }
 
     void GenerateWall(Vector3 position, Vector3 scale)
@@ -119,8 +121,10 @@ public class ObjectPlacer : MonoBehaviour
                 float.Parse(values[6])
             );
 
-            Vector3 worldPosition = cameraPosition + relativePosition;
+            Debug.Log($"objectID: {objectID} \n Parsed coordinates: [{values[4]},{values[5]}, {values[6]}] \n Rotation: {rotation.eulerAngles}");
 
+            Vector3 worldPosition = cameraPosition + relativePosition;
+            
             List<Vector3> keypoints = new List<Vector3>();
             for (int i = 7; i < values.Length; i += 3)
             {

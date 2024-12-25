@@ -382,9 +382,9 @@ def transform_object_positions(output_folder, input_csv, camera_position, camera
 camera_position = np.array([0, 0, 0])
 camera_rotation = [0, 0, 0]
 
-file_name = "Movie_013"
-start_angle = 90
-end_angle = 0
+file_name = "Movie_009"
+start_angle = 0
+end_angle = 90
 
 # Example usage
 model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/5_objects_and_edges/weights/last.pt'
