@@ -17,7 +17,7 @@ from lifting_models import sye_inference  # Import the provided module and funct
 # Track and create a single csv containing object with distinct id's create_single_objects_csv
 # Use lift_objects_to_3d to do 2D-3D lifting with SYE
 # Use align_3d_to_zero_degree to transform camera angles into camera's initial zero position facing z in Unity coordinates
-# Use transform_object_positions to transform camera coordinates into origin coordinates
+# Use transform_objects_to_origin_from_camera to transform camera coordinates into origin coordinates
 # Use split_csv_by_id to create object and edges csv's
     
 def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_position, camera_rotation, start_angle, end_angle, forward_rotation):
@@ -97,30 +97,23 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_posi
                         modified_line = ' '.join([class_id, cx, cy, w, h] + keypoints_without_conf + [track_id]) + '\n'
                         dest_file.write(modified_line)
 
-    # Generate single_objects.csv and lift 2D keypoints to 3D
-    single_objects_csv_path = create_single_objects_csv(annotated_frames_folder, output_folder)
-    if single_objects_csv_path is None:
-        print("Error: single_objects.csv was not generated.")
-        return
-
-    # TODO: refactor to output the csv file
-    lift_objects_to_3d(single_objects_csv_path, output_folder)
-
-    # TODO: refctor to input the prev the csv file
-    # Apply transformations to align to 0-degree frame
-    transformed_csv_path = align_3d_to_zero_degree(output_folder, video_path, start_angle, end_angle, forward_rotation)
-    print(f"Generated Frame to Camera transformed CSV: {transformed_csv_path}")
-    
-    # Apply transformations to align to origin frame
-    transformed_objects_csv_path = transform_object_positions(output_folder, transformed_csv_path, camera_position, camera_rotation)
-    print(f"Generated Camera to World transformed CSV: {transformed_objects_csv_path}")
-
-    # Split the transformed CSV into edges and objects
-    split_csv_by_id(transformed_objects_csv_path, output_folder)
-
-    # Log final output
     print(f"Annotated frames saved at: {annotated_frames_folder}")
     print(f"All results saved in: {output_folder}")
+    
+    # Generate single_objects.csv
+    single_objects_csv_path = create_single_objects_csv(annotated_frames_folder, output_folder)
+
+    # lift 2D keypoints to 3D
+    all_3d_objects_csv_path = lift_objects_to_3d(single_objects_csv_path, output_folder)
+
+    # Apply transformations to align to 0-degree frame of the camera
+    camera_transformed_csv_path = align_3d_to_zero_degree(all_3d_objects_csv_path, output_folder, video_path, start_angle, end_angle, forward_rotation)
+    
+    # Apply transformations to align to origin frame
+    world_transformed_objects_csv_path = transform_objects_to_origin_from_camera(camera_transformed_csv_path, output_folder, camera_position, camera_rotation)
+
+    # Split the transformed CSV into edges and objects
+    split_csv_by_id(world_transformed_objects_csv_path, output_folder)
 
 
 def create_single_objects_csv(annotated_frames_folder, output_folder):
@@ -229,7 +222,7 @@ def lift_objects_to_3d(objects_csv_path, output_folder):
             return
 
         # After predictions, create a 3D CSV with frame numbers
-        create_3d_with_frame(objects_csv_path, final_csv_path, output_folder)
+        return create_3d_with_frame(objects_csv_path, final_csv_path, output_folder)
 
     except Exception as e:
         print(f"Error during 3D lifting: {e}")
@@ -263,9 +256,11 @@ def create_3d_with_frame(objects_csv_path, predictions_3d_path, output_folder):
     # Save the updated 3D data with frame numbers
     enhanced_3d_path = os.path.join(output_folder, objects_3d_with_frame_csv)
     predictions_3d_df.to_csv(enhanced_3d_path, index=False, header=False)
+    
     print(f"Generated 3D CSV with frame numbers: {enhanced_3d_path}")
+    return enhanced_3d_path
 
-def align_3d_to_zero_degree(output_folder, video_path, start_angle, end_angle, forward_rotation):
+def align_3d_to_zero_degree(input_csv, output_folder, video_path, start_angle, end_angle, forward_rotation):
     """
     Align 3D points and rotations to the 0-degree frame based on camera angles.
 
@@ -278,12 +273,6 @@ def align_3d_to_zero_degree(output_folder, video_path, start_angle, end_angle, f
     Output:
         Saves objects_3d_transformed.csv with aligned 3D points.
     """
-    # Path to the generated 3D CSV with frame numbers
-    input_csv_path = os.path.join(output_folder, objects_3d_with_frame_csv)
-    if not os.path.exists(input_csv_path):
-        print("Error: 3D CSV with frame information not found.")
-        return None
-
     # Get the total number of frames from the video
     video_capture = cv2.VideoCapture(video_path)
     if not video_capture.isOpened():
@@ -293,7 +282,7 @@ def align_3d_to_zero_degree(output_folder, video_path, start_angle, end_angle, f
     video_capture.release()
 
     # Read the 3D data
-    df_3d = pd.read_csv(input_csv_path, header=None)
+    df_3d = pd.read_csv(input_csv, header=None)
 
     # Compute the rotation angle increment per frame
     angle_increment = abs(end_angle - start_angle) / (num_frames - 1)
@@ -313,8 +302,6 @@ def align_3d_to_zero_degree(output_folder, video_path, start_angle, end_angle, f
             angle = start_angle - frame_number * angle_increment  # Reverse direction
 
         angle_rad = np.radians(angle)
-        print(forward_rotation)
-        print(f"id:{str(object_id)} angle:" + str(angle))
 
         # Create the rotation matrix for aligning to 0°
         rotation_to_zero = np.array([
@@ -322,12 +309,9 @@ def align_3d_to_zero_degree(output_folder, video_path, start_angle, end_angle, f
             [0, 1, 0],
             [-np.sin(-angle_rad), 0, np.cos(-angle_rad)]
         ])
-        print(rotation_to_zero)
 
         # Transform position to the 0° frame
         aligned_pos = rotation_to_zero @ pos
-        print(pos)
-        print(aligned_pos)
 
         # Transform keypoints to the 0° frame (if keypoints exist)
         keypoints = np.array(row.iloc[7:31]).reshape(-1, 3)  # Reshape to 8x3 (assuming 8 keypoints)
@@ -355,7 +339,7 @@ def align_3d_to_zero_degree(output_folder, video_path, start_angle, end_angle, f
     print(f"Generated transformed CSV: {transformed_csv_path}")
     return transformed_csv_path
 
-def transform_object_positions(output_folder, input_csv, camera_position, camera_rotation):
+def transform_objects_to_origin_from_camera(input_csv, output_folder, camera_position, camera_rotation):
     """
     Transform object positions and rotations to the camera's reference frame.
 
@@ -402,6 +386,7 @@ def transform_object_positions(output_folder, input_csv, camera_position, camera
     transformed_csv_path = os.path.join(output_folder, transformed_objects_csv)
     transformed_df = pd.DataFrame(transformed_data).round(4)
     transformed_df.to_csv(transformed_csv_path, index=False, header=False)
+    
     print(f"Transformed objects CSV created at: {transformed_csv_path}")
     return transformed_csv_path
 
@@ -437,17 +422,19 @@ def split_csv_by_id(transformed_csv_path, output_folder):
 camera_position = np.array([0, 0, 0])
 camera_rotation = [0, 0, 0]
 
+# Modes
 file_name = "Movie_002"
 start_angle = 0
 end_angle = 90
 forward_rotation = start_angle < end_angle
 
+# Generated files
 single_objects_csv = "single_objects.csv"
 objects_2d_temp_csv = "objects_2d_temp.csv"
-objects_3d_csv = "objects_3d"
+objects_3d_csv = "objects_3d" #Temp file for SYE not visible
 objects_3d_sye_result_csv = "objects_3d_sye_result.csv"
 objects_3d_with_frame_csv = "objects_3d_with_frame.csv"
-objects_3d_transformed_csv = "objects_3d_transformed.csv"
+objects_3d_transformed_csv = "objects_3d_world_transformed.csv"
 transformed_objects_csv = "transformed_objects.csv"
 
 # Example usage
