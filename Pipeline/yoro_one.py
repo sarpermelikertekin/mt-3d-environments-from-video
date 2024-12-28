@@ -65,7 +65,6 @@ def main():
             base_name = os.path.splitext(file_name)[0]
             output_image_path = os.path.join(processed_folder, f'{base_name}_yolo_result.png')
             output_yolo_path = os.path.join(processed_folder, f'{base_name}_yolo_result.csv')
-            output_sye_path = os.path.join(processed_folder, f'{base_name}_sye_result.csv')
 
             print(f"[INFO] Processing frame: {image_path}")
 
