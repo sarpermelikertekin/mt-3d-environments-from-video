@@ -170,7 +170,7 @@ def create_single_objects_csv(annotated_frames_folder, output_folder):
         print("Error: No valid data to save in single_objects.csv.")
         return None
 
-    single_objects_csv_path = os.path.join(output_folder, "single_objects.csv")
+    single_objects_csv_path = os.path.join(output_folder, single_objects_csv)
     single_objects_df = pd.DataFrame(center_closest_records.values())
     single_objects_df.to_csv(single_objects_csv_path, index=False)
     print(f"Generated CSV: {single_objects_csv_path}")
@@ -212,15 +212,15 @@ def lift_objects_to_3d(objects_csv_path, output_folder):
     data_2d = pd.concat([data_2d.reset_index(drop=True), keypoints_split.reset_index(drop=True)], axis=1)
 
     # Save validated 2D data to a temporary CSV
-    data_2d_path = os.path.join(output_folder, "objects_2d_temp.csv")
+    data_2d_path = os.path.join(output_folder, objects_2d_temp_csv)
     data_2d.to_csv(data_2d_path, index=False, header=False)
     print(f"Generated 2D CSV for lifting: {data_2d_path}")
 
     # Perform 2D-to-3D lifting
     try:
         # Use the lifting model to generate 3D data
-        sye_inference.load_model_and_predict_3d(data_2d_path, output_folder, "objects_3d")
-        final_csv_path = os.path.join(output_folder, "objects_3d_sye_result.csv")
+        sye_inference.load_model_and_predict_3d(data_2d_path, output_folder, objects_3d_csv)
+        final_csv_path = os.path.join(output_folder, objects_3d_sye_result_csv)
         print(f"Generated 3D CSV: {final_csv_path}")
 
         # Validate the generated 3D file
@@ -261,7 +261,7 @@ def create_3d_with_frame(objects_csv_path, predictions_3d_path, output_folder):
     predictions_3d_df["frame_number"] = objects_df["frame_number"].values
 
     # Save the updated 3D data with frame numbers
-    enhanced_3d_path = os.path.join(output_folder, "objects_3d_with_frame.csv")
+    enhanced_3d_path = os.path.join(output_folder, objects_3d_with_frame_csv)
     predictions_3d_df.to_csv(enhanced_3d_path, index=False, header=False)
     print(f"Generated 3D CSV with frame numbers: {enhanced_3d_path}")
 
@@ -279,7 +279,7 @@ def align_3d_to_zero_degree(output_folder, video_path, start_angle, end_angle, f
         Saves objects_3d_transformed.csv with aligned 3D points.
     """
     # Path to the generated 3D CSV with frame numbers
-    input_csv_path = os.path.join(output_folder, "objects_3d_with_frame.csv")
+    input_csv_path = os.path.join(output_folder, objects_3d_with_frame_csv)
     if not os.path.exists(input_csv_path):
         print("Error: 3D CSV with frame information not found.")
         return None
@@ -349,7 +349,7 @@ def align_3d_to_zero_degree(output_folder, video_path, start_angle, end_angle, f
     transformed_df = pd.DataFrame(transformed_rows).round(4)
 
     # Save the transformed data to a new CSV
-    transformed_csv_path = os.path.join(output_folder, "objects_3d_transformed.csv")
+    transformed_csv_path = os.path.join(output_folder, objects_3d_transformed_csv)
     transformed_df.to_csv(transformed_csv_path, index=False, header=False)
 
     print(f"Generated transformed CSV: {transformed_csv_path}")
@@ -399,7 +399,7 @@ def transform_object_positions(output_folder, input_csv, camera_position, camera
         transformed_data.append(transformed_row)
 
     # Save the transformed data to a CSV
-    transformed_csv_path = os.path.join(output_folder, "transformed_objects.csv")
+    transformed_csv_path = os.path.join(output_folder, transformed_objects_csv)
     transformed_df = pd.DataFrame(transformed_data).round(4)
     transformed_df.to_csv(transformed_csv_path, index=False, header=False)
     print(f"Transformed objects CSV created at: {transformed_csv_path}")
@@ -434,13 +434,21 @@ def split_csv_by_id(transformed_csv_path, output_folder):
     print(f"Generated objects CSV: {objects_csv_path}")
 
 # Define the camera position
-camera_position = np.array([5.82, 0, 0])
-camera_rotation = [0, 270, 0]
+camera_position = np.array([0, 0, 0])
+camera_rotation = [0, 0, 0]
 
-file_name = "Movie_020"
+file_name = "Movie_002"
 start_angle = 0
 end_angle = 90
 forward_rotation = start_angle < end_angle
+
+single_objects_csv = "single_objects.csv"
+objects_2d_temp_csv = "objects_2d_temp.csv"
+objects_3d_csv = "objects_3d"
+objects_3d_sye_result_csv = "objects_3d_sye_result.csv"
+objects_3d_with_frame_csv = "objects_3d_with_frame.csv"
+objects_3d_transformed_csv = "objects_3d_transformed.csv"
+transformed_objects_csv = "transformed_objects.csv"
 
 # Example usage
 model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/5_objects_and_edges/weights/last.pt'
