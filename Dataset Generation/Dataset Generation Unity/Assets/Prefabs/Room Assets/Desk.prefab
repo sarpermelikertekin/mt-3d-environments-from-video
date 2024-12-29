@@ -117,6 +117,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Desk 3
       objectReference: {fileID: 0}
+    - target: {fileID: 9080219267315622015, guid: 2d3e0d22367da2a4d895aabb73cd2be9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -244,6 +248,10 @@ PrefabInstance:
     - target: {fileID: 1556378009036629758, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
       propertyPath: m_Name
       value: Desk 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1556378009036629758, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
