@@ -87,7 +87,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7576287334590206590, guid: 503b3640c4d980c4192e742953d13f05, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -110,10 +110,6 @@ PrefabInstance:
     - target: {fileID: 210196737959708896, guid: 3a087918a462af144b199da301caa62e, type: 3}
       propertyPath: m_Name
       value: Sofa 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 210196737959708896, guid: 3a087918a462af144b199da301caa62e, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3349617307419581354, guid: 3a087918a462af144b199da301caa62e, type: 3}
       propertyPath: m_LocalPosition.x
