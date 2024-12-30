@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 5199873817275272238}
   - component: {fileID: 5681646718823633775}
   - component: {fileID: 855323040825227247}
-  - component: {fileID: 2619130814357261846}
   - component: {fileID: 3176624430517571124}
   m_Layer: 0
   m_Name: Desk 2
@@ -19,7 +18,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5199873817275272238
 Transform:
   m_ObjectHideFlags: 0
@@ -85,27 +84,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &2619130814357261846
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3937974354391598925}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1.8, y: 0.7, z: 0.79999995}
-  m_Center: {x: 0, y: 0.35, z: 0}
 --- !u!114 &3176624430517571124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -119,12 +97,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boundingBoxColor: {r: 0, g: 1, b: 0, a: 1}
-  corners:
-  - {x: 4.4791217, y: 0.7, z: 4.244757}
-  - {x: 4.4791217, y: 0.7, z: 3.444757}
-  - {x: 2.6791215, y: 0.7, z: 3.444757}
-  - {x: 2.6791215, y: 0.7, z: 4.244757}
-  - {x: 4.4791217, y: 0, z: 4.244757}
-  - {x: 4.4791217, y: 0, z: 3.444757}
-  - {x: 2.6791215, y: 0, z: 3.444757}
-  - {x: 2.6791215, y: 0, z: 4.244757}
+  corners: []

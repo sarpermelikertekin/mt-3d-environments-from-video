@@ -34,7 +34,6 @@ Transform:
   - {fileID: 3488716473045347005}
   - {fileID: 2133204701778782137}
   - {fileID: 4028685469851815966}
-  - {fileID: 3207504550778070065}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &9017937757261551412
@@ -117,10 +116,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Desk 3
       objectReference: {fileID: 0}
-    - target: {fileID: 9080219267315622015, guid: 2d3e0d22367da2a4d895aabb73cd2be9, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -183,10 +178,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Desk 1
       objectReference: {fileID: 0}
-    - target: {fileID: 5426193247520715165, guid: cd8125add72e1d7438859c48cd6f855a, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -196,72 +187,6 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 2342948544108147319, guid: cd8125add72e1d7438859c48cd6f855a, type: 3}
   m_PrefabInstance: {fileID: 1218710148868888778}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &3286394684637988611
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 6098658103491520026}
-    m_Modifications:
-    - target: {fileID: 79031696116622130, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 79031696116622130, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 79031696116622130, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 79031696116622130, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 79031696116622130, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 79031696116622130, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 79031696116622130, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 79031696116622130, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 79031696116622130, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 79031696116622130, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1556378009036629758, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
-      propertyPath: m_Name
-      value: Desk 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 1556378009036629758, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
---- !u!4 &3207504550778070065 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 79031696116622130, guid: ebff655587e5cec44a147deae34f05c9, type: 3}
-  m_PrefabInstance: {fileID: 3286394684637988611}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6175283843537021847
 PrefabInstance:
@@ -274,10 +199,6 @@ PrefabInstance:
     - target: {fileID: 3937974354391598925, guid: 5f85db52b498f744d97ce06613a39230, type: 3}
       propertyPath: m_Name
       value: Desk 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3937974354391598925, guid: 5f85db52b498f744d97ce06613a39230, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5199873817275272238, guid: 5f85db52b498f744d97ce06613a39230, type: 3}
       propertyPath: m_LocalPosition.x

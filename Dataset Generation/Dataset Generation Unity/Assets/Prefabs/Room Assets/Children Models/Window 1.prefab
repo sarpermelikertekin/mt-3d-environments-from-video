@@ -520,14 +520,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5163223157548185392}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: -0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: -0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: -0.7071068, w: 0}
+  m_LocalPosition: {x: 0.657, y: 0, z: -0}
+  m_LocalScale: {x: 1.03, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 290137960690815889}
   m_Father: {fileID: 2894181259914232483}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 180, z: 0}
 --- !u!1 &5366685204350364441
 GameObject:
   m_ObjectHideFlags: 0
@@ -538,7 +538,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2894181259914232483}
   - component: {fileID: 34812884357967895}
-  - component: {fileID: 4324823643490145225}
   m_Layer: 0
   m_Name: Window 1
   m_TagString: Detect
@@ -576,27 +575,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boundingBoxColor: {r: 0, g: 1, b: 0, a: 1}
   corners: []
---- !u!65 &4324823643490145225
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5366685204350364441}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6364392167548013808
 GameObject:
   m_ObjectHideFlags: 0
