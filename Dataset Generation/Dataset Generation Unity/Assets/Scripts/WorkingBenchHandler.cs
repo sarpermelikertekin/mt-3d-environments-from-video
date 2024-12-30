@@ -5,6 +5,7 @@ public class WorkingBenchHandler : MonoBehaviour
     public GameObject chairPrefab;   // Chair prefab
     public GameObject monitorPrefab; // Monitor prefab
     public GameObject laptopPrefab;  // Laptop prefab
+    public GameObject controlPrefab;  // Control prefab
     public Transform parentObject;   // Parent object to attach generated objects as children
 
     void Start()
@@ -47,26 +48,36 @@ public class WorkingBenchHandler : MonoBehaviour
 
     void SpawnElectronics()
     {
-        // Randomly choose the number and type of electronics
-        int electronicsCount = Random.Range(1, 3); // Either 1 or 2 objects
-        bool isLaptop1 = Random.Range(0, 2) == 0;
-        bool isLaptop2 = Random.Range(0, 2) == 0;
+        // Randomly choose the number of electronics (1 or 2)
+        int electronicsCount = Random.Range(1, 3);
 
         // Set the rotation with a y-axis rotation of -180
         Quaternion rotation = Quaternion.Euler(0, -180, 0);
 
-        // Single electronic device case
+        // Helper function to get a random electronic prefab
+        GameObject GetRandomElectronicPrefab()
+        {
+            int choice = Random.Range(0, 3); // 0 = laptop, 1 = monitor, 2 = chair
+            switch (choice)
+            {
+                case 0: return laptopPrefab;
+                case 1: return monitorPrefab;
+                case 2: return controlPrefab;
+                default: return laptopPrefab; // Fallback
+            }
+        }
+
         if (electronicsCount == 1)
         {
             float x = Random.Range(-0.65f, 0.65f);
             float z = Random.Range(-0.15f, 0.15f);
             Vector3 localPosition = new Vector3(x, 0.712f, z);
 
-            GameObject electronic = Instantiate(isLaptop1 ? laptopPrefab : monitorPrefab, parentObject);
+            GameObject electronic = Instantiate(GetRandomElectronicPrefab(), parentObject);
             electronic.transform.localPosition = localPosition;
             electronic.transform.localRotation = rotation;
         }
-        else // Two electronic devices case
+        else
         {
             float x1 = Random.Range(0.2f, 0.65f);
             float x2 = -x1;
@@ -76,13 +87,11 @@ public class WorkingBenchHandler : MonoBehaviour
             Vector3 localPosition1 = new Vector3(x1, 0.712f, z1);
             Vector3 localPosition2 = new Vector3(x2, 0.712f, z2);
 
-            // Instantiate first electronic device
-            GameObject electronic1 = Instantiate(isLaptop1 ? laptopPrefab : monitorPrefab, parentObject);
+            GameObject electronic1 = Instantiate(GetRandomElectronicPrefab(), parentObject);
             electronic1.transform.localPosition = localPosition1;
             electronic1.transform.localRotation = rotation;
 
-            // Instantiate second electronic device
-            GameObject electronic2 = Instantiate(isLaptop2 ? laptopPrefab : monitorPrefab, parentObject);
+            GameObject electronic2 = Instantiate(GetRandomElectronicPrefab(), parentObject);
             electronic2.transform.localPosition = localPosition2;
             electronic2.transform.localRotation = rotation;
         }

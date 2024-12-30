@@ -46,8 +46,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chairPrefab: {fileID: 2146450166384225612, guid: 6701eaaa355c82049b783fc1b55b108d, type: 3}
-  monitorPrefab: {fileID: 1855559649484624630, guid: 3b8cab83102cb9744ab497b688616877, type: 3}
-  laptopPrefab: {fileID: 2933520361679236213, guid: a3572360975b4ed408444dd3d94a26d5, type: 3}
+  monitorPrefab: {fileID: 2726303236398705998, guid: 0712d6e4c759bc345b97b0cf335fc60f, type: 3}
+  laptopPrefab: {fileID: 6727927726953437207, guid: 6daeced6634d18f4fa52cfd22f15cdb5, type: 3}
+  controlPrefab: {fileID: 5760881071424323462, guid: 6692fe95b1bb3f34dba9deef00deeeb6, type: 3}
   parentObject: {fileID: 5332799224979651189}
 --- !u!1001 &1433687097206444126
 PrefabInstance:
