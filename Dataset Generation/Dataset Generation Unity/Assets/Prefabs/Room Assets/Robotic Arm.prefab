@@ -1197,6 +1197,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5551261744405924948}
   - component: {fileID: 6386339450909681188}
+  - component: {fileID: 5705735064969710169}
   m_Layer: 0
   m_Name: Robotic Arm
   m_TagString: Detect
@@ -1234,6 +1235,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boundingBoxColor: {r: 0, g: 1, b: 0, a: 1}
   corners: []
+--- !u!114 &5705735064969710169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4529923093314263806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87a71bf3fbb880f4d98e1a322d927e32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  materials:
+  - {fileID: 2100000, guid: 82c612f9131e67849b0ecdec032aa2b6, type: 2}
+  - {fileID: 2100000, guid: 9fed420098b21de44a981d7bbeb3d8b4, type: 2}
+  - {fileID: 2100000, guid: b2f7314aef94270499aa29cd6c17476b, type: 2}
+  - {fileID: 2100000, guid: 02fa0524543e59b4680cd03ef534e447, type: 2}
+  - {fileID: 2100000, guid: 11d6a493f08a57e4ab60ecaaa4fb558e, type: 2}
+  - {fileID: 2100000, guid: bafff32656727c24b8de52d11644befc, type: 2}
+  - {fileID: 2100000, guid: 4ea3067f6730ab94694223125203966b, type: 2}
 --- !u!1 &4572881103901452629
 GameObject:
   m_ObjectHideFlags: 0
@@ -2664,9 +2685,9 @@ Transform:
   m_GameObject: {fileID: 8018246215618989219}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.83, y: 0, z: 9.6}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0.915, y: 0, z: 4.8}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4188116791960352003}
   - {fileID: 2551766084024166267}

@@ -9,6 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6135033757796266361}
+  - component: {fileID: 1108803429275127829}
+  - component: {fileID: 848811663218565839}
   m_Layer: 0
   m_Name: Monitor
   m_TagString: Untagged
@@ -33,6 +35,34 @@ Transform:
   - {fileID: 4882684619692836613}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1108803429275127829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2726303236398705998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 897f7e4e0876a2d4bb5010efcf17d53b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &848811663218565839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2726303236398705998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87a71bf3fbb880f4d98e1a322d927e32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  materials:
+  - {fileID: 2100000, guid: 82c612f9131e67849b0ecdec032aa2b6, type: 2}
+  - {fileID: 2100000, guid: 9fed420098b21de44a981d7bbeb3d8b4, type: 2}
+  - {fileID: 2100000, guid: b2f7314aef94270499aa29cd6c17476b, type: 2}
 --- !u!1001 &144435697398195752
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -87,18 +117,44 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7678133158091080415, guid: 39e9842b79df9494b98b7b227bbfe9c8, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7678133158091080415, guid: 39e9842b79df9494b98b7b227bbfe9c8, type: 3}
+      propertyPath: m_TagString
+      value: Detect
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7678133158091080415, guid: 39e9842b79df9494b98b7b227bbfe9c8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8554879953825780292}
   m_SourcePrefab: {fileID: 100100000, guid: 39e9842b79df9494b98b7b227bbfe9c8, type: 3}
 --- !u!4 &4882684619692836613 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4738882242208604461, guid: 39e9842b79df9494b98b7b227bbfe9c8, type: 3}
   m_PrefabInstance: {fileID: 144435697398195752}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &7534265909421335799 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7678133158091080415, guid: 39e9842b79df9494b98b7b227bbfe9c8, type: 3}
+  m_PrefabInstance: {fileID: 144435697398195752}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8554879953825780292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7534265909421335799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a31c05242fcc8b4eb91ff93a20e4248, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boundingBoxColor: {r: 0, g: 1, b: 0, a: 1}
+  corners: []
 --- !u!1001 &1818586608101064885
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -107,9 +163,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6135033757796266361}
     m_Modifications:
+    - target: {fileID: 1492920051108812863, guid: 3b8cab83102cb9744ab497b688616877, type: 3}
+      propertyPath: corners.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1855559649484624630, guid: 3b8cab83102cb9744ab497b688616877, type: 3}
       propertyPath: m_Name
       value: Monitor 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1855559649484624630, guid: 3b8cab83102cb9744ab497b688616877, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3682755167837534763, guid: 3b8cab83102cb9744ab497b688616877, type: 3}
       propertyPath: m_LocalPosition.x
