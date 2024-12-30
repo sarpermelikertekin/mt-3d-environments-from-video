@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311918, g: 0.3807398, b: 0.35872716, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -330,7 +330,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 963194227}
-  dataSetName: 8_correct_relative
+  dataSetName: 0_test
   boundingBoxBuffer: 25
   takeScreenshot: 1
   numberOfImages: 3000
@@ -433,11 +433,20 @@ MonoBehaviour:
   mainCamera: {fileID: 963194227}
   wallPrefab: {fileID: 7396488072382362230, guid: 200578c001713d845bbd57a07113eb2c, type: 3}
   randomObjectPrefabs:
-  - {fileID: 2146450166384225612, guid: 6701eaaa355c82049b783fc1b55b108d, type: 3}
-  - {fileID: 1709260401402099211, guid: 68027c88e7f08244a962bca8934ec25f, type: 3}
-  - {fileID: 3816454464716631638, guid: 311cbf75029da14469514d03b7439a02, type: 3}
-  - {fileID: 7406491475852582817, guid: ff8ac8e56e041c145afdedad24e2327e, type: 3}
   - {fileID: 8291058731593141339, guid: d014a38304e4f924f9dcadf0daf5ec42, type: 3}
+  - {fileID: 590522577964934493, guid: a76f1384414ec8240ac527f7f955f0cf, type: 3}
+  - {fileID: 5760881071424323462, guid: 6692fe95b1bb3f34dba9deef00deeeb6, type: 3}
+  - {fileID: 1709260401402099211, guid: 68027c88e7f08244a962bca8934ec25f, type: 3}
+  - {fileID: 4596241936551700454, guid: a6cadd00beef37c4c8512c0454151c8d, type: 3}
+  - {fileID: 7196994370901778901, guid: 3412c48038cfc4b4ea422418985ea161, type: 3}
+  - {fileID: 2146450166384225612, guid: 6701eaaa355c82049b783fc1b55b108d, type: 3}
+  - {fileID: 6727927726953437207, guid: 6daeced6634d18f4fa52cfd22f15cdb5, type: 3}
+  - {fileID: 2726303236398705998, guid: 0712d6e4c759bc345b97b0cf335fc60f, type: 3}
+  - {fileID: 4529923093314263806, guid: 038bfb09c5088a54997127afd0286d58, type: 3}
+  - {fileID: 7406491475852582817, guid: ff8ac8e56e041c145afdedad24e2327e, type: 3}
+  - {fileID: 7396488072382362230, guid: 200578c001713d845bbd57a07113eb2c, type: 3}
+  - {fileID: 1440961441972023819, guid: 1557a986cbe6ae449b95edbb9e892f3a, type: 3}
+  - {fileID: 3816454464716631638, guid: 311cbf75029da14469514d03b7439a02, type: 3}
   maxObjectsToSpawn: 3
   currentCameraIndex: 0
   cameraBuffer: 0.5
