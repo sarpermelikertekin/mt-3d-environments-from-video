@@ -85,15 +85,18 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     // Map object names/tags to IDs (Chair -> 0, Desk -> 1, Wall -> 2)
     int MapObjectNameToID(string name)
     {
-        if (name.Contains("Chair")) return 0;
-        else if (name.Contains("Desk")) return 1;
-        else if (name.Contains("Laptop")) return 2;
-        else if (name.Contains("Monitor")) return 3;
-        else if (name.Contains("Window")) return 4;
-        else if (name.Contains("Door")) return 5;
-        else if (name.Contains("Sofa")) return 6;
-        else if (name.Contains("Cabinet")) return 7;
-        else if (name.Contains("Edge")) return 8;
+        if (name.Contains("Edge")) return 0;
+        else if (name.Contains("Cabinet")) return 1;
+        else if (name.Contains("Common Chair")) return 2;
+        else if (name.Contains("Desk")) return 3;
+        else if (name.Contains("Door")) return 4;
+        else if (name.Contains("Laptop")) return 5;
+        else if (name.Contains("Monitor")) return 6;
+        else if (name.Contains("Office Chair")) return 7;
+        else if (name.Contains("Pendant")) return 8;
+        else if (name.Contains("Robotic Arm")) return 9;
+        else if (name.Contains("Sofa")) return 10;
+        else if (name.Contains("Window")) return 11;
         else return -1;  // Default for unrecognized objects
     }
 
@@ -279,7 +282,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
 
         foreach (GameObject obj in taggedObjects)
         {
-            BoundingBox box = obj.GetComponent<BoundingBox>();
+            BoundingBoxHandler box = obj.GetComponent<BoundingBoxHandler>();
             if (box != null) // Ensure there is a BoundingBox component
             {
                 Vector2[] projectedCorners = ProjectCorners(box.corners);

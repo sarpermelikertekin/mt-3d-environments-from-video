@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 43b7ebc472352184eab3a3704a93855f, type: 2}
+  - {fileID: 2100000, guid: efe89822796543847943eceaa08b78ec, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 840646434662908305}
   - component: {fileID: 3347671086588732378}
   m_Layer: 0
-  m_Name: Control Pendant
+  m_Name: Pendant
   m_TagString: Detect
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

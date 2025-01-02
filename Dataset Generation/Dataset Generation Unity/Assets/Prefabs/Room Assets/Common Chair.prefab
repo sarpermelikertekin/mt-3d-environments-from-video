@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 828583068060840796}
   - component: {fileID: 1189087695055911563}
   m_Layer: 0
-  m_Name: Chair
+  m_Name: Common Chair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -80,7 +80,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 8239352400066601357, guid: d77691e927b87c046b66fac7cdc0ea87, type: 3}
       propertyPath: m_Name
-      value: Chair 1
+      value: Common Chair 1
       objectReference: {fileID: 0}
     - target: {fileID: 8464053628138834298, guid: d77691e927b87c046b66fac7cdc0ea87, type: 3}
       propertyPath: m_LocalPosition.x
@@ -142,7 +142,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6857400231027569658, guid: c13adb9900ce42d49ab58651694385d3, type: 3}
       propertyPath: m_Name
-      value: Chair 4
+      value: Common Chair 4
       objectReference: {fileID: 0}
     - target: {fileID: 8159126803291532062, guid: c13adb9900ce42d49ab58651694385d3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -244,7 +244,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8263292679632513625, guid: db54686c9a01b2f40b75e3df32b2cb50, type: 3}
       propertyPath: m_Name
-      value: Chair 2
+      value: Common Chair 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -306,7 +306,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5495285420927634296, guid: b794a4be76d1b42439d04752829032fc, type: 3}
       propertyPath: m_Name
-      value: Chair 3
+      value: Common Chair 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
