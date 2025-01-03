@@ -29,7 +29,8 @@ public class RoomGenerator : MonoBehaviour
     public Camera mainCamera; // Reference to the main camera
     public GameObject wallPrefab;
     public GameObject[] randomObjectPrefabs; // Array of object prefabs to randomly choose from
-    public int maxObjectsToSpawn = 5; // Maximum number of objects to spawn randomly
+    public int maxObjectsToSpawn = 4; // Maximum number of objects to spawn randomly
+    public int minObjectsToSpawn = 2; // Maximum number of objects to spawn randomly
     private Vector3[] cameraPositions; // Store 4 possible camera positions
     public int currentCameraIndex = 0; // Index to keep track of the current camera position
     public float cameraBuffer = 0.5f; // Buffer for camera positioning
@@ -141,7 +142,7 @@ public class RoomGenerator : MonoBehaviour
         }
 
         spawnedObjectPositions.Clear();
-        int randomNumberOfObjects = Random.Range(1, maxObjectsToSpawn + 1);
+        int randomNumberOfObjects = Random.Range(minObjectsToSpawn, maxObjectsToSpawn + 1);
 
         for (int i = 0; i < randomNumberOfObjects; i++)
         {

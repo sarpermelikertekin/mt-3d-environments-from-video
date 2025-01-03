@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1044714537283658551}
   - component: {fileID: -1342994604171513750}
   m_Layer: 0
-  m_Name: Gaming
+  m_Name: Office Chair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -74,11 +74,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1376455687202864483, guid: 71cd44ebbbcaace4e99120ba6fb5da2f, type: 3}
       propertyPath: m_Name
-      value: Gaming 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1376455687202864483, guid: 71cd44ebbbcaace4e99120ba6fb5da2f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
+      value: Office Chair 2
       objectReference: {fileID: 0}
     - target: {fileID: 2191024094174407524, guid: 71cd44ebbbcaace4e99120ba6fb5da2f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -140,11 +136,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4412304528661663601, guid: 41c066ad0f67b974190e1e26bfdf6997, type: 3}
       propertyPath: m_Name
-      value: Gaming 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 4412304528661663601, guid: 41c066ad0f67b974190e1e26bfdf6997, type: 3}
-      propertyPath: m_IsActive
-      value: 0
+      value: Office Chair 3
       objectReference: {fileID: 0}
     - target: {fileID: 9110691580223152168, guid: 41c066ad0f67b974190e1e26bfdf6997, type: 3}
       propertyPath: m_LocalPosition.x
@@ -206,7 +198,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1606517391330733233, guid: ce03b5491e451d84fa8f4e858769d9d2, type: 3}
       propertyPath: m_Name
-      value: Gaming 1
+      value: Office Chair 1
       objectReference: {fileID: 0}
     - target: {fileID: 9052774686731293640, guid: ce03b5491e451d84fa8f4e858769d9d2, type: 3}
       propertyPath: m_LocalPosition.x

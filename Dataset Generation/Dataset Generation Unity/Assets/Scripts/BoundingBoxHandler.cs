@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-public class BoundingBox : MonoBehaviour
+public class BoundingBoxHandler : MonoBehaviour
 {
     public Color boundingBoxColor = Color.green;
     public Vector3[] corners;
