@@ -13,6 +13,8 @@ public class ObjectPlacer : MonoBehaviour
     [Header("Camera Settings")]
     public Vector3 cameraPosition; // Set the camera position
 
+    public GameObject wallPrefab;
+
     private List<(Vector3 position, Color color)> gizmoPoints = new List<(Vector3 position, Color color)>(); // Gizmo data
 
     private GameObject roomObject; // Room parent object
@@ -88,16 +90,26 @@ public class ObjectPlacer : MonoBehaviour
 
     void GenerateWall(Vector3 position, Vector3 scale)
     {
-        GameObject wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        wall.transform.position = position;
-        wall.transform.localScale = scale;
-        wall.GetComponent<Renderer>().material.color = Color.gray; // Set wall color
+        // Ensure wallPrefab is assigned in the Unity Inspector or instantiated elsewhere
+        if (wallPrefab == null)
+        {
+            Debug.LogError("wallPrefab is not assigned. Please assign it in the Inspector.");
+            return;
+        }
 
+        // Instantiate the wallPrefab at the specified position
+        GameObject wall = Instantiate(wallPrefab, position, Quaternion.identity);
+
+        // Set the scale of the wall
+        wall.transform.localScale = scale;
+
+        // Rename the wall object
         wall.name = "Wall";
 
         // Parent the wall to the room object
         wall.transform.SetParent(roomObject.transform);
     }
+
 
     void ParseCSVAndPlaceObjects()
     {
