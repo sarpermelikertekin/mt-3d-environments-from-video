@@ -20,7 +20,7 @@ from lifting_models import sye_inference  # Import the provided module and funct
 # Use transform_objects_to_origin_from_camera to transform camera coordinates into origin coordinates
 # Use split_csv_by_id to create object and edges csv's
     
-def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_position, camera_rotation, start_angle, end_angle, forward_rotation, file_name):
+def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_position, camera_rotation, start_angle, end_angle, forward_rotation, file_name, position_suffix, rotation_suffix):
     """ 
     Track objects in a video using YOLOv8's built-in tracking mode, saving results (bounding boxes, IDs, and poses)
     in a custom directory, while keeping original results intact and creating an annotated_frames folder.
@@ -113,7 +113,7 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_posi
     world_transformed_objects_csv_path = transform_objects_to_origin_from_camera(camera_transformed_csv_path, output_folder, camera_position, camera_rotation)
 
     # Split the transformed CSV into edges and objects
-    split_csv_by_id(world_transformed_objects_csv_path, output_folder, file_name)
+    split_csv_by_id(world_transformed_objects_csv_path, output_folder, file_name, position_suffix, rotation_suffix)
 
 
 def create_single_objects_csv(annotated_frames_folder, output_folder):
@@ -418,7 +418,7 @@ def reflect_position_x(position, camera_position):
     return reflected_position
 
 
-def split_csv_by_id(transformed_csv_path, output_folder, file_name):
+def split_csv_by_id(transformed_csv_path, output_folder, file_name, position_suffix, rotation_suffix):
     """
     Split the transformed CSV into two separate files based on the ID in the 0th column.
 
@@ -435,10 +435,9 @@ def split_csv_by_id(transformed_csv_path, output_folder, file_name):
     # Filter rows where ID is 8 (edges) and others (objects)
     edges_df = df_transformed[df_transformed[0] == 8]
     objects_df = df_transformed[df_transformed[0] != 8]
-
     # Save the edges and objects CSV files
-    edges_csv_path = os.path.join(output_folder, f"{file_name}_edges.csv")
-    objects_csv_path = os.path.join(output_folder, f"{file_name}_objects.csv")
+    edges_csv_path = os.path.join(output_folder, f"{file_name}_{position_suffix}_{rotation_suffix}_edges.csv")
+    objects_csv_path = os.path.join(output_folder, f"{file_name}_{position_suffix}_{rotation_suffix}_objects.csv")
 
     edges_df.to_csv(edges_csv_path, index=False, header=False)
     objects_df.to_csv(objects_csv_path, index=False, header=False)
