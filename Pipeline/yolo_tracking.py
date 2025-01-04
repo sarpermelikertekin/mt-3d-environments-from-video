@@ -466,7 +466,7 @@ camera_position_1 = np.array([0, 0, 0])
 camera_rotation_1 = [0, 0, 0]
 
 # Modes
-file_name_1 = "Movie_028"
+file_name_1 = "Movie_027"
 start_angle_1 = 0
 end_angle_1 = 90
 forward_rotation_1 = start_angle_1 < end_angle_1
@@ -474,7 +474,7 @@ position_suffix_1 = "_o"
 rotation_suffix_1 = "_f" if forward_rotation_1 else "_b"
 
 video_path = os.path.join(video_base_path, f"{file_name_1}.mp4")
-track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position_1, camera_rotation_1, start_angle_1, end_angle_1, forward_rotation_1, position_suffix_1, rotation_suffix_1)
+track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position_1, camera_rotation_1, start_angle_1, end_angle_1, forward_rotation_1, file_name_1, position_suffix_1, rotation_suffix_1)
 
 #########################
 
@@ -493,6 +493,6 @@ position_suffix_2 = "_c"
 rotation_suffix_2 = "_f" if forward_rotation_1 else "_b"
 
 video_path = os.path.join(video_base_path, f"{file_name_2}.mp4")
-track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position_2, camera_rotation_2, start_angle_2, end_angle_2, forward_rotation_2, position_suffix_2, rotation_suffix_2)
+track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position_2, camera_rotation_2, start_angle_2, end_angle_2, forward_rotation_2, file_name_2, position_suffix_2, rotation_suffix_2)
 
 #########################
