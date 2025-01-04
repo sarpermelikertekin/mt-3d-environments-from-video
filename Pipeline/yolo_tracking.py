@@ -20,7 +20,7 @@ from lifting_models import sye_inference  # Import the provided module and funct
 # Use transform_objects_to_origin_from_camera to transform camera coordinates into origin coordinates
 # Use split_csv_by_id to create object and edges csv's
     
-def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_position, camera_rotation, start_angle, end_angle, forward_rotation):
+def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_position, camera_rotation, start_angle, end_angle, forward_rotation, file_name):
     """ 
     Track objects in a video using YOLOv8's built-in tracking mode, saving results (bounding boxes, IDs, and poses)
     in a custom directory, while keeping original results intact and creating an annotated_frames folder.
@@ -107,13 +107,13 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_posi
     all_3d_objects_csv_path = lift_objects_to_3d(single_objects_csv_path, output_folder)
 
     # Apply transformations to align to 0-degree frame of the camera
-    camera_transformed_csv_path = align_3d_to_zero_degree(all_3d_objects_csv_path, output_folder)
+    camera_transformed_csv_path = align_3d_to_zero_degree(all_3d_objects_csv_path, output_folder, start_angle, end_angle, forward_rotation)
     
     # Apply transformations to align to origin frame
-    world_transformed_objects_csv_path = transform_objects_to_origin_from_camera(camera_transformed_csv_path, output_folder)
+    world_transformed_objects_csv_path = transform_objects_to_origin_from_camera(camera_transformed_csv_path, output_folder, camera_position, camera_rotation)
 
     # Split the transformed CSV into edges and objects
-    split_csv_by_id(world_transformed_objects_csv_path, output_folder)
+    split_csv_by_id(world_transformed_objects_csv_path, output_folder, file_name)
 
 
 def create_single_objects_csv(annotated_frames_folder, output_folder):
@@ -260,7 +260,7 @@ def create_3d_with_frame(objects_csv_path, predictions_3d_path, output_folder):
     print(f"Generated 3D CSV with frame numbers: {enhanced_3d_path}")
     return enhanced_3d_path
 
-def align_3d_to_zero_degree(input_csv, output_folder):
+def align_3d_to_zero_degree(input_csv, output_folder, start_angle, end_angle, forward_rotation):
     """
     Align 3D points and rotations to the 0-degree frame based on camera angles.
 
@@ -346,7 +346,7 @@ def align_3d_to_zero_degree(input_csv, output_folder):
     return transformed_csv_path
 
 
-def transform_objects_to_origin_from_camera(input_csv, output_folder):
+def transform_objects_to_origin_from_camera(input_csv, output_folder, camera_position, camera_rotation):
     """
     Transform object positions and rotations to the camera's reference frame.
 
@@ -418,7 +418,7 @@ def reflect_position_x(position, camera_position):
     return reflected_position
 
 
-def split_csv_by_id(transformed_csv_path, output_folder):
+def split_csv_by_id(transformed_csv_path, output_folder, file_name):
     """
     Split the transformed CSV into two separate files based on the ID in the 0th column.
 
@@ -446,16 +446,6 @@ def split_csv_by_id(transformed_csv_path, output_folder):
     print(f"Generated edges CSV: {edges_csv_path}")
     print(f"Generated objects CSV: {objects_csv_path}")
 
-# Define the camera position
-camera_position = np.array([5.43, 0, 7.65])
-camera_rotation = [0, 180, 0]
-
-# Modes
-file_name = "Movie_028"
-start_angle = 0
-end_angle = 90
-forward_rotation = start_angle < end_angle
-
 # Generated files
 single_objects_csv = "single_objects.csv"
 objects_2d_temp_csv = "objects_2d_temp.csv"
@@ -468,7 +458,42 @@ transformed_objects_csv = "transformed_objects.csv"
 # Example usage
 model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/5_objects_and_edges/weights/last.pt'
 video_base_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth'
-video_path = os.path.join(video_base_path, f"{file_name}.mp4")
 output_base_dir = r"C:/Users/sakar/OneDrive/mt-datas/yoro"
 
-track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position, camera_rotation, start_angle, end_angle, forward_rotation)
+##### Origin Camera #####
+
+# Define the camera position
+camera_position_1 = np.array([0, 0, 0])
+camera_rotation_1 = [0, 0, 0]
+
+# Modes
+file_name_1 = "Movie_028"
+start_angle_1 = 0
+end_angle_1 = 90
+forward_rotation_1 = start_angle_1 < end_angle_1
+position_suffix_1 = "_o"
+rotation_suffix_1 = "_f" if forward_rotation_1 else "_b"
+
+video_path = os.path.join(video_base_path, f"{file_name_1}.mp4")
+track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position_1, camera_rotation_1, start_angle_1, end_angle_1, forward_rotation_1, position_suffix_1, rotation_suffix_1)
+
+#########################
+
+##### Corner Camera #####
+
+# Define the camera position
+camera_position_2 = np.array([5.43, 0, 7.65])
+camera_rotation_2 = [0, 180, 0]
+
+# Modes
+file_name_2 = "Movie_028"
+start_angle_2 = 0
+end_angle_2 = 90
+forward_rotation_2 = start_angle_2 < end_angle_2
+position_suffix_2 = "_c"
+rotation_suffix_2 = "_f" if forward_rotation_1 else "_b"
+
+video_path = os.path.join(video_base_path, f"{file_name_2}.mp4")
+track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position_2, camera_rotation_2, start_angle_2, end_angle_2, forward_rotation_2, position_suffix_2, rotation_suffix_2)
+
+#########################
