@@ -113,7 +113,9 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_posi
     world_transformed_objects_csv_path = transform_objects_to_origin_from_camera(camera_transformed_csv_path, output_folder, camera_position, camera_rotation)
 
     # Split the transformed CSV into edges and objects
-    split_csv_by_id(world_transformed_objects_csv_path, output_folder, file_name, position_suffix, rotation_suffix)
+    edges_csv_path, objects_csv_path = split_csv_by_id(world_transformed_objects_csv_path, output_folder, file_name, position_suffix, rotation_suffix)
+
+    return edges_csv_path, objects_csv_path
 
 
 def create_single_objects_csv(annotated_frames_folder, output_folder):
@@ -441,9 +443,107 @@ def split_csv_by_id(transformed_csv_path, output_folder, file_name, position_suf
 
     edges_df.to_csv(edges_csv_path, index=False, header=False)
     objects_df.to_csv(objects_csv_path, index=False, header=False)
-
+    
     print(f"Generated edges CSV: {edges_csv_path}")
     print(f"Generated objects CSV: {objects_csv_path}")
+    return edges_csv_path, objects_csv_path
+
+def merge_perspectives(objects_csv1, edges_csv1, objects_csv2, edges_csv2, output_base_dir, ground_truth_suffix, threshold):
+    """
+    Merge objects and edges from two perspectives based on proximity and ID matching.
+
+    Args:
+        objects_csv1 (str): Path to the first objects CSV.
+        edges_csv1 (str): Path to the first edges CSV.
+        objects_csv2 (str): Path to the second objects CSV.
+        edges_csv2 (str): Path to the second edges CSV.
+        output_base_dir (str): Base directory to save merged CSVs.
+        ground_truth_suffix (str): Name suffix for the ground truth folder.
+
+    Output:
+        Saves merged objects and edges CSVs in the ground_truth_suffix folder.
+    """
+    # Read the objects and edges CSV files
+    objects1 = pd.read_csv(objects_csv1, header=None)
+    edges1 = pd.read_csv(edges_csv1, header=None)
+    objects2 = pd.read_csv(objects_csv2, header=None)
+    edges2 = pd.read_csv(edges_csv2, header=None)
+
+    # Function to calculate Euclidean distance
+    def euclidean_distance(row1, row2):
+        pos1 = np.array(row1.iloc[1:4])
+        pos2 = np.array(row2.iloc[1:4])
+        return np.linalg.norm(pos1 - pos2)
+
+    # Merge objects
+    merged_objects = []
+
+    for _, obj1 in objects1.iterrows():
+        matched = False
+        for _, obj2 in objects2.iterrows():
+            if obj1[0] == obj2[0] and euclidean_distance(obj1, obj2) < threshold:
+                # Average positions and rotations
+                avg_pos = (obj1.iloc[1:4] + obj2.iloc[1:4]) / 2
+                # Average only the second element of the rotation (y-rotation)
+                avg_rot = obj1.iloc[4:7].tolist()
+                avg_rot[1] = (obj1.iloc[5] + obj2.iloc[5])
+                avg_corners = ((obj1.iloc[7:] + obj2.iloc[7:]) / 2).tolist()
+
+                # Create a merged row
+                merged_row = [obj1[0]] + avg_pos.tolist() + avg_rot + avg_corners
+                merged_objects.append(merged_row)
+                matched = True
+                break
+
+        if not matched:
+            merged_objects.append(obj1.tolist())
+
+    for _, obj2 in objects2.iterrows():
+        if not any(obj2[0] == merged[0] and euclidean_distance(pd.Series(merged), obj2) < threshold for merged in merged_objects):
+            merged_objects.append(obj2.tolist())
+
+    merged_objects_df = pd.DataFrame(merged_objects).round(4)
+
+    # Merge edges
+    merged_edges = []
+
+    for _, edge1 in edges1.iterrows():
+        matched = False
+        for _, edge2 in edges2.iterrows():
+            if edge1[0] == edge2[0] and euclidean_distance(edge1, edge2) < threshold:
+                # Average positions for edge points
+                avg_pos = (edge1.iloc[1:4] + edge2.iloc[1:4]) / 2
+                avg_rot = (edge1.iloc[4:7] + edge2.iloc[4:7]) / 2
+                avg_corners = ((edge1.iloc[7:] + edge2.iloc[7:]) / 2).tolist()
+
+                # Create a merged row
+                merged_row = [edge1[0]] + avg_pos.tolist() + avg_rot.tolist() + avg_corners
+                merged_edges.append(merged_row)
+                matched = True
+                break
+
+        if not matched:
+            merged_edges.append(edge1.tolist())
+
+    for _, edge2 in edges2.iterrows():
+        if not any(edge2[0] == merged[0] and euclidean_distance(pd.Series(merged), edge2) < threshold for merged in merged_edges):
+            merged_edges.append(edge2.tolist())
+
+    merged_edges_df = pd.DataFrame(merged_edges).round(4)
+
+    # Create ground truth folder
+    ground_truth_dir = os.path.join(output_base_dir, ground_truth_suffix)
+    os.makedirs(ground_truth_dir, exist_ok=True)
+
+    # Save merged CSVs
+    merged_objects_path = os.path.join(ground_truth_dir, f"{ground_truth_suffix}_merged_objects.csv")
+    merged_edges_path = os.path.join(ground_truth_dir, f"{ground_truth_suffix}_merged_edges.csv")
+    merged_objects_df.to_csv(merged_objects_path, index=False, header=False)
+    merged_edges_df.to_csv(merged_edges_path, index=False, header=False)
+
+    print(f"Merged objects saved at: {merged_objects_path}")
+    print(f"Merged edges saved at: {merged_edges_path}")
+
 
 # Generated files
 single_objects_csv = "single_objects.csv"
@@ -474,7 +574,7 @@ position_suffix_1 = "_o"
 rotation_suffix_1 = "_f" if forward_rotation_1 else "_b"
 
 video_path = os.path.join(video_base_path, f"{file_name_1}.mp4")
-track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position_1, camera_rotation_1, start_angle_1, end_angle_1, forward_rotation_1, file_name_1, position_suffix_1, rotation_suffix_1)
+edges_csv1, objects_csv1 = track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position_1, camera_rotation_1, start_angle_1, end_angle_1, forward_rotation_1, file_name_1, position_suffix_1, rotation_suffix_1)
 
 #########################
 
@@ -493,6 +593,18 @@ position_suffix_2 = "_c"
 rotation_suffix_2 = "_f" if forward_rotation_1 else "_b"
 
 video_path = os.path.join(video_base_path, f"{file_name_2}.mp4")
-track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position_2, camera_rotation_2, start_angle_2, end_angle_2, forward_rotation_2, file_name_2, position_suffix_2, rotation_suffix_2)
+edges_csv2, objects_csv2 = track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position_2, camera_rotation_2, start_angle_2, end_angle_2, forward_rotation_2, file_name_2, position_suffix_2, rotation_suffix_2)
 
 #########################
+
+ground_truth_suffix = "gt_9"
+
+merge_perspectives(
+    objects_csv1,
+    edges_csv1,
+    objects_csv2,
+    edges_csv2,
+    output_base_dir,
+    ground_truth_suffix,
+    3
+)
