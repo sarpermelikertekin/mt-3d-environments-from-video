@@ -1,5 +1,5 @@
 # Data
-path: C:\Users\sakar\OneDrive\mt-datas\synthetic_data\7_objects_only
+path: C:\Users\sakar\OneDrive\mt-datas\synthetic_data\10_final_big_1
 train: images/train # train images (relative to 'path')
 val: images/val # val images (relative to 'path')
 
@@ -7,13 +7,27 @@ kpt_shape: [8, 3] # [number of keypoints, number of dim]
 flip_idx: [3, 2, 1, 0, 7, 6, 5, 4]
 
 # Classes
+# names:
+#   0: Chair
+#   1: Desk
+#   2: Laptop
+#   3: Monitor        
+#   4: Window
+#   5: Door
+#   6: Sofa
+#   7: Cabinet
+#   8: Edge
+
 names:
-  0: Chair
-  1: Desk
-  2: Laptop
-  3: Monitor        
-  4: Window
-  5: Door
-  6: Sofa
-  7: Cabinet
-  8: Edge
+  0: Edge
+  1: Cabinet
+  2: Common Chair
+  3: Desk
+  4: Door
+  5: Laptop
+  6: Monitor
+  7: Office Chair
+  8: Pendant
+  9: Robotic Arm
+  10: Sofa
+  11: Window
