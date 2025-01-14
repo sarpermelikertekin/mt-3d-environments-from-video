@@ -77,10 +77,6 @@ public class ObjectPlacer : MonoBehaviour
         float height = maxY - minY;
         float depth = maxZ - minZ;
 
-        Debug.Log($"minX: {minX} - minY: {minY} - minZ: {minZ} \n maxX: {maxX} - maxY: {maxY} - maxZ: {maxZ}");
-
-        Debug.Log($"width: {width} - height: {height} - depth: {depth}");
-
         // Generate walls
         GenerateWall(new Vector3(width / 2, height/2, 0), new Vector3(width, height, 0.1f)); // Front wall
         GenerateWall(new Vector3(width / 2, height / 2, depth), new Vector3(width, height, 0.1f)); // Back wall
@@ -132,8 +128,6 @@ public class ObjectPlacer : MonoBehaviour
                 float.Parse(values[5]),
                 float.Parse(values[6])
             );
-
-            Debug.Log($"objectID: {objectID} \n Parsed coordinates: [{values[4]},{values[5]}, {values[6]}] \n Rotation: {rotation.eulerAngles}");
 
             Vector3 worldPosition = cameraPosition + relativePosition;
             

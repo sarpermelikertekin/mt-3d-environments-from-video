@@ -12,6 +12,7 @@ public class WorkingBenchHandler : MonoBehaviour
     {
         SpawnChairs();
         SpawnElectronics();
+        ReleaseChildrenAndDestroy();
     }
 
     void SpawnChairs()
@@ -95,5 +96,16 @@ public class WorkingBenchHandler : MonoBehaviour
             electronic2.transform.localPosition = localPosition2;
             electronic2.transform.localRotation = rotation;
         }
+    }
+
+    void ReleaseChildrenAndDestroy()
+    {
+        while (parentObject.childCount > 0)
+        {
+            Transform child = parentObject.GetChild(0);
+            child.SetParent(null);
+        }
+
+        Destroy(gameObject);
     }
 }
