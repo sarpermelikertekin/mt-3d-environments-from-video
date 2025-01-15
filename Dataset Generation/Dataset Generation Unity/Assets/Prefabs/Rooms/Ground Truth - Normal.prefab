@@ -3824,7 +3824,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8969801148335090896}
   m_Layer: 0
-  m_Name: GeneratedRoom
+  m_Name: Ground Truth - Normal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

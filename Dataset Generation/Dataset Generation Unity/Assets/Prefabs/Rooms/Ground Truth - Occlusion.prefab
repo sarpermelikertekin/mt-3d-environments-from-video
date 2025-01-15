@@ -4103,7 +4103,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8763922196976791359}
   m_Layer: 0
-  m_Name: GeneratedRoom 6
+  m_Name: Ground Truth - Occlusion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -94,7 +94,7 @@ def main():
     model_path = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/train5/weights/last.pt'
     dataset_name = "12_yoro_dataset"
     subset = "test"
-    file_name = "10009"
+    file_name = "10045"
     output_folder = 'C:/Users/sakar/OneDrive/mt-datas/yolo/pose_estimation'
 
     # Ensure the output directory exists

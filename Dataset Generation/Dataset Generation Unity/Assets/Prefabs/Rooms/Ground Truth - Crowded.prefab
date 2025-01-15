@@ -23365,7 +23365,7 @@ GameObject:
   m_Component:
   - component: {fileID: 283436923425304874}
   m_Layer: 0
-  m_Name: GeneratedRoom 3
+  m_Name: Ground Truth - Crowded
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
