@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Import functions from YOLOv8 and Lifting Models
-from yolov8 import yolo_inference
+from yolo import yolo_inference
 from lifting_models import sye_inference
 
 def main():
