@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -143,6 +143,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7765610770255975654, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+      propertyPath: m_Name
+      value: Office Chair(Clone)
+      objectReference: {fileID: 0}
     - target: {fileID: 7871170719861977893, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -183,8 +187,20 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7919263449732650768, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+      propertyPath: m_Name
+      value: Office Chair(Clone)
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 7903589542888370467, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - {fileID: 1375473918712958701, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - {fileID: 6335184507794214595, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - {fileID: 4174894135793431695, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - {fileID: 3248675252531457369, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - {fileID: 293969116546846520, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - {fileID: 4679212736314111424, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - {fileID: 1334536545186003733, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
@@ -258,8 +274,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9db544cd0cd646a48a3b6144dedbc50a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  groundTruth: {fileID: 2013202304}
+  groundTruth: {fileID: 0}
   room: {fileID: 0}
+  savePath: C:\Users\sakar\OneDrive\mt-datas\Pipeline
+  method: try
 --- !u!1 &1833628877
 GameObject:
   m_ObjectHideFlags: 0
@@ -446,11 +464,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2013202304 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3085467713573834024, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
-  m_PrefabInstance: {fileID: 659191967}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

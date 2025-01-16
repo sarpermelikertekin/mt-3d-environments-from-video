@@ -1,5 +1,5 @@
 # Data
-path: C:\Users\sakar\OneDrive\mt-datas\synthetic_data\10_final_big_1
+path: C:\Users\sakar\OneDrive\mt-datas\synthetic_data\12_yoro_dataset
 train: images/train # train images (relative to 'path')
 val: images/val # val images (relative to 'path')
 
@@ -19,7 +19,7 @@ flip_idx: [3, 2, 1, 0, 7, 6, 5, 4]
 #   8: Edge
 
 names:
-  0: Edge
+  0: Vertex
   1: Cabinet
   2: Common Chair
   3: Desk

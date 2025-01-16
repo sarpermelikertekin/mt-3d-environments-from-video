@@ -85,7 +85,7 @@ public class SyntheticDatasetGenerator : MonoBehaviour
     // Map object names/tags to IDs (Chair -> 0, Desk -> 1, Wall -> 2)
     int MapObjectNameToID(string name)
     {
-        if (name.Contains("Edge")) return 0;
+        if (name.Contains("Vertex")) return 0;
         else if (name.Contains("Cabinet")) return 1;
         else if (name.Contains("Common Chair")) return 2;
         else if (name.Contains("Desk")) return 3;

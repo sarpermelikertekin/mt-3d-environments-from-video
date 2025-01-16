@@ -505,29 +505,29 @@ def merge_perspectives(objects_csv1, edges_csv1, objects_csv2, edges_csv2, outpu
     merged_objects_df = pd.DataFrame(merged_objects).round(4)
 
     # Merge edges
-    merged_edges = []
+    merged_edges = edges1
 
-    for _, edge1 in edges1.iterrows():
-        matched = False
-        for _, edge2 in edges2.iterrows():
-            if edge1[0] == edge2[0] and euclidean_distance(edge1, edge2) < threshold:
-                # Average positions for edge points
-                avg_pos = (edge1.iloc[1:4] + edge2.iloc[1:4]) / 2
-                avg_rot = (edge1.iloc[4:7] + edge2.iloc[4:7]) / 2
-                avg_corners = ((edge1.iloc[7:] + edge2.iloc[7:]) / 2).tolist()
+    # for _, edge1 in edges1.iterrows():
+    #     matched = False
+    #     for _, edge2 in edges2.iterrows():
+    #         if edge1[0] == edge2[0] and euclidean_distance(edge1, edge2) < threshold:
+    #             # Average positions for edge points
+    #             avg_pos = (edge1.iloc[1:4] + edge2.iloc[1:4]) / 2
+    #             avg_rot = (edge1.iloc[4:7] + edge2.iloc[4:7]) / 2
+    #             avg_corners = ((edge1.iloc[7:] + edge2.iloc[7:]) / 2).tolist()
 
-                # Create a merged row
-                merged_row = [edge1[0]] + avg_pos.tolist() + avg_rot.tolist() + avg_corners
-                merged_edges.append(merged_row)
-                matched = True
-                break
+    #             # Create a merged row
+    #             merged_row = [edge1[0]] + avg_pos.tolist() + avg_rot.tolist() + avg_corners
+    #             merged_edges.append(merged_row)
+    #             matched = True
+    #             break
 
-        if not matched:
-            merged_edges.append(edge1.tolist())
+    #     if not matched:
+    #         merged_edges.append(edge1.tolist())
 
-    for _, edge2 in edges2.iterrows():
-        if not any(edge2[0] == merged[0] and euclidean_distance(pd.Series(merged), edge2) < threshold for merged in merged_edges):
-            merged_edges.append(edge2.tolist())
+    # for _, edge2 in edges2.iterrows():
+    #     if not any(edge2[0] == merged[0] and euclidean_distance(pd.Series(merged), edge2) < threshold for merged in merged_edges):
+    #         merged_edges.append(edge2.tolist())
 
     merged_edges_df = pd.DataFrame(merged_edges).round(4)
 

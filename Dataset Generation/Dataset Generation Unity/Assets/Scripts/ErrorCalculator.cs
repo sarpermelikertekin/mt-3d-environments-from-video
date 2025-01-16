@@ -1,11 +1,40 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 public class ErrorCalculator : MonoBehaviour
 {
     public GameObject groundTruth;
     public GameObject room;
+    public string savePath = @"C:\Users\sakar\OneDrive\mt-datas\Pipeline"; // Path to save the report
+    public string method = "";
+
+    void Start()
+    {
+        // Automatically find and assign the groundTruth object if its name contains "Ground Truth"
+        if (groundTruth == null)
+        {
+            GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>(); // Get all objects in the scene
+            foreach (GameObject obj in allObjects)
+            {
+                if (obj.name.Contains("Ground Truth", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    groundTruth = obj;
+                    break;
+                }
+            }
+
+            if (groundTruth == null)
+            {
+                Debug.LogError("Ground Truth object not found in the scene.");
+                return;
+            }
+        }
+
+        CompareObjects();
+    }
 
     void CompareObjects()
     {
@@ -15,6 +44,8 @@ public class ErrorCalculator : MonoBehaviour
             return;
         }
 
+        string report = "";
+
         // ---- Object Comparison ----
 
         // Generate normalized object counts for groundTruth and room
@@ -22,20 +53,20 @@ public class ErrorCalculator : MonoBehaviour
         Dictionary<int, int> roomCounts = GetNormalizedObjectCounts(room);
 
         // Generate reports for both
-        Debug.Log("Ground Truth Object Report:");
+        report += "Ground Truth Object Report:\n";
         foreach (var kvp in groundTruthCounts)
         {
-            Debug.Log($"{GetCategoryName(kvp.Key)}: {kvp.Value}");
+            report += $"{GetCategoryName(kvp.Key)}: {kvp.Value}\n";
         }
 
-        Debug.Log("Room Object Report:");
+        report += "\nRoom Object Report:\n";
         foreach (var kvp in roomCounts)
         {
-            Debug.Log($"{GetCategoryName(kvp.Key)}: {kvp.Value}");
+            report += $"{GetCategoryName(kvp.Key)}: {kvp.Value}\n";
         }
 
         // Compare the counts
-        Debug.Log("Object Comparison Report:");
+        report += "\nObject Comparison Report:\n";
         HashSet<int> allCategories = new HashSet<int>(groundTruthCounts.Keys.Union(roomCounts.Keys));
         foreach (int category in allCategories)
         {
@@ -44,7 +75,7 @@ public class ErrorCalculator : MonoBehaviour
 
             if (groundTruthCount != roomCount)
             {
-                Debug.Log($"{GetCategoryName(category)}: GroundTruth has {groundTruthCount}, Room has {roomCount}");
+                report += $"{GetCategoryName(category)}: GroundTruth has {groundTruthCount}, Room has {roomCount}\n";
             }
         }
 
@@ -53,34 +84,41 @@ public class ErrorCalculator : MonoBehaviour
         Vector3 groundTruthSize = MeasureRoomSize(groundTruth);
         Vector3 roomSize = MeasureRoomSize(room);
 
-        // Report room sizes
-        Debug.Log($"Ground Truth Room Size: X={groundTruthSize.x}, Y={groundTruthSize.y}, Z={groundTruthSize.z}");
-        Debug.Log($"Generated Room Size: X={roomSize.x}, Y={roomSize.y}, Z={roomSize.z}");
+        report += $"\nGround Truth Room Size: X={groundTruthSize.x}, Y={groundTruthSize.y}, Z={groundTruthSize.z}\n";
+        report += $"Generated Room Size: X={roomSize.x}, Y={roomSize.y}, Z={roomSize.z}\n";
 
         // Compare room sizes
-        Debug.Log("Room Size Comparison Report:");
-        Debug.Log($"X Difference: {Mathf.Abs(groundTruthSize.x - roomSize.x)}");
-        Debug.Log($"Y Difference: {Mathf.Abs(groundTruthSize.y - roomSize.y)}");
-        Debug.Log($"Z Difference: {Mathf.Abs(groundTruthSize.z - roomSize.z)}");
+        report += "\nRoom Size Comparison Report:\n";
+        report += $"X Difference: {Mathf.Abs(groundTruthSize.x - roomSize.x)}\n";
+        report += $"Y Difference: {Mathf.Abs(groundTruthSize.y - roomSize.y)}\n";
+        report += $"Z Difference: {Mathf.Abs(groundTruthSize.z - roomSize.z)}\n";
 
         // ---- Nearest Object Distance Calculation ----
 
-        CalculateNearestObjectDistances();
+        report += CalculateNearestObjectDistances();
+
+        // Save the report
+        SaveReport(report);
     }
 
-    void CalculateNearestObjectDistances()
+    string CalculateNearestObjectDistances()
     {
         float totalDistance = 0f;
         int matchedObjects = 0;
+        string distanceReport = "\nNearest Object Distance Report:\n";
 
         foreach (Transform groundTruthChild in groundTruth.transform)
         {
+            if (ShouldIgnoreObject(groundTruthChild.name)) continue;
+
             string groundTruthName = NormalizeName(groundTruthChild.name);
             Transform nearestObject = null;
             float nearestDistance = float.MaxValue;
 
             foreach (Transform roomChild in room.transform)
             {
+                if (ShouldIgnoreObject(roomChild.name)) continue;
+
                 string roomName = NormalizeName(roomChild.name);
 
                 if (groundTruthName == roomName)
@@ -96,31 +134,58 @@ public class ErrorCalculator : MonoBehaviour
 
             if (nearestObject != null)
             {
-                Debug.Log($"Nearest object to {groundTruthChild.name} is {nearestObject.name} with distance {nearestDistance:F2}");
+                distanceReport += $"Nearest object to {groundTruthChild.name} is {nearestObject.name} with distance {nearestDistance:F2}\n";
                 totalDistance += nearestDistance;
                 matchedObjects++;
             }
             else
             {
-                Debug.Log($"No matching object found for {groundTruthChild.name} in the room.");
+                distanceReport += $"No matching object found for {groundTruthChild.name} in the room.\n";
             }
         }
 
-        // Calculate and report the average distance
         if (matchedObjects > 0)
         {
             float averageDistance = totalDistance / matchedObjects;
-            Debug.Log($"Average distance between matched objects: {averageDistance:F2}");
+            distanceReport += $"Average distance between matched objects: {averageDistance:F2}\n";
         }
         else
         {
-            Debug.Log("No matched objects to calculate average distance.");
+            distanceReport += "No matched objects to calculate average distance.\n";
         }
+
+        return distanceReport;
+    }
+
+    void SaveReport(string report)
+    {
+        string snakeCaseName = ConvertToSnakeCase(groundTruth.name);
+        string fileName = $"{snakeCaseName}_{method}_report.txt";
+        string filePath = Path.Combine(savePath, fileName);
+
+        try
+        {
+            File.WriteAllText(filePath, report);
+            Debug.Log($"Report saved successfully at: {filePath}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"Failed to save report: {ex.Message}");
+        }
+    }
+
+    string ConvertToSnakeCase(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+
+        string snakeCase = Regex.Replace(input, @"([a-z])([A-Z])", "$1_$2").ToLower();
+        snakeCase = Regex.Replace(snakeCase, @"\s+", "_"); // Replace spaces with underscores
+        snakeCase = Regex.Replace(snakeCase, @"[^a-z0-9_]", ""); // Remove invalid characters
+        return snakeCase;
     }
 
     string NormalizeName(string name)
     {
-        // Normalizes names by removing variations like " (Clone)" or numbering
         int index = name.IndexOf(' ');
         if (index > 0) name = name.Substring(0, index);
 
@@ -136,9 +201,11 @@ public class ErrorCalculator : MonoBehaviour
 
         foreach (Transform child in parent.transform)
         {
+            if (ShouldIgnoreObject(child.name)) continue;
+
             int category = CategorizeObject(child.name);
 
-            if (category >= 0) // Ignore unrecognized objects
+            if (category >= 0)
             {
                 if (!objectCounts.ContainsKey(category))
                 {
@@ -154,7 +221,6 @@ public class ErrorCalculator : MonoBehaviour
 
     int CategorizeObject(string name)
     {
-        // Normalized categories based on the object's name
         if (name.Contains("Chair")) return 0;
         else if (name.Contains("Desk")) return 1;
         else if (name.Contains("Laptop")) return 2;
@@ -163,12 +229,11 @@ public class ErrorCalculator : MonoBehaviour
         else if (name.Contains("Door")) return 5;
         else if (name.Contains("Sofa")) return 6;
         else if (name.Contains("Cabinet")) return 7;
-        else return -1; // Unrecognized object
+        else return -1;
     }
 
     string GetCategoryName(int category)
     {
-        // Human-readable names for categories
         switch (category)
         {
             case 0: return "Chair";
@@ -191,30 +256,24 @@ public class ErrorCalculator : MonoBehaviour
 
         foreach (Transform child in parent.transform)
         {
-            if (child.name.Contains("Wall")) // Check if the object is a wall
-            {
-                Vector3 position = child.position;
+            Vector3 position = child.position;
 
-                // Update min and max values for X and Z
-                minX = Mathf.Min(minX, position.x);
-                minZ = Mathf.Min(minZ, position.z);
-                maxX = Mathf.Max(maxX, position.x);
-                maxZ = Mathf.Max(maxZ, position.z);
+            minX = Mathf.Min(minX, position.x);
+            minZ = Mathf.Min(minZ, position.z);
+            maxX = Mathf.Max(maxX, position.x);
+            maxZ = Mathf.Max(maxZ, position.z);
 
-                // Update the Y dimension based on wall height
-                sizeY = Mathf.Max(sizeY, child.localScale.y);
-            }
+            sizeY = Mathf.Max(sizeY, child.localScale.y);
         }
 
-        // Calculate room size (dimensions)
         float sizeX = maxX - minX;
         float sizeZ = maxZ - minZ;
 
         return new Vector3(sizeX, sizeY, sizeZ);
     }
 
-    void Start()
+    bool ShouldIgnoreObject(string name)
     {
-        CompareObjects(); // Perform the comparison at the start
+        return name.Contains("Wall") || name.Contains("Wall Edge") || name.Contains("Corner") || name.Contains("Point Light") || name.Contains("Plane");
     }
 }
