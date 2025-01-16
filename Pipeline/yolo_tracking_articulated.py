@@ -106,7 +106,7 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_posi
     all_3d_objects_csv_path = lift_objects_to_3d(single_objects_csv_path, output_folder)
 
     # Apply transformations to align to 0-degree frame of the camera
-    camera_transformed_csv_path = align_3d_to_zero_degree(all_3d_objects_csv_path, output_folder, start_angle, end_angle, forward_rotation)
+    camera_transformed_csv_path = align_3d_to_zero_degree(all_3d_objects_csv_path, output_folder, video_path, start_angle, end_angle, forward_rotation)
     
     # Apply transformations to align to origin frame
     world_transformed_objects_csv_path = transform_objects_to_origin_from_camera(camera_transformed_csv_path, output_folder, camera_position, camera_rotation)
@@ -261,7 +261,7 @@ def create_3d_with_frame(objects_csv_path, predictions_3d_path, output_folder):
     print(f"Generated 3D CSV with frame numbers: {enhanced_3d_path}")
     return enhanced_3d_path
 
-def align_3d_to_zero_degree(input_csv, output_folder, start_angle, end_angle, forward_rotation):
+def align_3d_to_zero_degree(input_csv, output_folder, video_path, start_angle, end_angle, forward_rotation):
     """
     Align 3D points and rotations to the 0-degree frame based on camera angles.
 
@@ -553,27 +553,19 @@ objects_3d_with_frame_csv = "objects_3d_with_frame.csv"
 objects_3d_transformed_csv = "objects_3d_world_transformed.csv"
 transformed_objects_csv = "transformed_objects.csv"
 
-model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/5_objects_and_edges/weights/last.pt'
-model_path_yolo_articulated = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/articulated_object_spot/weights/last.pt'
-
-video_base_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth'
-output_base_dir = r"C:/Users/sakar/OneDrive/mt-datas/yoro"
-
 # Paths to YOLO models
-model_path_yolo1 = 'path/to/first/yolo_model.pt'  # First YOLO model
-model_path_yolo2 = 'path/to/second/yolo_model.pt'  # Second YOLO model
+model_path_yolo1 = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/5_objects_and_edges/weights/last.pt'  # First YOLO model
+model_path_yolo2 = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/articulated_object_spot/weights/last.pt'  # Second YOLO model
 
-# Base video path
-video_base_path = r"path/to/videos"
-
-# Output directory
-output_base_dir = r"path/to/output"
+# Base paths
+video_base_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth'
+output_base_dir = r"C:/Users/sakar/OneDrive/mt-datas/yoro/z_new"
 
 ##### First YOLO Model #####
 # Origin Camera (YOLO1)
 camera_position_1 = np.array([0, 0, 0])
 camera_rotation_1 = [0, 0, 0]
-file_name_1 = "Video_001"
+file_name_1 = "Movie_001"
 start_angle_1, end_angle_1 = 0, 90
 forward_rotation_1 = start_angle_1 < end_angle_1
 video_path_1 = os.path.join(video_base_path, f"{file_name_1}.mp4")
@@ -583,9 +575,9 @@ edges_csv1, objects_csv1 = track_objects_with_yolo(
 )
 
 # Corner Camera (YOLO1)
-camera_position_2 = np.array([5.43, 0, 7.65])
+camera_position_2 = np.array([8.9, 0, 7.95])
 camera_rotation_2 = [0, 180, 0]
-file_name_2 = "Video_002"
+file_name_2 = "Movie_003"
 start_angle_2, end_angle_2 = 0, 90
 forward_rotation_2 = start_angle_2 < end_angle_2
 video_path_2 = os.path.join(video_base_path, f"{file_name_2}.mp4")
@@ -606,7 +598,7 @@ merged_edges_yolo1 = os.path.join(output_base_dir, ground_truth_suffix_yolo1, f"
 # Origin Camera (YOLO2)
 camera_position_3 = np.array([0, 0, 0])
 camera_rotation_3 = [0, 0, 0]
-file_name_3 = "Video_003"
+file_name_3 = "Movie_001"
 start_angle_3, end_angle_3 = 0, 90
 forward_rotation_3 = start_angle_3 < end_angle_3
 video_path_3 = os.path.join(video_base_path, f"{file_name_3}.mp4")
@@ -616,9 +608,9 @@ edges_csv3, objects_csv3 = track_objects_with_yolo(
 )
 
 # Corner Camera (YOLO2)
-camera_position_4 = np.array([5.43, 0, 7.65])
+camera_position_4 = np.array([8.9, 0, 7.95])
 camera_rotation_4 = [0, 180, 0]
-file_name_4 = "Video_004"
+file_name_4 = "Movie_003"
 start_angle_4, end_angle_4 = 0, 90
 forward_rotation_4 = start_angle_4 < end_angle_4
 video_path_4 = os.path.join(video_base_path, f"{file_name_4}.mp4")
