@@ -123,7 +123,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &659191967
+--- !u!1001 &455927622
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -131,79 +131,55 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2753487361161650398, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: fbd84510e30e3d846b2b5b2f59bee811, type: 2}
-    - target: {fileID: 3085467713573834024, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
-      propertyPath: m_Name
-      value: Ground Truth 9
-      objectReference: {fileID: 0}
-    - target: {fileID: 4336984568755383917, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7765610770255975654, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
-      propertyPath: m_Name
-      value: Office Chair(Clone)
-      objectReference: {fileID: 0}
-    - target: {fileID: 7871170719861977893, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - target: {fileID: 161132054448588320, guid: 80e31380609c02e4cb772d3b7ede51ab, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7871170719861977893, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - target: {fileID: 161132054448588320, guid: 80e31380609c02e4cb772d3b7ede51ab, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7871170719861977893, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - target: {fileID: 161132054448588320, guid: 80e31380609c02e4cb772d3b7ede51ab, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7871170719861977893, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - target: {fileID: 161132054448588320, guid: 80e31380609c02e4cb772d3b7ede51ab, type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 7871170719861977893, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - target: {fileID: 161132054448588320, guid: 80e31380609c02e4cb772d3b7ede51ab, type: 3}
       propertyPath: m_LocalRotation.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7871170719861977893, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - target: {fileID: 161132054448588320, guid: 80e31380609c02e4cb772d3b7ede51ab, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7871170719861977893, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - target: {fileID: 161132054448588320, guid: 80e31380609c02e4cb772d3b7ede51ab, type: 3}
       propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7871170719861977893, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - target: {fileID: 161132054448588320, guid: 80e31380609c02e4cb772d3b7ede51ab, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7871170719861977893, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - target: {fileID: 161132054448588320, guid: 80e31380609c02e4cb772d3b7ede51ab, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7871170719861977893, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - target: {fileID: 161132054448588320, guid: 80e31380609c02e4cb772d3b7ede51ab, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7919263449732650768, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    - target: {fileID: 7053715241971176404, guid: 80e31380609c02e4cb772d3b7ede51ab, type: 3}
       propertyPath: m_Name
-      value: Office Chair(Clone)
+      value: Ground Truth - Arm
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 7903589542888370467, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
-    - {fileID: 1375473918712958701, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
-    - {fileID: 6335184507794214595, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
-    - {fileID: 4174894135793431695, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
-    - {fileID: 3248675252531457369, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
-    - {fileID: 293969116546846520, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
-    - {fileID: 4679212736314111424, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
-    - {fileID: 1334536545186003733, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 8e6c8ebeb48429749a7669c5ab70a998, type: 3}
+  m_SourcePrefab: {fileID: 100100000, guid: 80e31380609c02e4cb772d3b7ede51ab, type: 3}
 --- !u!1 &1699285463
 GameObject:
   m_ObjectHideFlags: 0
@@ -234,17 +210,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 046c9d7fe80d23c4cb96189bc7e59e5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectCsvFile: {fileID: 4900000, guid: 17716210db9ad224a8d22ebdf5bdde7c, type: 3}
-  roomCsvFile: {fileID: 4900000, guid: c565150e4f00eee44bf65a4573d23d4a, type: 3}
+  objectCsvFile: {fileID: 4900000, guid: 7b159317037e4a2429ef22a137ef19c0, type: 3}
+  roomCsvFile: {fileID: 4900000, guid: 12ab3ce96c9a0854eabc7125fdf0ce1b, type: 3}
   objectPrefabs:
-  - {fileID: 1606517391330733233, guid: 7590dcc717ad1de428dc6decfc763129, type: 3}
+  - {fileID: 8291058731593141339, guid: b7766e344718c7540b62a0bee31f5edc, type: 3}
+  - {fileID: 8239352400066601357, guid: 0aaa0316b39c6a54d8dbe5c48cd99d98, type: 3}
   - {fileID: 5426193247520715165, guid: a3317baaa13be02468c719968fd246e3, type: 3}
+  - {fileID: 4596241936551700454, guid: 18fd7f7457fd8484889bb885d35d047d, type: 3}
   - {fileID: 2933520361679236213, guid: 6ef42101a4ea3374bb5c5d1b9d6fd417, type: 3}
   - {fileID: 1855559649484624630, guid: bf880ae0b7cfee74fbb33c373eb900ea, type: 3}
-  - {fileID: 5366685204350364441, guid: 4a609a76b770fd34e9bad55de89d29c9, type: 3}
-  - {fileID: 4596241936551700454, guid: 18fd7f7457fd8484889bb885d35d047d, type: 3}
+  - {fileID: 1606517391330733233, guid: 7590dcc717ad1de428dc6decfc763129, type: 3}
+  - {fileID: 5760881071424323462, guid: 39ba17679f7046d48a3060d86dd8b5ba, type: 3}
+  - {fileID: 4529923093314263806, guid: 7ae2ec3329468a24983c783763a05bc7, type: 3}
   - {fileID: 210196737959708896, guid: 585a97fc75b84814493d08accd69396a, type: 3}
-  - {fileID: 8291058731593141339, guid: b7766e344718c7540b62a0bee31f5edc, type: 3}
+  - {fileID: 5366685204350364441, guid: 4a609a76b770fd34e9bad55de89d29c9, type: 3}
   cameraPosition: {x: 0.5, y: 1.6, z: 0.5}
   wallPrefab: {fileID: 7396488072382362230, guid: fe981194d3973b1478723399a207ef69, type: 3}
 --- !u!4 &1699285465
@@ -274,10 +253,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9db544cd0cd646a48a3b6144dedbc50a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  groundTruth: {fileID: 0}
+  groundTruth: {fileID: 2002202370}
   room: {fileID: 0}
   savePath: C:\Users\sakar\OneDrive\mt-datas\Pipeline
-  method: try
+  method: forward_2
 --- !u!1 &1833628877
 GameObject:
   m_ObjectHideFlags: 0
@@ -464,6 +443,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2002202370 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7053715241971176404, guid: 80e31380609c02e4cb772d3b7ede51ab, type: 3}
+  m_PrefabInstance: {fileID: 455927622}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -471,4 +455,4 @@ SceneRoots:
   - {fileID: 1845861392}
   - {fileID: 1833628879}
   - {fileID: 1699285465}
-  - {fileID: 659191967}
+  - {fileID: 455927622}

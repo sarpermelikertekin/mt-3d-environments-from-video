@@ -221,32 +221,42 @@ public class ErrorCalculator : MonoBehaviour
 
     int CategorizeObject(string name)
     {
-        if (name.Contains("Chair")) return 0;
-        else if (name.Contains("Desk")) return 1;
-        else if (name.Contains("Laptop")) return 2;
-        else if (name.Contains("Monitor")) return 3;
-        else if (name.Contains("Window")) return 4;
-        else if (name.Contains("Door")) return 5;
-        else if (name.Contains("Sofa")) return 6;
-        else if (name.Contains("Cabinet")) return 7;
-        else return -1;
+        if (name.Contains("Vertex")) return 0;
+        else if (name.Contains("Cabinet")) return 1;
+        else if (name.Contains("Common Chair")) return 2;
+        else if (name.Contains("Desk")) return 3;
+        else if (name.Contains("Door")) return 4;
+        else if (name.Contains("Laptop")) return 5;
+        else if (name.Contains("Monitor")) return 6;
+        else if (name.Contains("Office Chair")) return 7;
+        else if (name.Contains("Pendant")) return 8;
+        else if (name.Contains("Robotic Arm")) return 9;
+        else if (name.Contains("Sofa")) return 10;
+        else if (name.Contains("Window")) return 11;
+        else return -1;  // Default for unrecognized objects
     }
+
 
     string GetCategoryName(int category)
     {
         switch (category)
         {
-            case 0: return "Chair";
-            case 1: return "Desk";
-            case 2: return "Laptop";
-            case 3: return "Monitor";
-            case 4: return "Window";
-            case 5: return "Door";
-            case 6: return "Sofa";
-            case 7: return "Cabinet";
+            case 0: return "Vertex";
+            case 1: return "Cabinet";
+            case 2: return "Common Chair";
+            case 3: return "Desk";
+            case 4: return "Door";
+            case 5: return "Laptop";
+            case 6: return "Monitor";
+            case 7: return "Office Chair";
+            case 8: return "Pendant";
+            case 9: return "Robotic Arm";
+            case 10: return "Sofa";
+            case 11: return "Window";
             default: return "Unknown";
         }
     }
+
 
     Vector3 MeasureRoomSize(GameObject parent)
     {
@@ -274,6 +284,6 @@ public class ErrorCalculator : MonoBehaviour
 
     bool ShouldIgnoreObject(string name)
     {
-        return name.Contains("Wall") || name.Contains("Wall Edge") || name.Contains("Corner") || name.Contains("Point Light") || name.Contains("Plane");
+        return name.Contains("Wall") || name.Contains("Vertex") || name.Contains("Point Light") || name.Contains("Plane");
     }
 }

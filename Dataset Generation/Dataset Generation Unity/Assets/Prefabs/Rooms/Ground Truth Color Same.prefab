@@ -12193,7 +12193,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4145542691202014543}
   m_Layer: 0
-  m_Name: Ground Truth - Color Same
+  m_Name: Ground Truth Color Same
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
