@@ -7,7 +7,6 @@ from ultralytics import YOLO
 import cv2
 from scipy.spatial.transform import Rotation as R
 
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from lifting_models import sye_inference  # Import the provided module and function
