@@ -6,6 +6,7 @@ import numpy as np
 from ultralytics import YOLO
 import cv2
 from scipy.spatial.transform import Rotation as R
+import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -37,6 +38,8 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_posi
     Output:
         Saves multiple files, including 2D-to-3D transformations, transformed CSVs, and split CSVs.
     """
+    start_time = time.time()
+
     yolo_default_track_dir = os.path.join('runs', 'pose', 'track')
 
     # Load YOLOv8 model
@@ -53,10 +56,15 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_posi
     if os.path.exists(yolo_default_track_dir):
         shutil.rmtree(yolo_default_track_dir)
 
+    track_start = time.time()
     # Run YOLO tracking on the video
     model.track(source=video_path, show=True, save=True, save_txt=True, save_conf=True)
+    track_end = time.time()
+    print(f"YOLO tracking time: {track_end - track_start:.4f} seconds")
 
+    
     # Copy YOLO's output to the custom directory
+    copy_start = time.time()
     if os.path.exists(yolo_default_track_dir):
         for item in os.listdir(yolo_default_track_dir):
             src_path = os.path.join(yolo_default_track_dir, item)
@@ -66,7 +74,10 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_posi
             else:
                 shutil.copy2(src_path, dest_path)
         shutil.rmtree(yolo_default_track_dir)  # Clear YOLO's directory after copying
+    copy_end = time.time()
+    print(f"Copying YOLO output time: {copy_end - copy_start:.4f} seconds")
 
+    annotated_start = time.time()
     # Create annotated_frames folder
     annotated_frames_folder = os.path.join(output_folder, "annotated_frames")
     os.makedirs(annotated_frames_folder, exist_ok=True)
@@ -99,21 +110,36 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_posi
 
     print(f"Annotated frames saved at: {annotated_frames_folder}")
     print(f"All results saved in: {output_folder}")
+    annotated_end = time.time()
+    print(f"Processing annotations time: {annotated_end - annotated_start:.4f} seconds")
     
-    # Generate single_objects.csv
+    single_csv_start = time.time()
     single_objects_csv_path = create_single_objects_csv(annotated_frames_folder, output_folder)
+    single_csv_end = time.time()
+    print(f"Generating single_objects.csv time: {single_csv_end - single_csv_start:.4f} seconds")
 
-    # lift 2D keypoints to 3D
+    lift_start = time.time()
     all_3d_objects_csv_path = lift_objects_to_3d(single_objects_csv_path, output_folder)
+    lift_end = time.time()
+    print(f"Lifting objects to 3D time: {lift_end - lift_start:.4f} seconds")
 
-    # Apply transformations to align to 0-degree frame of the camera
+    align_start = time.time()
     camera_transformed_csv_path = align_3d_to_zero_degree(all_3d_objects_csv_path, output_folder, start_angle, end_angle, forward_rotation)
-    
-    # Apply transformations to align to origin frame
-    world_transformed_objects_csv_path = transform_objects_to_origin_from_camera(camera_transformed_csv_path, output_folder, camera_position, camera_rotation)
+    align_end = time.time()
+    print(f"Aligning 3D objects to zero degree time: {align_end - align_start:.4f} seconds")
 
-    # Split the transformed CSV into vertices and objects
+    transform_start = time.time()
+    world_transformed_objects_csv_path = transform_objects_to_origin_from_camera(camera_transformed_csv_path, output_folder, camera_position, camera_rotation)
+    transform_end = time.time()
+    print(f"Transforming objects to origin time: {transform_end - transform_start:.4f} seconds")
+
+    split_start = time.time()
     vertices_csv_path, objects_csv_path = split_csv_by_id(world_transformed_objects_csv_path, output_folder, file_name, position_suffix, rotation_suffix)
+    split_end = time.time()
+    print(f"Splitting objects and vertices CSV time: {split_end - split_start:.4f} seconds")
+
+    total_time = time.time() - start_time
+    print(f"Total runtime for track_objects_with_yolo: {total_time:.4f} seconds")
 
     return vertices_csv_path, objects_csv_path
 
