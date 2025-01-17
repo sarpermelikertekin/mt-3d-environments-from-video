@@ -98,12 +98,14 @@ public class ErrorCalculator : MonoBehaviour
         report += CalculateNearestObjectDistances();
 
         // Save the report
+        Debug.Log(report);
         SaveReport(report);
     }
 
     string CalculateNearestObjectDistances()
     {
         float totalDistance = 0f;
+        float totalRotationDifference = 0f;
         int matchedObjects = 0;
         string distanceReport = "\nNearest Object Distance Report:\n";
 
@@ -135,6 +137,7 @@ public class ErrorCalculator : MonoBehaviour
             if (nearestObject != null)
             {
                 float rotationDifference = Quaternion.Angle(groundTruthChild.rotation, nearestObject.rotation);
+                totalRotationDifference += rotationDifference;
                 distanceReport += $"Nearest object to {groundTruthChild.name} is {nearestObject.name} with distance {nearestDistance:F2} and rotation difference {rotationDifference:F2} degrees\n";
                 totalDistance += nearestDistance;
                 matchedObjects++;
@@ -148,14 +151,15 @@ public class ErrorCalculator : MonoBehaviour
         if (matchedObjects > 0)
         {
             float averageDistance = totalDistance / matchedObjects;
+            float averageRotationDifference = totalRotationDifference / matchedObjects;
             distanceReport += $"Average distance between matched objects: {averageDistance:F2}\n";
+            distanceReport += $"Average rotation difference between matched objects: {averageRotationDifference:F2} degrees\n";
         }
         else
         {
             distanceReport += "No matched objects to calculate average distance.\n";
         }
 
-        Debug.Log(distanceReport);
         return distanceReport;
     }
 
@@ -268,6 +272,9 @@ public class ErrorCalculator : MonoBehaviour
 
         foreach (Transform child in parent.transform)
         {
+            if (!child.name.Contains("Wall", System.StringComparison.OrdinalIgnoreCase)) // Only include objects named "Wall"
+                continue;
+
             Vector3 position = child.position;
 
             minX = Mathf.Min(minX, position.x);
@@ -276,6 +283,13 @@ public class ErrorCalculator : MonoBehaviour
             maxZ = Mathf.Max(maxZ, position.z);
 
             sizeY = Mathf.Max(sizeY, child.localScale.y);
+        }
+
+        // Handle cases where no "Wall" objects are found
+        if (minX == float.MaxValue || maxX == float.MinValue || minZ == float.MaxValue || maxZ == float.MinValue)
+        {
+            Debug.LogWarning("No objects named 'Wall' found in the parent.");
+            return Vector3.zero; // Return a zero vector if no "Wall" objects exist
         }
 
         float sizeX = maxX - minX;

@@ -42,7 +42,7 @@ def track_objects_with_yolo(video_path, model_path, output_base_dir, camera_posi
     # Load YOLOv8 model
     model = YOLO(model_path)
     video_name = os.path.splitext(os.path.basename(video_path))[0]
-    output_folder = os.path.join(output_base_dir, f"{video_name}_track")
+    output_folder = os.path.join(output_base_dir, f"{video_name}_track_{position_suffix}_{rotation_suffix}")
 
     # Clear and recreate output folder
     if os.path.exists(output_folder):
@@ -448,7 +448,7 @@ def split_csv_by_id(transformed_csv_path, output_folder, file_name, position_suf
     print(f"Generated objects CSV: {objects_csv_path}")
     return vertices_csv_path, objects_csv_path
 
-def merge_perspectives(objects_csv1, vertices_csv1, objects_csv2, vertices_csv2, output_base_dir, ground_truth_suffix, threshold):
+def merge_perspectives(objects_csv1, vertices_csv1, objects_csv2, vertices_csv2, output_base_dir, ground_truth_suffix, threshold, rotation1, rotation2):
     """
     Merge objects and vertices from two perspectives based on proximity and ID matching.
 
@@ -510,12 +510,12 @@ def merge_perspectives(objects_csv1, vertices_csv1, objects_csv2, vertices_csv2,
     merged_vertices_df = pd.DataFrame(merged_vertices).round(4)
 
     # Create ground truth folder
-    ground_truth_dir = os.path.join(output_base_dir, ground_truth_suffix)
+    ground_truth_dir = os.path.join(output_base_dir, f"{ground_truth_suffix}_{rotation1}_{rotation2}")
     os.makedirs(ground_truth_dir, exist_ok=True)
 
     # Save merged CSVs
-    merged_objects_path = os.path.join(ground_truth_dir, f"{ground_truth_suffix}_merged_objects.csv")
-    merged_vertices_path = os.path.join(ground_truth_dir, f"{ground_truth_suffix}_merged_vertices.csv")
+    merged_objects_path = os.path.join(ground_truth_dir, f"{ground_truth_suffix}_{rotation1}_{rotation2}_merged_objects.csv")
+    merged_vertices_path = os.path.join(ground_truth_dir, f"{ground_truth_suffix}_{rotation1}_{rotation2}_merged_vertices.csv")
     merged_objects_df.to_csv(merged_objects_path, index=False, header=False)
     merged_vertices_df.to_csv(merged_vertices_path, index=False, header=False)
 
@@ -535,22 +535,23 @@ transformed_objects_csv = "transformed_objects.csv"
 # Define paths
 model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/yolov8_final/weights/last.pt'
 video_base_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth'
-output_base_dir = r"C:/Users/sakar/OneDrive/mt-datas/yoro/z_new"
-ground_truth_suffix = "normal"
+output_base_dir = r"C:/Users/sakar/OneDrive/mt-datas/yoro"
+ground_truth_suffix = "color" # Change for GT
 
 ##### Origin Camera #####
+## Handle Camera position of Origin in Unity, it is usually (0.5, 1.6, 0.5)
 
 # Define the camera position
-camera_position_1 = np.array([0, 0, 0])
-camera_rotation_1 = [0, 0, 0]
+camera_position_1 = np.array([0, 0, 0]) # Change for GT
+camera_rotation_1 = [0, 0, 0] # Change for GT
 
 # Modes
-file_name_1 = "normal_1"
-start_angle_1 = 0
-end_angle_1 = 90
+file_name_1 = "color_1" # Change for GT
+start_angle_1 = 0 # Change for GT
+end_angle_1 = 90 # Change for GT
 forward_rotation_1 = start_angle_1 < end_angle_1
-position_suffix_1 = "_o"
-rotation_suffix_1 = "_f" if forward_rotation_1 else "_b"
+position_suffix_1 = "o"
+rotation_suffix_1 = "f" if forward_rotation_1 else "b"
 
 video_path = os.path.join(video_base_path, f"{file_name_1}.mp4")
 vertices_csv1, objects_csv1 = track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position_1, camera_rotation_1, start_angle_1, end_angle_1, forward_rotation_1, file_name_1, position_suffix_1, rotation_suffix_1)
@@ -560,16 +561,16 @@ vertices_csv1, objects_csv1 = track_objects_with_yolo(video_path, model_path_yol
 ##### Corner Camera #####
 
 # Define the camera position
-camera_position_2 = np.array([9.31, 0, 6.64])
-camera_rotation_2 = [0, 180, 0]
+camera_position_2 = np.array([8.63, 0, 8.84]) # Change for GT
+camera_rotation_2 = [0, 180, 0] # Change for GT
 
 # Modes
-file_name_2 = "normal_3"
-start_angle_2 = 0
-end_angle_2 = 90
+file_name_2 = "color_3" # Change for GT
+start_angle_2 = 0 # Change for GT
+end_angle_2 = 90 # Change for GT
 forward_rotation_2 = start_angle_2 < end_angle_2
-position_suffix_2 = "_c"
-rotation_suffix_2 = "_f" if forward_rotation_1 else "_b"
+position_suffix_2 = "c"
+rotation_suffix_2 = "f" if forward_rotation_1 else "b"
 
 video_path = os.path.join(video_base_path, f"{file_name_2}.mp4")
 vertices_csv2, objects_csv2 = track_objects_with_yolo(video_path, model_path_yolo, output_base_dir, camera_position_2, camera_rotation_2, start_angle_2, end_angle_2, forward_rotation_2, file_name_2, position_suffix_2, rotation_suffix_2)
@@ -584,5 +585,7 @@ merge_perspectives(
     vertices_csv2,
     output_base_dir,
     ground_truth_suffix,
-    3
+    3,
+    rotation_suffix_1,
+    rotation_suffix_2
 )
