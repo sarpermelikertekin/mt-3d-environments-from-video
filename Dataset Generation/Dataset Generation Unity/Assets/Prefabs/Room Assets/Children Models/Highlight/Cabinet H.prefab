@@ -93,7 +93,6 @@ GameObject:
   m_Component:
   - component: {fileID: 930728955279678341}
   - component: {fileID: 5626197131333778372}
-  - component: {fileID: 3576492607782954257}
   m_Layer: 0
   m_Name: model
   m_TagString: Untagged
@@ -136,22 +135,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boundingBoxColor: {r: 0, g: 1, b: 0, a: 1}
   corners: []
---- !u!114 &3576492607782954257
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4074050102600248656}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87a71bf3fbb880f4d98e1a322d927e32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  materials:
-  - {fileID: 2100000, guid: 82c612f9131e67849b0ecdec032aa2b6, type: 2}
-  - {fileID: 2100000, guid: 9fed420098b21de44a981d7bbeb3d8b4, type: 2}
-  - {fileID: 2100000, guid: b2f7314aef94270499aa29cd6c17476b, type: 2}
 --- !u!1 &5610391629579994231
 GameObject:
   m_ObjectHideFlags: 0

@@ -82,7 +82,6 @@ public class SyntheticDatasetGenerator : MonoBehaviour
 
     private GameObject GeneratedRoom; // Reference to the GeneratedRoom created by RoomGenerator
 
-    // Map object names/tags to IDs (Chair -> 0, Desk -> 1, Wall -> 2)
     int MapObjectNameToID(string name)
     {
         if (name.Contains("Vertex")) return 0;

@@ -4,6 +4,8 @@ import os
 import glob
 import pandas as pd
 
+# Used to generate Intrinsic matrix from 2D and 3D Files
+
 # Define paths for 2D and 3D data
 path_2d = r'C:\Users\sakar\OneDrive\mt-datas\synthetic_data\4_1_texture_door_window_household\2d_data'
 path_3d = r'C:\Users\sakar\OneDrive\mt-datas\synthetic_data\4_1_texture_door_window_household\3d_data'
