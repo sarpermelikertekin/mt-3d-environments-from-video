@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import pandas as pd
+import time
 
 # Define the Pose Estimation Model
 class PoseEstimationNet(nn.Module):
@@ -31,14 +32,21 @@ def load_model_and_predict_3d(data_2d_path, output_folder, file_name, input_size
     Process each row independently to determine the correct model for each object.
     """
     try:
+        start_time = time.time()  # Start overall runtime measurement
+
         # Load the 2D data
+        load_start = time.time()
         df_2d = pd.read_csv(data_2d_path, header=None)
+        load_end = time.time()
+        print(f"Data loading time: {load_end - load_start:.4f} seconds")
 
         # Prepare the output DataFrame
         all_predictions = []
 
         # Process each row independently
         for _, row in df_2d.iterrows():
+            row_start_time = time.time()  # Start time for this row
+
             object_id = int(row.iloc[0])  # Extract the object ID from the first column
             model_path = f"C:/Users/sakar/mt-3d-environments-from-video/lifting_models/sye{object_id}.pth"
             if not os.path.exists(model_path):
@@ -57,22 +65,31 @@ def load_model_and_predict_3d(data_2d_path, output_folder, file_name, input_size
 
             # Instantiate the model architecture and load weights
             model = PoseEstimationNet(input_size=input_size, output_size=output_size)
+            model_load_start = time.time()
             model.load_state_dict(torch.load(model_path))
             model.eval()  # Set the model to evaluation mode
+            model_load_end = time.time()
+            print(f"Model loading time for object ID {object_id}: {model_load_end - model_load_start:.4f} seconds")
 
             # Run the model to predict 3D points
+            inference_start = time.time()
             with torch.no_grad():
                 try:
                     predictions_3d = model(data_2d_tensor)
                 except Exception as e:
                     print(f"Error during model inference for object ID {object_id}: {e}")
                     continue
+            inference_end = time.time()
+            print(f"Inference time for object ID {object_id}: {inference_end - inference_start:.4f} seconds")
 
             # Convert predictions to a list
             predictions = predictions_3d.numpy().flatten().tolist()
 
             # Add the object ID back to the predictions
             all_predictions.append([object_id] + predictions)
+
+            row_end_time = time.time()
+            print(f"Total time for row (object ID {object_id}): {row_end_time - row_start_time:.4f} seconds")
 
     except Exception as e:
         print(f"Error processing 2D data: {e}")
@@ -88,7 +105,13 @@ def load_model_and_predict_3d(data_2d_path, output_folder, file_name, input_size
     output_csv_path = os.path.join(output_folder, f"{file_name}_sye_result.csv")
 
     # Write the predictions DataFrame to a CSV file
+    save_start = time.time()
     predictions_df.to_csv(output_csv_path, index=False, header=False)
+    save_end = time.time()
+    print(f"CSV saving time: {save_end - save_start:.4f} seconds")
+
+    total_time = time.time() - start_time
+    print(f"Total runtime: {total_time:.4f} seconds")
 
     print(f"3D predictions have been saved to {output_csv_path}")
     return predictions_df

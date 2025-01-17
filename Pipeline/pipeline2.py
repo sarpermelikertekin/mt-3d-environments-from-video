@@ -467,7 +467,6 @@ def merge_perspectives(objects_csv1, vertices_csv1, objects_csv2, vertices_csv2,
     objects1 = pd.read_csv(objects_csv1, header=None)
     vertices1 = pd.read_csv(vertices_csv1, header=None)
     objects2 = pd.read_csv(objects_csv2, header=None)
-    vertices2 = pd.read_csv(vertices_csv2, header=None)
 
     # Function to calculate Euclidean distance
     def euclidean_distance(row1, row2):
@@ -536,17 +535,17 @@ transformed_objects_csv = "transformed_objects.csv"
 model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/yolov8_final/weights/last.pt'
 video_base_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth'
 output_base_dir = r"C:/Users/sakar/OneDrive/mt-datas/yoro"
-ground_truth_suffix = "color" # Change for GT
+ground_truth_suffix = "occ" # Change for GT
 
 ##### Origin Camera #####
-## Handle Camera position of Origin in Unity, it is usually (0.5, 1.6, 0.5)
+## Handle Camera position in Unity as Origin and add buffer later (0.5, 1.6, 0.5)
 
 # Define the camera position
 camera_position_1 = np.array([0, 0, 0]) # Change for GT
 camera_rotation_1 = [0, 0, 0] # Change for GT
 
 # Modes
-file_name_1 = "color_1" # Change for GT
+file_name_1 = "occ_1" # Change for GT
 start_angle_1 = 0 # Change for GT
 end_angle_1 = 90 # Change for GT
 forward_rotation_1 = start_angle_1 < end_angle_1
@@ -561,11 +560,11 @@ vertices_csv1, objects_csv1 = track_objects_with_yolo(video_path, model_path_yol
 ##### Corner Camera #####
 
 # Define the camera position
-camera_position_2 = np.array([8.63, 0, 8.84]) # Change for GT
+camera_position_2 = np.array([6.3, 0, 8.76]) # Change for GT
 camera_rotation_2 = [0, 180, 0] # Change for GT
 
 # Modes
-file_name_2 = "color_3" # Change for GT
+file_name_2 = "occ_3" # Change for GT
 start_angle_2 = 0 # Change for GT
 end_angle_2 = 90 # Change for GT
 forward_rotation_2 = start_angle_2 < end_angle_2
