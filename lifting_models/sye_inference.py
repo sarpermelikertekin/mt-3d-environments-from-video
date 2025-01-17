@@ -93,14 +93,12 @@ def load_model_and_predict_3d(data_2d_path, output_folder, file_name, input_size
     print(f"3D predictions have been saved to {output_csv_path}")
     return predictions_df
 
-
-# Main function (for direct execution)
 def main():
     # Define paths and parameters
     base_path = r"C:\Users\sakar\OneDrive\mt-datas\yolo\pose_estimation"
-    dataset_name = "8_correct_relative"
+    dataset_name = "12_yoro_dataset"
     subset = "test"
-    file_name = "3007"
+    file_name = "10007"
     data_2d_sample_path = os.path.join(base_path, f"{dataset_name}_{subset}_{file_name}_yolo_result.csv")
 
     # Define the output folder
