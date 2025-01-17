@@ -565,7 +565,7 @@ camera_position_1 = np.array([0, 0, 0])
 camera_rotation_1 = [0, 0, 0]
 
 # Modes
-file_name_1 = "occ_1"
+file_name_1 = "normal_1"
 start_angle_1 = 0
 end_angle_1 = 90
 forward_rotation_1 = start_angle_1 < end_angle_1
@@ -580,11 +580,11 @@ edges_csv1, objects_csv1 = track_objects_with_yolo(video_path, model_path_yolo, 
 ##### Corner Camera #####
 
 # Define the camera position
-camera_position_2 = np.array([5.43, 0, 7.65])
+camera_position_2 = np.array([9.31, 0, 6.64])
 camera_rotation_2 = [0, 180, 0]
 
 # Modes
-file_name_2 = "occ_3"
+file_name_2 = "normal_3"
 start_angle_2 = 0
 end_angle_2 = 90
 forward_rotation_2 = start_angle_2 < end_angle_2
@@ -596,7 +596,7 @@ edges_csv2, objects_csv2 = track_objects_with_yolo(video_path, model_path_yolo, 
 
 #########################
 
-ground_truth_suffix = "occ"
+ground_truth_suffix = "normal"
 
 merge_perspectives(
     objects_csv1,

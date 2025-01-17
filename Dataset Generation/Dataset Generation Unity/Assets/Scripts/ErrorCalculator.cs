@@ -134,7 +134,8 @@ public class ErrorCalculator : MonoBehaviour
 
             if (nearestObject != null)
             {
-                distanceReport += $"Nearest object to {groundTruthChild.name} is {nearestObject.name} with distance {nearestDistance:F2}\n";
+                float rotationDifference = Quaternion.Angle(groundTruthChild.rotation, nearestObject.rotation);
+                distanceReport += $"Nearest object to {groundTruthChild.name} is {nearestObject.name} with distance {nearestDistance:F2} and rotation difference {rotationDifference:F2} degrees\n";
                 totalDistance += nearestDistance;
                 matchedObjects++;
             }
@@ -154,6 +155,7 @@ public class ErrorCalculator : MonoBehaviour
             distanceReport += "No matched objects to calculate average distance.\n";
         }
 
+        Debug.Log(distanceReport);
         return distanceReport;
     }
 
