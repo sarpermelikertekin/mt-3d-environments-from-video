@@ -6,7 +6,7 @@ Together with AtlasVR and ICVR Lab this Master Thesis aims to optimize the proce
 
 <img width="655" alt="real2digital" src="https://github.com/user-attachments/assets/8694d940-5474-48d8-9d46-af30c233e12d" />
 
-## Versions of the frameworks
+## Versions of the Frameworks
 we are using using python version 3.10.14 and Unity Editor version 2022.3.22f1.
 
 ## Python Packages
