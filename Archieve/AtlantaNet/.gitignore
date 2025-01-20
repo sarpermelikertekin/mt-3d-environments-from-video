@@ -1,7 +1,0 @@
-ckpt/
-results/
-.vs/
-__pycache__/
-misc/__pycache__/
-misc/eval.py
-data/

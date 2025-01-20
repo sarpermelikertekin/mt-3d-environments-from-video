@@ -6,9 +6,9 @@ import pandas as pd
 import time
 
 # Define the Pose Estimation Model
-class PoseEstimationNet(nn.Module):
+class SYENet(nn.Module):
     def __init__(self, input_size, output_size):
-        super(PoseEstimationNet, self).__init__()
+        super(SYENet, self).__init__()
         self.fc1 = nn.Linear(input_size, 1024)
         self.bn1 = nn.BatchNorm1d(1024)
         self.dropout1 = nn.Dropout(0.5)
@@ -64,7 +64,7 @@ def load_model_and_predict_3d(data_2d_path, output_folder, file_name, input_size
                 continue
 
             # Instantiate the model architecture and load weights
-            model = PoseEstimationNet(input_size=input_size, output_size=output_size)
+            model = SYENet(input_size=input_size, output_size=output_size)
             model_load_start = time.time()
             model.load_state_dict(torch.load(model_path))
             model.eval()  # Set the model to evaluation mode
@@ -118,14 +118,16 @@ def load_model_and_predict_3d(data_2d_path, output_folder, file_name, input_size
 
 def main():
     # Define paths and parameters
-    base_path = r"C:\Users\sakar\OneDrive\mt-datas\yolo\pose_estimation"
+    base_path = r""
     dataset_name = "12_yoro_dataset"
     subset = "test"
     file_name = "10007"
-    data_2d_sample_path = os.path.join(base_path, f"{dataset_name}_{subset}_{file_name}_yolo_result.csv")
+    data_2d_sample_path = os.path.join(base_path, f"{dataset_name}_{subset}_{file_name}.csv")
+#    data_2d_sample_path = os.path.join(base_path, f"{dataset_name}_{subset}_{file_name}_yolo_result.csv")
+
 
     # Define the output folder
-    output_folder = r"C:\Users\sakar\OneDrive\mt-datas\yolo\pose_estimation"
+    output_folder = r""
 
     # Run inference and save results to CSV
     predictions_3d = load_model_and_predict_3d(
