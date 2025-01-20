@@ -1,9 +1,0 @@
-Object: Cube_1, Position: (3.00, 0.50, 3.00), Rotation: (12.00, 56.00, 23.00), Scale: (1.00, 1.00, 1.00)
-Object: Cube_2, Position: (3.00, 0.50, 4.00), Rotation: (74.00, 94.00, 45.00), Scale: (1.00, 1.00, 1.00)
-Object: Cube_3, Position: (5.00, 0.50, 9.00), Rotation: (34.00, 76.00, 264.00), Scale: (1.00, 1.00, 1.00)
-Object: Sphere_4, Position: (7.00, 0.50, 6.00), Rotation: (306.00, 205.00, 270.00), Scale: (1.00, 1.00, 1.00)
-Object: Sphere_5, Position: (1.00, 0.50, 0.00), Rotation: (17.00, 86.00, 123.00), Scale: (1.00, 1.00, 1.00)
-Object 'Cylinder' is not on the scene and could not be found in the Resources folder.
-Object 'Table' is not on the scene and could not be found in the Resources folder.
-Wall Object: Wall_8, Position: (2.00, 0.00, 2.00), Rotation: (0.00, 0.00, 0.00), Cubes generated: 4.5
-Wall Object: Wall_10, Position: (2.00, 0.00, 2.00), Rotation: (0.00, 90.00, 0.00), Cubes generated: 4.5
