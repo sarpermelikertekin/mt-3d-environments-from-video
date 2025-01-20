@@ -34,12 +34,12 @@ def extract_frames_from_video(video_path, frames_folder):
 # Update the main function to include tracking
 def main():
     # Paths and parameters
-    model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/train8/weights/last.pt'
-    video_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth/test_room_1/Movie_000.mp4'
+    model_path_yolo = ''
+    video_path = r''
     video_name = os.path.splitext(os.path.basename(video_path))[0]
     
     # Define the base output repository for the video
-    base_output_folder = os.path.join(r'C:/Users/sakar/OneDrive/mt-datas/yoro', video_name)
+    base_output_folder = os.path.join(r'', video_name)
     os.makedirs(base_output_folder, exist_ok=True)
 
     # Define folder for frames and processed results

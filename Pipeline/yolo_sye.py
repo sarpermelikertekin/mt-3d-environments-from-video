@@ -2,23 +2,25 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+# Simple 6D Pose Estimator from a monocular image
+
 # Import functions from YOLOv8 and Lifting Models
 from yolo import yolo_inference
 from lifting_models import sye_inference
 
 def main():
     # Paths and parameters
-    model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/5_objects_and_edges/weights/last.pt'
-    dataset_name = "5_objects_and_edges"
-    subset = "test"
-    file_name = "3003"
-    output_folder = 'C:/Users/sakar/OneDrive/mt-datas/yolo/pose_estimation'
+    model_path_yolo = ''
+    dataset_name = ""
+    subset = ""
+    file_name = ""
+    output_folder = ''
 
     # Ensure the output directory exists
     os.makedirs(output_folder, exist_ok=True)
 
     # Define input image path and output paths for YOLO results
-    image_path = f'C:/Users/sakar/OneDrive/mt-datas/synthetic_data/{dataset_name}/images/{subset}/{file_name}.png'
+    image_path = f''
     output_image_path = os.path.join(output_folder, f'{dataset_name}_{subset}_{file_name}_yolo_result.png')
     output_yolo_path = os.path.join(output_folder, f'{dataset_name}_{subset}_{file_name}_yolo_result.csv')
 

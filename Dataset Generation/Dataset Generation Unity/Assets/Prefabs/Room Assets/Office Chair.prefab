@@ -138,6 +138,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Office Chair 3
       objectReference: {fileID: 0}
+    - target: {fileID: 4412304528661663601, guid: 41c066ad0f67b974190e1e26bfdf6997, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9110691580223152168, guid: 41c066ad0f67b974190e1e26bfdf6997, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

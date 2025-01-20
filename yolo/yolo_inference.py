@@ -91,17 +91,17 @@ def run_yolo_inference(model_path, image_path, output_image_path, output_csv_pat
 
 def main():
     # Define paths and parameters for YOLO inference
-    model_path = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/train5/weights/last.pt'
+    model_path = ''
     dataset_name = "12_yoro_dataset"
     subset = "test"
     file_name = "10045"
-    output_folder = 'C:/Users/sakar/OneDrive/mt-datas/yolo/pose_estimation'
+    output_folder = ''
 
     # Ensure the output directory exists
     os.makedirs(output_folder, exist_ok=True)
 
     # Define image path, output image path, and output CSV path
-    image_path = f'C:/Users/sakar/OneDrive/mt-datas/synthetic_data/{dataset_name}/images/{subset}/{file_name}.png'
+    image_path = f'/{dataset_name}/images/{subset}/{file_name}.png'
     output_image_path = os.path.join(output_folder, f'{dataset_name}_{subset}_{file_name}_yolo_result.png')
     output_csv_path = os.path.join(output_folder, f'{dataset_name}_{subset}_{file_name}_yolo_result.csv')
 

@@ -558,10 +558,10 @@ objects_3d_transformed_csv = "objects_3d_world_transformed.csv"
 transformed_objects_csv = "transformed_objects.csv"
 
 # Define paths
-model_path_yolo = 'C:/Users/sakar/mt-3d-environments-from-video/runs/pose/yolov8_final/weights/last.pt'
-video_base_path = r'C:/Users/sakar/OneDrive/mt-datas/test/synth'
-output_base_dir = r"C:/Users/sakar/OneDrive/mt-datas/yoro"
-ground_truth_suffix = "occ" # Change for GT
+model_path_yolo = ''
+video_base_path = r''
+output_base_dir = r""
+ground_truth_suffix = "arm" # Change for GT
 
 ##### Origin Camera #####
 ## Handle Camera position in Unity as Origin and add buffer later (0.5, 1.6, 0.5)
@@ -571,7 +571,7 @@ camera_position_1 = np.array([0, 0, 0]) # Change for GT
 camera_rotation_1 = [0, 0, 0] # Change for GT
 
 # Modes
-file_name_1 = "occ_1" # Change for GT
+file_name_1 = "arm_2" # Change for GT
 start_angle_1 = 0 # Change for GT
 end_angle_1 = 90 # Change for GT
 forward_rotation_1 = start_angle_1 < end_angle_1
@@ -586,11 +586,11 @@ vertices_csv1, objects_csv1 = track_objects_with_yolo(video_path, model_path_yol
 ##### Corner Camera #####
 
 # Define the camera position
-camera_position_2 = np.array([6.3, 0, 8.76]) # Change for GT
+camera_position_2 = np.array([5.4, 0, 5]) # Change for GT
 camera_rotation_2 = [0, 180, 0] # Change for GT
 
 # Modes
-file_name_2 = "occ_3" # Change for GT
+file_name_2 = "arm_3" # Change for GT
 start_angle_2 = 0 # Change for GT
 end_angle_2 = 90 # Change for GT
 forward_rotation_2 = start_angle_2 < end_angle_2

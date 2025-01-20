@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8464053628138834298}
   m_Layer: 0
-  m_Name: Chair H
+  m_Name: Common Chair H
   m_TagString: Detect
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

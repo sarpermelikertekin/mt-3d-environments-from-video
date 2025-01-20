@@ -1,5 +1,5 @@
 # Data
-path: C:\Users\sakar\OneDrive\mt-datas\synthetic_data\12_yoro_dataset
+path: 
 train: images/train # train images (relative to 'path')
 val: images/val # val images (relative to 'path')
 
